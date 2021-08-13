@@ -25,8 +25,6 @@ export default function Layout({ title = "dETH", children = null }) {
         <meta property="og:image" content="https://levr.ly/deth-logo-svg.svg" />
       </Head>
 
-      <StyledHeader>[dETH]</StyledHeader>
-
       <StyledMain>{children}</StyledMain>
 
       <StyledFooter>
@@ -50,20 +48,6 @@ const StyledLogoText = styled.strong`
     font-size: 1.875em;
     line-height: 1.2333em;
   }
-`;
-
-const StyledHeader = styled.header`
-  width: 100%;
-  border-bottom: 0.07142em solid #eaeaea;
-  display: flex;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  left: 0;
-  background: #ffffff;
-  z-index: 1;
-  height: 5em;
-  padding: 0 1em;
 `;
 
 const StyledHeaderContent = styled.div`
