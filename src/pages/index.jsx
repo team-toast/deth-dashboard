@@ -46,7 +46,6 @@ export default function Home() {
     if (window.ethereum) {
       // Metamask account change
       window.ethereum.on("accountsChanged", function (accounts) {
-        console.log("Metamask account change");
         if (accounts.length > 0) {
           setWalletAddress(accounts[0]);
         } else {
