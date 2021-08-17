@@ -11,6 +11,10 @@ export default function Home() {
   const web3LoadStatus = useScript(
     "https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"
   );
+  const disconnectWallet = () => {
+    setWeb3(null);
+    setWalletAddress(null);
+  };
   const connectWallet = () => {
     if (
       typeof window != "undefined" &&
@@ -75,13 +79,18 @@ export default function Home() {
           </Col>
           <StyledConnectCol size={1}>
             {walletAddress ? (
-              <ConnectedDiv title={walletAddress}>
-                <div>
-                  <StyledOnIcon></StyledOnIcon>
-                  <strong>Connected to</strong>
-                </div>
-                <EllipsisSpan>{walletAddress}</EllipsisSpan>
-              </ConnectedDiv>
+              // <ConnectedDiv title={walletAddress}>
+              //   <div>
+              //     <StyledOnIcon></StyledOnIcon>
+              //     <strong>Connected to</strong>
+              //   </div>
+              //   <EllipsisSpan>{walletAddress}</EllipsisSpan>
+              // </ConnectedDiv>
+              <ConnectedButton onClick={disconnectWallet} title={walletAddress}>
+                <StyledOnIcon></StyledOnIcon>
+                <span className="hide-hover">Connected</span>
+                <span className="show-hover">Disconnect</span>
+              </ConnectedButton>
             ) : (
               <button onClick={connectWallet}>Connect Wallet</button>
             )}
@@ -111,6 +120,23 @@ const StyledOnIcon = styled.span`
   top: 0;
   position: relative;
   animation: 1s ${blink} infinite;
+`;
+
+const ConnectedButton = styled.button`
+  .show-hover {
+    display: none;
+  }
+  &:hover {
+    ${StyledOnIcon} {
+      display: none;
+    }
+    .hide-hover {
+      display: none;
+    }
+    .show-hover {
+      display: inline-block;
+    }
+  }
 `;
 
 const EllipsisSpan = styled.span`
