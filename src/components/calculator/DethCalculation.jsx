@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
+import Image from "next/image";
 import { Row, Col } from "./../../styles/flex-grid";
 import { sizes, colors } from "./../../styles/styleguide";
 import Tooltip from "./../Tooltip";
@@ -15,7 +16,12 @@ export default function DethCalculation() {
           <div className="l-blue">≈ $ 3 200</div>
         </Col>
         <Col className="text-center" size={1}>
-          <img height="80" src="/deth-logo-svg.svg" alt="dETH Logo" />
+          <Image
+            height="100"
+            width="100"
+            src="/deth-logo-svg.svg"
+            alt="dETH Logo"
+          />
         </Col>
       </StyledRow>
       <Row>
@@ -39,7 +45,7 @@ const StyledRow = styled(Row)`
   border-radius: 5px;
   background: #ffffff;
   margin-bottom: 2em;
-  padding: 3em 2em;
+  padding: 3em 2em 2.5em 2em;
   align-items: center;
   max-width: 450px;
   h2.no-margin {
