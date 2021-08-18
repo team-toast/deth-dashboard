@@ -5,6 +5,8 @@ import styled from "styled-components";
 import { Row, Col } from "./../styles/flex-grid";
 import { sizes, colors } from "./../styles/styleguide";
 
+import Calculator from "./../components/Calculator";
+
 export default function Home() {
   const [web3, setWeb3] = useState(null);
   const [walletAddress, setWalletAddress] = useState(null);
@@ -75,6 +77,7 @@ export default function Home() {
           </StyledConnectCol>
         </Row>
       </StyledHeader>
+      <Calculator />
     </Layout>
   );
 }

@@ -125,4 +125,14 @@ button, .button {
         text-transform: initial;
     }
 }
+.info-icon {
+    height: 16px;
+    width: 16px;
+    background: url(/info-icon.svg) center no-repeat;
+    display: inline-block;
+    background-size: contain;
+    position: relative;
+    top: 3px;
+    cursor: pointer;
+}
 `;
