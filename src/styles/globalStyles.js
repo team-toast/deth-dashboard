@@ -15,7 +15,7 @@ html {
   body {
     padding: 0;
     margin: 0;
-    font: normal normal normal 100% / 2em Helvetica Neue;
+    font: normal normal normal 100% / 1.5em "Helvetica Neue";
     color: ${colors.Dark1};
     cursor: default;
   }
@@ -97,9 +97,9 @@ button, .button {
     display: inline-block;
     text-align: center;
     &:hover {
-        border-color: ${colors.Yellow};
-        background: ${colors.Yellow};
-        color: ${colors.Dark1};
+        border-color: ${colors.dRed};
+        background: ${colors.lRed};
+        color: ${colors.White};
         transition: all 0.15s ease;
     }
 }

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 
@@ -5,8 +6,17 @@ import styled from "styled-components";
 import { sizes } from "./../styles/styleguide";
 
 export default function Layout({ title = "dETH", children = null }) {
+  useEffect(() => {
+    setTimeout(() => {
+      document.querySelector(".screen-loader").classList.add("hide-loader");
+    }, 1000);
+  });
   return (
     <LayoutStyling>
+      <div className="screen-loader">
+        <div className="screen-loader--text">(Eth is Money)²</div>
+        <div className="screen-loader--loading"></div>
+      </div>
       <Head>
         <title>{title}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
