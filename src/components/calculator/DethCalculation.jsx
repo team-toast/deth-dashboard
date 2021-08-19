@@ -24,7 +24,7 @@ export default function DethCalculation() {
           />
         </Col>
       </StyledRow>
-      <Row>
+      <MaxRow>
         <Col className="text-center" size={1}>
           Buy/sell dETH on{" "}
           <StyledLink
@@ -35,15 +35,18 @@ export default function DethCalculation() {
             1inch
           </StyledLink>
         </Col>
-      </Row>
+      </MaxRow>
     </StyledCol>
   );
 }
+
+const MaxRow = styled(Row)``;
 
 const StyledRow = styled(Row)`
   font-size: 0.9em;
   border-radius: 5px;
   background: #ffffff;
+  margin: auto;
   margin-bottom: 2em;
   padding: 3em 2em 2.5em 2em;
   align-items: center;

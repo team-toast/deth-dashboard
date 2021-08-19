@@ -11,10 +11,22 @@ export default function Tooltip({ title = null, children = null }) {
           __html: title,
         }}
       ></div>
+      {showToolTip && (
+        <ToolTipOverlay onClick={() => setShowToolTip(!showToolTip)} />
+      )}
       {showToolTip && <ToolTipInfo>{children}</ToolTipInfo>}
     </TooltipBody>
   );
 }
+
+const ToolTipOverlay = styled.div`
+  background: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+`;
 
 const TooltipBody = styled.div`
   position: relative;
@@ -23,7 +35,7 @@ const TooltipBody = styled.div`
 
 const ToolTipInfo = styled.div`
   background: #ffffff;
-  box-shadow: 0px 3px 20px #0000001a;
+  box-shadow: 0px 3px 20px rgba(0, 0, 0, 0.2);
   position: absolute;
   border-radius: 5px;
   width: 600px;
