@@ -161,6 +161,8 @@ const StyledUpDown = styled(Row)`
 
 const StyledCalculator = styled.div`
   display: flex;
+  max-width: 600px;
+  margin: auto;
 `;
 
 const UpDownButton = styled.button`

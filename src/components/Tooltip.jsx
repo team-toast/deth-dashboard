@@ -15,6 +15,7 @@ export default function Tooltip({ title = null, children = null }) {
         <ToolTipOverlay onClick={() => setShowToolTip(!showToolTip)} />
       )}
       {showToolTip && <ToolTipInfo>{children}</ToolTipInfo>}
+      {showToolTip && <div className="arrow-down"></div>}
     </TooltipBody>
   );
 }
@@ -31,6 +32,17 @@ const ToolTipOverlay = styled.div`
 const TooltipBody = styled.div`
   position: relative;
   display: inline-block;
+  .arrow-down {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #ffffff;
+    position: absolute;
+    left: 50%;
+    margin-left: 34px;
+    top: -2px;
+  }
 `;
 
 const ToolTipInfo = styled.div`
