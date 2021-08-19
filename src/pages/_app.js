@@ -1,6 +1,8 @@
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 
-import {globalStyles} from "./../styles/globalStyles";
+import "./../styles/page-loader.css";
+
+import { globalStyles } from "./../styles/globalStyles";
 
 const GlobalStyle = createGlobalStyle`
   ${globalStyles}
@@ -19,4 +21,4 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-export default MyApp
+export default MyApp;

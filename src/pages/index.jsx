@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import useScript from "./../lib/useScript";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { Row, Col } from "./../styles/flex-grid";
 import { sizes, colors } from "./../styles/styleguide";
 
@@ -11,6 +11,10 @@ export default function Home() {
   const web3LoadStatus = useScript(
     "https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"
   );
+  const disconnectWallet = () => {
+    setWeb3(null);
+    setWalletAddress(null);
+  };
   const connectWallet = () => {
     if (
       typeof window != "undefined" &&
@@ -64,11 +68,24 @@ export default function Home() {
   return (
     <Layout>
       <StyledHeader>
-        <Row xsNoflex>
-          <Col size={1}>[dETH]</Col>
+        <Row>
+          <Col size={1}>
+            <StyledImg src="/deth-logo-svg.svg" alt="dETH LOGO" />
+          </Col>
+          <Col hidexs size={1}>
+            <StyledSpan>
+              Welcome to dETH, where ETH gains are squared.
+            </StyledSpan>
+          </Col>
           <StyledConnectCol size={1}>
             {walletAddress ? (
-              `Connected ${walletAddress}`
+              <ConnectedDiv title={walletAddress}>
+                <div>
+                  <StyledOnIcon></StyledOnIcon>
+                  <strong>Connected to</strong>
+                </div>
+                <EllipsisSpan>{walletAddress}</EllipsisSpan>
+              </ConnectedDiv>
             ) : (
               <button onClick={connectWallet}>Connect Wallet</button>
             )}
@@ -78,6 +95,74 @@ export default function Home() {
     </Layout>
   );
 }
+
+const blink = keyframes`
+  0% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+`;
+
+const StyledOnIcon = styled.span`
+  width: 0.8em;
+  height: 0.8em;
+  background: #00c762;
+  border-radius: 100%;
+  display: inline-block;
+  margin-right: 0.4em;
+  top: 0;
+  position: relative;
+  animation: 1s ${blink} infinite;
+`;
+
+const ConnectedButton = styled.button`
+  .show-hover {
+    display: none;
+  }
+  &:hover {
+    ${StyledOnIcon} {
+      display: none;
+    }
+    .hide-hover {
+      display: none;
+    }
+    .show-hover {
+      display: inline-block;
+    }
+  }
+`;
+
+const EllipsisSpan = styled.span`
+  max-width: 600px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: inline-block;
+  font-size: 0.9em;
+  line-height: initial;
+  @media screen and (max-width: 75em) {
+    max-width: 250px;
+  }
+`;
+
+const ConnectedDiv = styled.div`
+  overflow: hidden;
+  display: inline-block;
+`;
+
+const StyledSpan = styled.span`
+  color: #5987db;
+  display: block;
+  text-align: center;
+`;
+
+const StyledImg = styled.img`
+  height: 3em;
+  position: relative;
+  top: 4px;
+`;
 
 const StyledConnectCol = styled(Col)`
   text-align: right;
@@ -93,6 +178,9 @@ const StyledHeader = styled.header`
   left: 0;
   background: #ffffff;
   z-index: 1;
-  height: 5em;
-  padding: 0 1em;
+  padding: 0.5em 1em;
+  box-shadow: 0px 3px 20px #0000001a;
+  > div {
+    align-items: center;
+  }
 `;
