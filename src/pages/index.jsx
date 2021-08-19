@@ -79,18 +79,13 @@ export default function Home() {
           </Col>
           <StyledConnectCol size={1}>
             {walletAddress ? (
-              // <ConnectedDiv title={walletAddress}>
-              //   <div>
-              //     <StyledOnIcon></StyledOnIcon>
-              //     <strong>Connected to</strong>
-              //   </div>
-              //   <EllipsisSpan>{walletAddress}</EllipsisSpan>
-              // </ConnectedDiv>
-              <ConnectedButton onClick={disconnectWallet} title={walletAddress}>
-                <StyledOnIcon></StyledOnIcon>
-                <span className="hide-hover">Connected</span>
-                <span className="show-hover">Disconnect</span>
-              </ConnectedButton>
+              <ConnectedDiv title={walletAddress}>
+                <div>
+                  <StyledOnIcon></StyledOnIcon>
+                  <strong>Connected to</strong>
+                </div>
+                <EllipsisSpan>{walletAddress}</EllipsisSpan>
+              </ConnectedDiv>
             ) : (
               <button onClick={connectWallet}>Connect Wallet</button>
             )}
