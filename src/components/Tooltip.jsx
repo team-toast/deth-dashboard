@@ -41,7 +41,7 @@ const TooltipBody = styled.div`
     position: absolute;
     left: 50%;
     margin-left: 34px;
-    top: -2px;
+    top: -10px;
   }
 `;
 
