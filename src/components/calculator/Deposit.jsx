@@ -7,29 +7,29 @@ import CONTRACT_ABI from "./../../lib/abi_2021_02_25.json";
 
 export default function Deposit({ walletAddress, web3 }) {
   const [deposit, setDeposit] = useState(true);
-  const [depositJson, setDepositJson] = useState({
-    value: 0.0,
-    protocol: 0.000009,
-    automation: 0.00001,
-  });
+  const [depositJson, setDepositJson] = useState(0);
   const [calculatedDeposit, setCalculatedDeposit] = useState({});
   const increase = () => {
-    const copyOfObject = { ...depositJson };
-    copyOfObject.value = (parseFloat(depositJson.value) + 0.05).toFixed(2);
-    setDepositJson({ ...copyOfObject });
-    calculateDeposit(copyOfObject.value);
+    const copyOfObject = (parseFloat(depositJson) + 0.05).toFixed(2);
+    setDepositJson(copyOfObject);
+    if (deposit) {
+      calculateDeposit(copyOfObject);
+    } else {
+      calculateWithdraw(copyOfObject);
+    }
   };
   const decrease = () => {
-    if (depositJson.value >= 0.1) {
-      const copyOfObject = { ...depositJson };
-      copyOfObject.value = (parseFloat(depositJson.value) - 0.05).toFixed(2);
-      setDepositJson({ ...copyOfObject });
-      calculateDeposit(copyOfObject.value);
+    if (depositJson >= 0.1) {
+      const copyOfObject = (parseFloat(depositJson) - 0.05).toFixed(2);
+      setDepositJson(copyOfObject);
     } else {
-      const copyOfObject = { ...depositJson };
       copyOfObject.value = 0;
-      setDepositJson({ ...copyOfObject });
-      calculateDeposit(copyOfObject.value);
+      setDepositJson(copyOfObject);
+    }
+    if (deposit) {
+      calculateDeposit(copyOfObject);
+    } else {
+      calculateWithdraw(copyOfObject);
     }
   };
 
@@ -47,34 +47,66 @@ export default function Deposit({ walletAddress, web3 }) {
       actualValue: web3?.utils?.fromWei(getCalculate._actualCollateralAdded),
       issued: web3?.utils?.fromWei(getCalculate._tokensIssued),
     };
-
+    setCalculatedDeposit(obj);
+  };
+  const calculateWithdraw = async (value) => {
+    let new_contract = await new web3.eth.Contract(
+      CONTRACT_ABI,
+      process.env.ETH_CONTRACT_ADDRESS
+    );
+    const getCalculate = await new_contract.methods
+      .calculateRedemptionValue(web3.utils.toWei(value.toString(), "ether"))
+      .call();
+    let obj;
+    if (deposit) {
+      obj = {
+        protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
+        automation: web3?.utils?.fromWei(getCalculate._automationFee),
+        actualValue: web3?.utils?.fromWei(getCalculate._actualCollateralAdded),
+        issued: web3?.utils?.fromWei(getCalculate._tokensIssued),
+      };
+    } else {
+      obj = {
+        protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
+        automation: web3?.utils?.fromWei(getCalculate._automationFee),
+        redeemed: web3?.utils?.fromWei(getCalculate._collateralRedeemed),
+        returned: web3?.utils?.fromWei(getCalculate._collateralReturned),
+      };
+    }
     setCalculatedDeposit(obj);
   };
 
+  useEffect(() => {
+    setDepositJson(0), setCalculatedDeposit({});
+  }, [deposit]);
+
   return (
     <Col size={1}>
+      {/* Tabs to switch between deposit or Withdraw */}
+      <StyledCalculator>
+        <SelectButton
+          onClick={() => setDeposit(true)}
+          className={deposit ? "active" : ""}
+        >
+          Deposit
+        </SelectButton>
+        <SelectButton
+          onClick={() => setDeposit(false)}
+          className={!deposit ? "active" : ""}
+        >
+          Withdraw
+        </SelectButton>
+      </StyledCalculator>
+      {/* Calculator section */}
       {deposit ? (
+        // Deposit Calculator
         <div>
-          <StyledCalculator>
-            <SelectButton
-              onClick={() => setDeposit(true)}
-              className={deposit ? "active" : ""}
-            >
-              Deposit
-            </SelectButton>
-            <SelectButton
-              onClick={() => setDeposit(false)}
-              className={!deposit ? "active" : ""}
-            >
-              Withdraw
-            </SelectButton>
-          </StyledCalculator>
           <StyledUpDown>
             <Col className="text-center" size={1}>
               <UpDownButton onClick={decrease}>-</UpDownButton>
             </Col>
             <Col className="text-center" size={2}>
-              <h3>{depositJson.value} ETH</h3>
+              <h3>{depositJson} ETH</h3>
               {calculatedDeposit.issued
                 ? parseFloat(calculatedDeposit.issued).toFixed(4)
                 : 0}{" "}
@@ -92,7 +124,7 @@ export default function Deposit({ walletAddress, web3 }) {
               <Row>
                 <Col size={2}>Protocol Fee:</Col>
                 <Col className="text-right" size={1}>
-                  {depositJson.value !== 0
+                  {depositJson !== 0
                     ? parseFloat(calculatedDeposit.protocol).toFixed(4)
                     : 0}
                 </Col>
@@ -100,7 +132,7 @@ export default function Deposit({ walletAddress, web3 }) {
               <Row>
                 <Col size={2}>Automation Fee:</Col>
                 <Col className="text-right" size={1}>
-                  {depositJson.value !== 0
+                  {depositJson !== 0
                     ? parseFloat(calculatedDeposit.automation).toFixed(4)
                     : 0}
                 </Col>
@@ -108,7 +140,7 @@ export default function Deposit({ walletAddress, web3 }) {
               <Row>
                 <Col size={2}>Actual ETH Added:</Col>
                 <Col className="text-right" size={1}>
-                  {depositJson.value !== 0
+                  {depositJson !== 0
                     ? parseFloat(calculatedDeposit.actualValue).toFixed(4)
                     : 0}
                 </Col>
@@ -122,31 +154,21 @@ export default function Deposit({ walletAddress, web3 }) {
           )}
         </div>
       ) : (
+        // Withdraw Calculator
         <div>
-          <StyledCalculator>
-            <SelectButton
-              onClick={() => setDeposit(true)}
-              className={deposit ? "active" : ""}
-            >
-              Deposit
-            </SelectButton>
-            <SelectButton
-              onClick={() => setDeposit(false)}
-              className={!deposit ? "active" : ""}
-            >
-              Withdraw
-            </SelectButton>
-          </StyledCalculator>
           <StyledUpDown>
             <Col className="text-center" size={1}>
-              <UpDownButton>-</UpDownButton>
+              <UpDownButton onClick={decrease}>-</UpDownButton>
             </Col>
             <Col className="text-center" size={2}>
-              <h3>0.0500 dETH</h3>
-              0.12 ETH returned*
+              <h3>{depositJson} dETH</h3>
+              {calculatedDeposit.returned
+                ? parseFloat(calculatedDeposit.returned).toFixed(4)
+                : 0}{" "}
+              ETH returned*
             </Col>
             <Col className="text-center" size={1}>
-              <UpDownButton>+</UpDownButton>
+              <UpDownButton onClick={increase}>+</UpDownButton>
             </Col>
           </StyledUpDown>
           <div className="text-center">
@@ -155,32 +177,36 @@ export default function Deposit({ walletAddress, web3 }) {
               title={`*minus fees <span class="info-icon"></span>`}
             >
               <Row>
-                <Col size={2}>Automation Fee:</Col>
-                <Col className="text-right" size={1}>
-                  1
-                </Col>
-              </Row>
-              <Row>
-                <Col size={2}>Collateral Redeemed:</Col>
-                <Col className="text-right" size={1}>
-                  4
-                </Col>
-              </Row>
-              <Row>
                 <Col size={2}>Protocol Fee:</Col>
                 <Col className="text-right" size={1}>
-                  344
+                  {depositJson !== 0
+                    ? parseFloat(calculatedDeposit.protocol).toFixed(4)
+                    : 0}
+                </Col>
+              </Row>
+              <Row>
+                <Col size={2}>Automation Fee:</Col>
+                <Col className="text-right" size={1}>
+                  {depositJson !== 0
+                    ? parseFloat(calculatedDeposit.automation).toFixed(4)
+                    : 0}
                 </Col>
               </Row>
               <Row>
                 <Col size={2}>Collateral Returned:</Col>
                 <Col className="text-right" size={1}>
-                  43
+                  {depositJson !== 0
+                    ? parseFloat(calculatedDeposit.redeemed).toFixed(4)
+                    : 0}
                 </Col>
               </Row>
             </Tooltip>
           </div>
-          <StyledSubmit>Withdraw</StyledSubmit>
+          {walletAddress ? (
+            <StyledSubmit>Withdraw</StyledSubmit>
+          ) : (
+            <StyledSubmit disabled>Connect wallet to Withdraw</StyledSubmit>
+          )}
         </div>
       )}
     </Col>
