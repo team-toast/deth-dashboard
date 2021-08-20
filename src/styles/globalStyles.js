@@ -102,6 +102,9 @@ button, .button {
         color: ${colors.White};
         transition: all 0.15s ease;
     }
+    &:active {
+        color: #ffffff;
+    }
 }
 .button.button-secondary {
     border-color: ${colors.White};

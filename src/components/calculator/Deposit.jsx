@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { Row, Col } from "./../../styles/flex-grid";
 import { sizes, colors } from "./../../styles/styleguide";
 import Tooltip from "./../Tooltip";
@@ -9,28 +9,26 @@ export default function Deposit({ walletAddress, web3 }) {
   const [deposit, setDeposit] = useState(true);
   const [depositJson, setDepositJson] = useState(0);
   const [calculatedDeposit, setCalculatedDeposit] = useState({});
+  const [swapInfo, setSwatInfo] = useState({
+    input: 0,
+    output: 0,
+  });
+  const [showOutput, setShowOutput] = useState(true);
   const increase = () => {
     const copyOfObject = (parseFloat(depositJson) + 0.05).toFixed(2);
     setDepositJson(copyOfObject);
-    if (deposit) {
-      calculateDeposit(copyOfObject);
-    } else {
-      calculateWithdraw(copyOfObject);
-    }
+    deposit ? calculateDeposit(copyOfObject) : calculateWithdraw(copyOfObject);
   };
   const decrease = () => {
+    let copyOfObject;
     if (depositJson >= 0.1) {
-      const copyOfObject = (parseFloat(depositJson) - 0.05).toFixed(2);
+      copyOfObject = (parseFloat(depositJson) - 0.05).toFixed(2);
       setDepositJson(copyOfObject);
     } else {
-      copyOfObject.value = 0;
+      copyOfObject = 0;
       setDepositJson(copyOfObject);
     }
-    if (deposit) {
-      calculateDeposit(copyOfObject);
-    } else {
-      calculateWithdraw(copyOfObject);
-    }
+    deposit ? calculateDeposit(copyOfObject) : calculateWithdraw(copyOfObject);
   };
 
   const calculateDeposit = async (value) => {
@@ -38,6 +36,7 @@ export default function Deposit({ walletAddress, web3 }) {
       CONTRACT_ABI,
       process.env.ETH_CONTRACT_ADDRESS
     );
+    setShowOutput(false);
     const getCalculate = await new_contract.methods
       .calculateIssuanceAmount(web3.utils.toWei(value.toString(), "ether"))
       .call();
@@ -48,32 +47,25 @@ export default function Deposit({ walletAddress, web3 }) {
       issued: web3?.utils?.fromWei(getCalculate._tokensIssued),
     };
     setCalculatedDeposit(obj);
+    setShowOutput(true);
   };
   const calculateWithdraw = async (value) => {
     let new_contract = await new web3.eth.Contract(
       CONTRACT_ABI,
       process.env.ETH_CONTRACT_ADDRESS
     );
+    setShowOutput(false);
     const getCalculate = await new_contract.methods
       .calculateRedemptionValue(web3.utils.toWei(value.toString(), "ether"))
       .call();
-    let obj;
-    if (deposit) {
-      obj = {
-        protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
-        automation: web3?.utils?.fromWei(getCalculate._automationFee),
-        actualValue: web3?.utils?.fromWei(getCalculate._actualCollateralAdded),
-        issued: web3?.utils?.fromWei(getCalculate._tokensIssued),
-      };
-    } else {
-      obj = {
-        protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
-        automation: web3?.utils?.fromWei(getCalculate._automationFee),
-        redeemed: web3?.utils?.fromWei(getCalculate._collateralRedeemed),
-        returned: web3?.utils?.fromWei(getCalculate._collateralReturned),
-      };
-    }
+    let obj = {
+      protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
+      automation: web3?.utils?.fromWei(getCalculate._automationFee),
+      redeemed: web3?.utils?.fromWei(getCalculate._collateralRedeemed),
+      returned: web3?.utils?.fromWei(getCalculate._collateralReturned),
+    };
     setCalculatedDeposit(obj);
+    setShowOutput(true);
   };
 
   useEffect(() => {
@@ -107,13 +99,17 @@ export default function Deposit({ walletAddress, web3 }) {
             </Col>
             <Col className="text-center" size={2}>
               <h3>{depositJson} ETH</h3>
-              {calculatedDeposit.issued
-                ? parseFloat(calculatedDeposit.issued).toFixed(4)
-                : 0}{" "}
-              dETH issued*
+              <AnimateChangeSpan className={showOutput ? "active" : ""}>
+                {calculatedDeposit.issued
+                  ? parseFloat(calculatedDeposit.issued).toFixed(4)
+                  : 0}
+              </AnimateChangeSpan>
+              <span>dETH issued*</span>
             </Col>
             <Col className="text-center" size={1}>
-              <UpDownButton onClick={increase}>+</UpDownButton>
+              <UpDownButton className="increase" onClick={increase}>
+                +
+              </UpDownButton>
             </Col>
           </StyledUpDown>
           <div className="text-center">
@@ -162,13 +158,17 @@ export default function Deposit({ walletAddress, web3 }) {
             </Col>
             <Col className="text-center" size={2}>
               <h3>{depositJson} dETH</h3>
-              {calculatedDeposit.returned
-                ? parseFloat(calculatedDeposit.returned).toFixed(4)
-                : 0}{" "}
-              ETH returned*
+              <AnimateChangeSpan className={showOutput ? "active" : ""}>
+                {calculatedDeposit.returned
+                  ? parseFloat(calculatedDeposit.returned).toFixed(4)
+                  : 0}
+              </AnimateChangeSpan>
+              <span>ETH returned*</span>
             </Col>
             <Col className="text-center" size={1}>
-              <UpDownButton onClick={increase}>+</UpDownButton>
+              <UpDownButton className="increase" onClick={increase}>
+                +
+              </UpDownButton>
             </Col>
           </StyledUpDown>
           <div className="text-center">
@@ -213,6 +213,27 @@ export default function Deposit({ walletAddress, web3 }) {
   );
 }
 
+const ShiftUp = keyframes`
+  0% {
+    top: 3px;
+  }
+  100% {
+    top: 0;
+    opacity: 1;
+  }
+`;
+
+const AnimateChangeSpan = styled.span`
+  opacity: 0.25;
+  margin-right: 0.25em;
+  text-align: right;
+  position: relative;
+  &.active {
+    opacity: 1;
+    animation: 0.15s ${ShiftUp} forwards;
+  }
+`;
+
 const StyledSubmit = styled.button`
   border: none;
   width: 100%;
@@ -248,6 +269,15 @@ const StyledCalculator = styled.div`
   margin: auto;
 `;
 
+const AnimateShadowClick = keyframes`
+0% {
+  box-shadow: 0 0 0 rgba(222, 29, 58, 1);
+}
+100% {
+  box-shadow: 0 0 20px rgba(222, 29, 58, 0);
+}
+`;
+
 const UpDownButton = styled.button`
   min-width: inherit;
   background: none;
@@ -256,6 +286,14 @@ const UpDownButton = styled.button`
   font-size: 1.75em;
   display: block;
   width: 100%;
+  border-radius: 5px 0 0 5px;
+  &.increase {
+    border-radius: 0 5px 5px 0;
+  }
+  &:active {
+    outline: none;
+    animation: 0.25s ${AnimateShadowClick} forwards;
+  }
 `;
 
 const SelectButton = styled.button`
