@@ -13,6 +13,21 @@ export default function Home() {
   const web3LoadStatus = useScript(
     "https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"
   );
+  useEffect(() => {
+    if (
+      typeof window != "undefined" &&
+      window.ethereum !== undefined &&
+      web3LoadStatus === "ready" &&
+      !web3
+    ) {
+      try {
+        const newWeb3 = new window.Web3(window.ethereum);
+        setWeb3(newWeb3);
+      } catch (error) {
+        console.log("Could not connect Web3");
+      }
+    }
+  }, [web3LoadStatus, web3]);
   const disconnectWallet = () => {
     setWeb3(null);
     setWalletAddress(null);
@@ -22,7 +37,7 @@ export default function Home() {
       typeof window != "undefined" &&
       window.ethereum !== undefined &&
       web3LoadStatus === "ready" &&
-      !web3
+      web3
     ) {
       (async () => {
         console.log("Startup, test eth_requestAccounts");
@@ -39,11 +54,9 @@ export default function Home() {
         if (testPassed) {
           console.log("updating web3");
           const newWeb3 = new window.Web3(window.ethereum);
-          console.log("newWeb3", newWeb3);
           const accounts = await newWeb3.eth.getAccounts();
           console.log("accounts", accounts);
           setWalletAddress(accounts[0]);
-          setWeb3(newWeb3);
         }
       })();
     }
@@ -94,7 +107,7 @@ export default function Home() {
           </StyledConnectCol>
         </Row>
       </StyledHeader>
-      <Calculator />
+      <Calculator walletAddress={walletAddress} web3={web3} />
     </Layout>
   );
 }

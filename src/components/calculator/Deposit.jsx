@@ -3,9 +3,54 @@ import styled from "styled-components";
 import { Row, Col } from "./../../styles/flex-grid";
 import { sizes, colors } from "./../../styles/styleguide";
 import Tooltip from "./../Tooltip";
+import CONTRACT_ABI from "./../../lib/abi_2021_02_25.json";
 
-export default function Deposit() {
+export default function Deposit({ walletAddress, web3 }) {
   const [deposit, setDeposit] = useState(true);
+  const [depositJson, setDepositJson] = useState({
+    value: 0.0,
+    protocol: 0.000009,
+    automation: 0.00001,
+  });
+  const [calculatedDeposit, setCalculatedDeposit] = useState({});
+  const increase = () => {
+    const copyOfObject = { ...depositJson };
+    copyOfObject.value = (parseFloat(depositJson.value) + 0.05).toFixed(2);
+    setDepositJson({ ...copyOfObject });
+    calculateDeposit(copyOfObject.value);
+  };
+  const decrease = () => {
+    if (depositJson.value >= 0.1) {
+      const copyOfObject = { ...depositJson };
+      copyOfObject.value = (parseFloat(depositJson.value) - 0.05).toFixed(2);
+      setDepositJson({ ...copyOfObject });
+      calculateDeposit(copyOfObject.value);
+    } else {
+      const copyOfObject = { ...depositJson };
+      copyOfObject.value = 0;
+      setDepositJson({ ...copyOfObject });
+      calculateDeposit(copyOfObject.value);
+    }
+  };
+
+  const calculateDeposit = async (value) => {
+    let new_contract = await new web3.eth.Contract(
+      CONTRACT_ABI,
+      process.env.ETH_CONTRACT_ADDRESS
+    );
+    const getCalculate = await new_contract.methods
+      .calculateIssuanceAmount(web3.utils.toWei(value.toString(), "ether"))
+      .call();
+    let obj = {
+      protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
+      automation: web3?.utils?.fromWei(getCalculate._automationFee),
+      actualValue: web3?.utils?.fromWei(getCalculate._actualCollateralAdded),
+      issued: web3?.utils?.fromWei(getCalculate._tokensIssued),
+    };
+
+    setCalculatedDeposit(obj);
+  };
+
   return (
     <Col size={1}>
       {deposit ? (
@@ -26,14 +71,17 @@ export default function Deposit() {
           </StyledCalculator>
           <StyledUpDown>
             <Col className="text-center" size={1}>
-              <UpDownButton>-</UpDownButton>
+              <UpDownButton onClick={decrease}>-</UpDownButton>
             </Col>
             <Col className="text-center" size={2}>
-              <h3>0.0500 ETH</h3>
-              0.12 dETH issued*
+              <h3>{depositJson.value} ETH</h3>
+              {calculatedDeposit.issued
+                ? parseFloat(calculatedDeposit.issued).toFixed(4)
+                : 0}{" "}
+              dETH issued*
             </Col>
             <Col className="text-center" size={1}>
-              <UpDownButton>+</UpDownButton>
+              <UpDownButton onClick={increase}>+</UpDownButton>
             </Col>
           </StyledUpDown>
           <div className="text-center">
@@ -42,32 +90,36 @@ export default function Deposit() {
               title={`*minus fees <span class="info-icon"></span>`}
             >
               <Row>
-                <Col size={2}>Automation Fee:</Col>
-                <Col className="text-right" size={1}>
-                  1
-                </Col>
-              </Row>
-              <Row>
-                <Col size={2}>Collateral Redeemed:</Col>
-                <Col className="text-right" size={1}>
-                  2
-                </Col>
-              </Row>
-              <Row>
                 <Col size={2}>Protocol Fee:</Col>
                 <Col className="text-right" size={1}>
-                  344
+                  {depositJson.value !== 0
+                    ? parseFloat(calculatedDeposit.protocol).toFixed(4)
+                    : 0}
                 </Col>
               </Row>
               <Row>
-                <Col size={2}>Collateral Returned:</Col>
+                <Col size={2}>Automation Fee:</Col>
                 <Col className="text-right" size={1}>
-                  43
+                  {depositJson.value !== 0
+                    ? parseFloat(calculatedDeposit.automation).toFixed(4)
+                    : 0}
+                </Col>
+              </Row>
+              <Row>
+                <Col size={2}>Actual ETH Added:</Col>
+                <Col className="text-right" size={1}>
+                  {depositJson.value !== 0
+                    ? parseFloat(calculatedDeposit.actualValue).toFixed(4)
+                    : 0}
                 </Col>
               </Row>
             </Tooltip>
           </div>
-          <StyledSubmit>Deposit</StyledSubmit>
+          {walletAddress ? (
+            <StyledSubmit>Deposit</StyledSubmit>
+          ) : (
+            <StyledSubmit disabled>Connect wallet to Deposit</StyledSubmit>
+          )}
         </div>
       ) : (
         <div>
@@ -144,6 +196,11 @@ const StyledSubmit = styled.button`
   &:hover {
     color: #ffffff;
     background: #db596d;
+  }
+  &:disabled:hover {
+    cursor: not-allowed;
+    background: #1c1d22;
+    color: #ffffff;
   }
 `;
 
