@@ -14,15 +14,16 @@ export default function Deposit({ walletAddress, web3 }) {
     output: 0,
   });
   const [showOutput, setShowOutput] = useState(true);
+  const [notEnoughBalance, setNotEnoughBalance] = useState(false);
   const increase = () => {
-    const copyOfObject = (parseFloat(depositJson) + 0.05).toFixed(2);
+    const copyOfObject = (parseFloat(depositJson) + 0.001).toFixed(3);
     setDepositJson(copyOfObject);
     deposit ? calculateDeposit(copyOfObject) : calculateWithdraw(copyOfObject);
   };
   const decrease = () => {
     let copyOfObject;
-    if (depositJson >= 0.1) {
-      copyOfObject = (parseFloat(depositJson) - 0.05).toFixed(2);
+    if (depositJson >= 0.002) {
+      copyOfObject = (parseFloat(depositJson) - 0.001).toFixed(3);
       setDepositJson(copyOfObject);
     } else {
       copyOfObject = 0;
@@ -48,6 +49,7 @@ export default function Deposit({ walletAddress, web3 }) {
     };
     setCalculatedDeposit(obj);
     setShowOutput(true);
+    await getBalance();
   };
   const calculateWithdraw = async (value) => {
     let new_contract = await new web3.eth.Contract(
@@ -66,6 +68,54 @@ export default function Deposit({ walletAddress, web3 }) {
     };
     setCalculatedDeposit(obj);
     setShowOutput(true);
+    await getBalance();
+  };
+
+  const getBalance = async () => {
+    if (walletAddress) {
+      try {
+        const getBalance = await web3.eth.getBalance(walletAddress);
+        const getWeiValue = await web3?.utils?.fromWei(getBalance.toString());
+        if (getWeiValue >= depositJson) {
+          setNotEnoughBalance(false);
+          return true;
+        } else {
+          setNotEnoughBalance(true);
+          return false;
+        }
+      } catch (error) {}
+    }
+  };
+
+  const depositEthToDETH = async () => {
+    if (notEnoughBalance === false) {
+      let new_contract = await new web3.eth.Contract(
+        CONTRACT_ABI,
+        process.env.ETH_CONTRACT_ADDRESS
+      );
+      const fundit = await new_contract.methods
+        .squanderMyEthForWorthlessBeansAndAgreeToTerms(walletAddress)
+        .send({
+          from: walletAddress,
+          value: web3.utils.toWei(depositJson.toString(), "ether"),
+        })
+        .then((res) => console.log("Success", res))
+        .catch((err) => console.log(err));
+    } else {
+      console.log(`Not enough funds to deposit ${depositJson}ETH`);
+    }
+  };
+
+  const withdrawDETHtoETH = async () => {
+    let new_contract = await new web3.eth.Contract(
+      CONTRACT_ABI,
+      process.env.ETH_CONTRACT_ADDRESS
+    );
+    const fundit = await new_contract.methods
+      .redeem(walletAddress, web3.utils.toWei(depositJson.toString(), "ether"))
+      .call();
+
+    console.log(fundit);
   };
 
   useEffect(() => {
@@ -77,13 +127,19 @@ export default function Deposit({ walletAddress, web3 }) {
       {/* Tabs to switch between deposit or Withdraw */}
       <StyledCalculator>
         <SelectButton
-          onClick={() => setDeposit(true)}
+          onClick={() => {
+            setDeposit(true);
+            setNotEnoughBalance(false);
+          }}
           className={deposit ? "active" : ""}
         >
           Deposit
         </SelectButton>
         <SelectButton
-          onClick={() => setDeposit(false)}
+          onClick={() => {
+            setDeposit(false);
+            setNotEnoughBalance(false);
+          }}
           className={!deposit ? "active" : ""}
         >
           Withdraw
@@ -144,10 +200,23 @@ export default function Deposit({ walletAddress, web3 }) {
             </Tooltip>
           </div>
           {walletAddress ? (
-            <StyledSubmit>Deposit</StyledSubmit>
+            <StyledSubmit
+              disabled={notEnoughBalance ? true : false}
+              onClick={depositEthToDETH}
+            >
+              Deposit
+            </StyledSubmit>
           ) : (
             <StyledSubmit disabled>Connect wallet to Deposit</StyledSubmit>
           )}
+          <Posrelative>
+            {walletAddress && notEnoughBalance && (
+              <StyledNoFunds>
+                <div className="arrow-up"></div>
+                Not enough ETH funds
+              </StyledNoFunds>
+            )}
+          </Posrelative>
         </div>
       ) : (
         // Withdraw Calculator
@@ -203,15 +272,27 @@ export default function Deposit({ walletAddress, web3 }) {
             </Tooltip>
           </div>
           {walletAddress ? (
-            <StyledSubmit>Withdraw</StyledSubmit>
+            <StyledSubmit onClick={withdrawDETHtoETH}>Withdraw</StyledSubmit>
           ) : (
             <StyledSubmit disabled>Connect wallet to Withdraw</StyledSubmit>
           )}
+          <Posrelative>
+            {walletAddress && notEnoughBalance && (
+              <StyledNoFunds>
+                <div className="arrow-up"></div>
+                Not enough dETH funds
+              </StyledNoFunds>
+            )}
+          </Posrelative>
         </div>
       )}
     </Col>
   );
 }
+
+const Posrelative = styled.div`
+  position: relative;
+`;
 
 const ShiftUp = keyframes`
   0% {
@@ -231,6 +312,38 @@ const AnimateChangeSpan = styled.span`
   &.active {
     opacity: 1;
     animation: 0.15s ${ShiftUp} forwards;
+  }
+`;
+
+const StyledNoFunds = styled.div`
+  opacity: 1;
+  background: #2e2942;
+  color: #ffffff;
+  box-shadow: 0px 3px 37px rgb(0 0 0 / 40%);
+  position: absolute;
+  border-radius: 5px;
+  width: 600px;
+  max-width: 230px;
+  padding: 1em;
+  font-size: 0.8em;
+  line-height: 1.6em;
+  text-align: left;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  z-index: 2;
+  text-align: center;
+  animation: 0.15s ${ShiftUp} forwards;
+  .arrow-up {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #2e2942;
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 `;
 
