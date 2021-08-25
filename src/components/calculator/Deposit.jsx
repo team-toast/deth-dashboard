@@ -261,8 +261,23 @@ export default function Deposit({
             <Col className="text-center" size={1}>
               <UpDownButton onClick={decrease}>-</UpDownButton>
             </Col>
-            <Col className="text-center" size={2}>
-              <h3>{depositJson} dETH</h3>
+            <Col className="text-center" size={3}>
+              <h3>
+                <StyledRow>
+                  <Col className="text-right" size={1}>
+                    <StyledInput
+                      type="text"
+                      value={depositJson}
+                      onInput={() => changeDepositValue(event.target.value)}
+                      placeholder="0"
+                      className={depositJson === "" ? "empty-background" : ""}
+                    />
+                  </Col>
+                  <Col className="text-left" size={1}>
+                    dETH
+                  </Col>
+                </StyledRow>
+              </h3>
               <AnimateChangeSpan className={showOutput ? "active" : ""}>
                 {calculatedDeposit.returned
                   ? parseFloat(calculatedDeposit.returned).toFixed(4)
@@ -350,7 +365,6 @@ const StyledInput = styled.input`
   max-width: initial;
   min-width: initial;
   text-align: right;
-  padding-right: 0.5rem;
   border: none;
   border-right: solid 0.5rem #ffffff;
   outline: none;
