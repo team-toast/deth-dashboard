@@ -20,7 +20,7 @@ export default function DethCalculation({ dETHbalance, dETHtoETHvalue, web3 }) {
         <Col size={1}>
           <h2 className="no-margin">{deth ? deth : 0} dETH</h2>
           <div>{eth ? eth : 0} ETH Redeemable</div>
-          <div className="l-blue">≈ $ {dollar ? dollar : 0}</div>
+          {dollar && <div className="l-blue">≈ $ {dollar ? dollar : 0}</div>}
         </Col>
         <Col className="text-center" size={1}>
           <Image
