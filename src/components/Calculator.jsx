@@ -5,7 +5,12 @@ import { sizes, colors } from "./../styles/styleguide";
 import Deposit from "./calculator/Deposit";
 import DethCalculation from "./calculator/DethCalculation";
 
-export default function Calculator({ walletAddress, web3 }) {
+export default function Calculator({
+  eTHbalance,
+  dETHbalance,
+  walletAddress,
+  web3,
+}) {
   const [deposit, setDeposit] = useState(true);
   return (
     <StyledSection>
@@ -17,7 +22,12 @@ export default function Calculator({ walletAddress, web3 }) {
         </Row>
         <StyledReverseRow xsNoflex className="toets">
           <DethCalculation />
-          <Deposit walletAddress={walletAddress} web3={web3} />
+          <Deposit
+            eTHbalance={eTHbalance}
+            dETHbalance={dETHbalance}
+            walletAddress={walletAddress}
+            web3={web3}
+          />
         </StyledReverseRow>
       </GridContainer>
     </StyledSection>

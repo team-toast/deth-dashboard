@@ -5,7 +5,12 @@ import { sizes, colors } from "./../../styles/styleguide";
 import Tooltip from "./../Tooltip";
 import CONTRACT_ABI from "./../../lib/abi_2021_02_25.json";
 
-export default function Deposit({ walletAddress, web3 }) {
+export default function Deposit({
+  eTHbalance,
+  dETHbalance,
+  walletAddress,
+  web3,
+}) {
   const [deposit, setDeposit] = useState(true);
   const [depositJson, setDepositJson] = useState(0);
   const [calculatedDeposit, setCalculatedDeposit] = useState({});
@@ -49,7 +54,7 @@ export default function Deposit({ walletAddress, web3 }) {
     };
     setCalculatedDeposit(obj);
     setShowOutput(true);
-    await getBalance();
+    setNotEnoughBalance(false);
   };
   const calculateWithdraw = async (value) => {
     let new_contract = await new web3.eth.Contract(
@@ -66,29 +71,13 @@ export default function Deposit({ walletAddress, web3 }) {
       redeemed: web3?.utils?.fromWei(getCalculate._collateralRedeemed),
       returned: web3?.utils?.fromWei(getCalculate._collateralReturned),
     };
+    setNotEnoughBalance(false);
     setCalculatedDeposit(obj);
     setShowOutput(true);
-    await getBalance();
-  };
-
-  const getBalance = async () => {
-    if (walletAddress) {
-      try {
-        const getBalance = await web3.eth.getBalance(walletAddress);
-        const getWeiValue = await web3?.utils?.fromWei(getBalance.toString());
-        if (getWeiValue >= depositJson) {
-          setNotEnoughBalance(false);
-          return true;
-        } else {
-          setNotEnoughBalance(true);
-          return false;
-        }
-      } catch (error) {}
-    }
   };
 
   const depositEthToDETH = async () => {
-    if (notEnoughBalance === false) {
+    if (parseFloat(eTHbalance) >= parseFloat(depositJson)) {
       let new_contract = await new web3.eth.Contract(
         CONTRACT_ABI,
         process.env.ETH_CONTRACT_ADDRESS
@@ -102,20 +91,31 @@ export default function Deposit({ walletAddress, web3 }) {
         .then((res) => console.log("Success", res))
         .catch((err) => console.log(err));
     } else {
-      console.log(`Not enough funds to deposit ${depositJson}ETH`);
+      setNotEnoughBalance(true);
     }
   };
 
   const withdrawDETHtoETH = async () => {
-    let new_contract = await new web3.eth.Contract(
-      CONTRACT_ABI,
-      process.env.ETH_CONTRACT_ADDRESS
-    );
-    const fundit = await new_contract.methods
-      .redeem(walletAddress, web3.utils.toWei(depositJson.toString(), "ether"))
-      .call();
+    if (parseFloat(dETHbalance) >= parseFloat(depositJson)) {
+      setNotEnoughBalance(false);
+      let new_contract = await new web3.eth.Contract(
+        CONTRACT_ABI,
+        process.env.ETH_CONTRACT_ADDRESS
+      );
+      const balanceOfDETH = await new_contract.methods
+        .balanceOf(walletAddress)
+        .call();
 
-    console.log(fundit);
+      console.log(118, balanceOfDETH);
+
+      // const fundit = await new_contract.methods
+      //   .redeem(walletAddress, web3.utils.toWei(depositJson.toString(), "ether"))
+      //   .call();
+
+      // console.log(fundit);
+    } else {
+      setNotEnoughBalance(true);
+    }
   };
 
   useEffect(() => {
@@ -201,7 +201,13 @@ export default function Deposit({ walletAddress, web3 }) {
           </div>
           {walletAddress ? (
             <StyledSubmit
-              disabled={notEnoughBalance ? true : false}
+              disabled={
+                notEnoughBalance
+                  ? true
+                  : false || parseFloat(depositJson) > 0
+                  ? false
+                  : true
+              }
               onClick={depositEthToDETH}
             >
               Deposit
@@ -272,7 +278,18 @@ export default function Deposit({ walletAddress, web3 }) {
             </Tooltip>
           </div>
           {walletAddress ? (
-            <StyledSubmit onClick={withdrawDETHtoETH}>Withdraw</StyledSubmit>
+            <StyledSubmit
+              disabled={
+                notEnoughBalance
+                  ? true
+                  : false || parseFloat(depositJson) > 0
+                  ? false
+                  : true
+              }
+              onClick={withdrawDETHtoETH}
+            >
+              Withdraw
+            </StyledSubmit>
           ) : (
             <StyledSubmit disabled>Connect wallet to Withdraw</StyledSubmit>
           )}

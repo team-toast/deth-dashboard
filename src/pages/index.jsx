@@ -4,12 +4,15 @@ import useScript from "./../lib/useScript";
 import styled, { keyframes } from "styled-components";
 import { Row, Col } from "./../styles/flex-grid";
 import { sizes, colors } from "./../styles/styleguide";
+import CONTRACT_ABI from "./../lib/abi_2021_02_25.json";
 
 import Calculator from "./../components/Calculator";
 
 export default function Home() {
   const [web3, setWeb3] = useState(null);
   const [walletAddress, setWalletAddress] = useState(null);
+  const [dETHbalance, setDETHbalance] = useState(0);
+  const [eTHbalance, setETHbalance] = useState(0);
   const web3LoadStatus = useScript(
     "https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"
   );
@@ -57,9 +60,26 @@ export default function Home() {
           const accounts = await newWeb3.eth.getAccounts();
           console.log("accounts", accounts);
           setWalletAddress(accounts[0]);
+          await getDETHbalance(accounts[0]);
+          await getETHbalance(accounts[0]);
         }
       })();
     }
+  };
+  const getDETHbalance = async (data) => {
+    let new_contract = await new web3.eth.Contract(
+      CONTRACT_ABI,
+      process.env.ETH_CONTRACT_ADDRESS
+    );
+    const balanceOfDETH = await new_contract.methods.balanceOf(data).call();
+
+    setDETHbalance(balanceOfDETH);
+  };
+
+  const getETHbalance = async (data) => {
+    const getBalance = await web3.eth.getBalance(data);
+    const getWeiValue = await web3?.utils?.fromWei(getBalance.toString());
+    setETHbalance(getWeiValue);
   };
   useEffect(() => {
     if (window.ethereum) {
@@ -107,7 +127,12 @@ export default function Home() {
           </StyledConnectCol>
         </Row>
       </StyledHeader>
-      <Calculator walletAddress={walletAddress} web3={web3} />
+      <Calculator
+        eTHbalance={eTHbalance}
+        dETHbalance={dETHbalance}
+        walletAddress={walletAddress}
+        web3={web3}
+      />
     </Layout>
   );
 }
