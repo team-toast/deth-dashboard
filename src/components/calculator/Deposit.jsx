@@ -14,21 +14,21 @@ export default function Deposit({
   const [deposit, setDeposit] = useState(true);
   const [depositJson, setDepositJson] = useState(0);
   const [calculatedDeposit, setCalculatedDeposit] = useState({});
-  const [swapInfo, setSwatInfo] = useState({
-    input: 0,
-    output: 0,
-  });
   const [showOutput, setShowOutput] = useState(true);
   const [notEnoughBalance, setNotEnoughBalance] = useState(false);
   const increase = () => {
-    const copyOfObject = (parseFloat(depositJson) + 0.001).toFixed(3);
+    const copyOfObject = (
+      isNaN(depositJson) || depositJson === ""
+        ? 0 + 0.01
+        : parseFloat(depositJson) + 0.01
+    ).toFixed(3);
     setDepositJson(copyOfObject);
     deposit ? calculateDeposit(copyOfObject) : calculateWithdraw(copyOfObject);
   };
   const decrease = () => {
     let copyOfObject;
-    if (depositJson >= 0.002) {
-      copyOfObject = (parseFloat(depositJson) - 0.001).toFixed(3);
+    if (depositJson >= 0.02) {
+      copyOfObject = (parseFloat(depositJson) - 0.01).toFixed(3);
       setDepositJson(copyOfObject);
     } else {
       copyOfObject = 0;
@@ -38,6 +38,9 @@ export default function Deposit({
   };
 
   const calculateDeposit = async (value) => {
+    if (isNaN(value) || value === "") {
+      return;
+    }
     let new_contract = await new web3.eth.Contract(
       CONTRACT_ABI,
       process.env.ETH_CONTRACT_ADDRESS
@@ -121,6 +124,15 @@ export default function Deposit({
     }
   };
 
+  const changeDepositValue = (data) => {
+    if (isNaN(data)) {
+      return;
+    } else {
+      setDepositJson(data);
+      calculateDeposit(isNaN(data) ? 0 : data);
+    }
+  };
+
   useEffect(() => {
     setDepositJson(0), setCalculatedDeposit({});
   }, [deposit]);
@@ -156,8 +168,23 @@ export default function Deposit({
             <Col className="text-center" size={1}>
               <UpDownButton onClick={decrease}>-</UpDownButton>
             </Col>
-            <Col className="text-center" size={2}>
-              <h3>{depositJson} ETH</h3>
+            <Col className="text-center" size={3}>
+              <h3>
+                <StyledRow>
+                  <Col className="text-right" size={1}>
+                    <StyledInput
+                      type="text"
+                      value={depositJson}
+                      onInput={() => changeDepositValue(event.target.value)}
+                      placeholder="0"
+                      className={depositJson === "" ? "empty-background" : ""}
+                    />
+                  </Col>
+                  <Col className="text-left" size={1}>
+                    ETH
+                  </Col>
+                </StyledRow>
+              </h3>
               <AnimateChangeSpan className={showOutput ? "active" : ""}>
                 {calculatedDeposit.issued
                   ? parseFloat(calculatedDeposit.issued).toFixed(4)
@@ -310,6 +337,28 @@ export default function Deposit({
   );
 }
 
+const StyledRow = styled(Row)`
+  align-items: center;
+`;
+
+const StyledInput = styled.input`
+  font-size: 1.1845em;
+  line-height: 1.2105em;
+  color: #2e2942;
+  font-weight: bold;
+  width: 100%;
+  max-width: initial;
+  min-width: initial;
+  text-align: right;
+  padding-right: 0.5rem;
+  border: none;
+  border-right: solid 0.5rem #ffffff;
+  outline: none;
+  &.empty-background {
+    background: #eee;
+  }
+`;
+
 const Posrelative = styled.div`
   position: relative;
 `;
@@ -333,6 +382,15 @@ const AnimateChangeSpan = styled.span`
     opacity: 1;
     animation: 0.15s ${ShiftUp} forwards;
   }
+`;
+
+const StyledNoFundsLoader = keyframes`
+from {
+  width: 0;
+}
+to {
+  width: 100%;
+}
 `;
 
 const StyledNoFunds = styled.div`
