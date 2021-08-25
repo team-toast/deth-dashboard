@@ -11,8 +11,9 @@ import Calculator from "./../components/Calculator";
 export default function Home() {
   const [web3, setWeb3] = useState(null);
   const [walletAddress, setWalletAddress] = useState(null);
-  const [dETHbalance, setDETHbalance] = useState(0);
+  const [dETHbalance, setDETHbalance] = useState(null);
   const [eTHbalance, setETHbalance] = useState(0);
+  const [dETHtoETHvalue, setDETHtoETHvalue] = useState(0);
   const web3LoadStatus = useScript(
     "https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"
   );
@@ -66,14 +67,25 @@ export default function Home() {
       })();
     }
   };
+  const getDETHtoETHValue = async (data) => {
+    let new_contract = await new web3.eth.Contract(
+      CONTRACT_ABI,
+      process.env.ETH_CONTRACT_ADDRESS
+    );
+    const balanceOfDETH = await new_contract.methods
+      .calculateRedemptionValue(data)
+      .call();
+    console.log(balanceOfDETH);
+    setDETHtoETHvalue(balanceOfDETH);
+  };
   const getDETHbalance = async (data) => {
     let new_contract = await new web3.eth.Contract(
       CONTRACT_ABI,
       process.env.ETH_CONTRACT_ADDRESS
     );
     const balanceOfDETH = await new_contract.methods.balanceOf(data).call();
-
     setDETHbalance(balanceOfDETH);
+    await getDETHtoETHValue(balanceOfDETH);
   };
 
   const getETHbalance = async (data) => {
@@ -132,6 +144,7 @@ export default function Home() {
         dETHbalance={dETHbalance}
         walletAddress={walletAddress}
         web3={web3}
+        dETHtoETHvalue={dETHtoETHvalue}
       />
     </Layout>
   );

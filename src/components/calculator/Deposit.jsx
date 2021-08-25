@@ -108,11 +108,14 @@ export default function Deposit({
 
       console.log(118, balanceOfDETH);
 
-      // const fundit = await new_contract.methods
-      //   .redeem(walletAddress, web3.utils.toWei(depositJson.toString(), "ether"))
-      //   .call();
+      const fundit = await new_contract.methods
+        .redeem(
+          walletAddress,
+          web3.utils.toWei(depositJson.toString(), "ether")
+        )
+        .call();
 
-      // console.log(fundit);
+      console.log(fundit);
     } else {
       setNotEnoughBalance(true);
     }

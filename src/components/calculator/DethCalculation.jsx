@@ -5,15 +5,22 @@ import { Row, Col } from "./../../styles/flex-grid";
 import { sizes, colors } from "./../../styles/styleguide";
 import Tooltip from "./../Tooltip";
 
-export default function DethCalculation() {
-  const [deposit, setDeposit] = useState(true);
+export default function DethCalculation({ dETHbalance, dETHtoETHvalue, web3 }) {
+  const [deth, setDeth] = useState(null);
+  const [eth, setEth] = useState(null);
+  const [dollar, setDollar] = useState(null);
+
+  useEffect(() => {
+    setDeth(dETHbalance);
+    setEth(web3?.utils?.fromWei(dETHtoETHvalue._collateralRedeemed));
+  }, [dETHtoETHvalue]);
   return (
     <StyledCol size={1}>
       <StyledRow>
         <Col size={1}>
-          <h2 className="no-margin">1.25 dETH</h2>
-          <div>1.1 ETH Redeemable</div>
-          <div className="l-blue">≈ $ 3 200</div>
+          <h2 className="no-margin">{deth ? deth : 0} dETH</h2>
+          <div>{eth ? eth : 0} ETH Redeemable</div>
+          <div className="l-blue">≈ $ {dollar ? dollar : 0}</div>
         </Col>
         <Col className="text-center" size={1}>
           <Image

@@ -10,6 +10,7 @@ export default function Calculator({
   dETHbalance,
   walletAddress,
   web3,
+  dETHtoETHvalue,
 }) {
   const [deposit, setDeposit] = useState(true);
   return (
@@ -21,7 +22,11 @@ export default function Calculator({
           </Col>
         </Row>
         <StyledReverseRow xsNoflex className="toets">
-          <DethCalculation />
+          <DethCalculation
+            dETHbalance={dETHbalance}
+            dETHtoETHvalue={dETHtoETHvalue}
+            web3={web3}
+          />
           <Deposit
             eTHbalance={eTHbalance}
             dETHbalance={dETHbalance}
