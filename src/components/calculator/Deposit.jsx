@@ -60,6 +60,9 @@ export default function Deposit({
     setNotEnoughBalance(false);
   };
   const calculateWithdraw = async (value) => {
+    if (isNaN(value) || value === "") {
+      return;
+    }
     let new_contract = await new web3.eth.Contract(
       CONTRACT_ABI,
       process.env.ETH_CONTRACT_ADDRESS
@@ -129,7 +132,9 @@ export default function Deposit({
       return;
     } else {
       setDepositJson(data);
-      calculateDeposit(isNaN(data) ? 0 : data);
+      deposit
+        ? calculateDeposit(isNaN(data) ? 0 : data)
+        : calculateWithdraw(isNaN(data) ? 0 : data);
     }
   };
 
