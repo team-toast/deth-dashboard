@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import Image from "next/image";
 import { Row, Col } from "./../../styles/flex-grid";
 import CONTRACT_ABI from "./../../lib/abi_2021_02_25.json";
@@ -13,23 +13,29 @@ export default function DethCalculation({
   const [deth, setDeth] = useState(null);
   const [eth, setEth] = useState(null);
   const [dollar, setDollar] = useState(null);
+  const [showNoFundsTooltip, setShowNoFundsTooltip] = useState(false);
 
   const withdrawDETHtoETH = async () => {
-    let new_contract = await new web3.eth.Contract(
-      CONTRACT_ABI,
-      process.env.ETH_CONTRACT_ADDRESS
-    );
-    const balanceOfDETH = await new_contract.methods
-      .balanceOf(walletAddress)
-      .call();
+    if (walletAddress && deth > 0) {
+      let new_contract = await new web3.eth.Contract(
+        CONTRACT_ABI,
+        process.env.ETH_CONTRACT_ADDRESS
+      );
+      const balanceOfDETH = await new_contract.methods
+        .balanceOf(walletAddress)
+        .call();
 
-    console.log(118, balanceOfDETH);
+      console.log(118, balanceOfDETH);
 
-    const fundit = await new_contract.methods
-      .redeem(walletAddress, web3.utils.toWei(dETHbalance.toString(), "ether"))
-      .call();
+      const fundit = await new_contract.methods
+        .redeem(
+          walletAddress,
+          web3.utils.toWei(dETHbalance.toString(), "ether")
+        )
+        .call();
 
-    console.log(fundit);
+      console.log(fundit);
+    }
   };
 
   useEffect(() => {
@@ -56,11 +62,25 @@ export default function DethCalculation({
       <StyledRow className="text-center">
         <Col size={1}>
           <Button
-            disabled={walletAddress && deth > 0 ? false : true}
             onClick={withdrawDETHtoETH}
+            className={walletAddress && deth > 0 ? "" : "disabled"}
+            onMouseEnter={() =>
+              walletAddress && deth > 0 ? "" : setShowNoFundsTooltip(true)
+            }
+            onMouseLeave={() =>
+              walletAddress && deth > 0 ? "" : setShowNoFundsTooltip(false)
+            }
           >
             Withdraw All
           </Button>
+          {showNoFundsTooltip && (
+            <Posrelative>
+              <StyledNoFunds>
+                <div className="arrow-up"></div>
+                No dETH funds to withdraw
+              </StyledNoFunds>
+            </Posrelative>
+          )}
         </Col>
       </StyledRow>
       <MaxRow>
@@ -79,14 +99,60 @@ export default function DethCalculation({
   );
 }
 
+const ShiftUp = keyframes`
+  0% {
+    top: 3px;
+  }
+  100% {
+    top: 0;
+    opacity: 1;
+  }
+`;
+
+const StyledNoFunds = styled.div`
+  opacity: 1;
+  background: #2e2942;
+  color: #ffffff;
+  box-shadow: 0px 3px 37px rgb(0 0 0 / 40%);
+  position: absolute;
+  border-radius: 5px;
+  width: 600px;
+  max-width: 230px;
+  padding: 1em;
+  font-size: 0.8em;
+  line-height: 1.6em;
+  text-align: left;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  z-index: 2;
+  text-align: center;
+  animation: 0.15s ${ShiftUp} forwards;
+  .arrow-up {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #2e2942;
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+`;
+
+const Posrelative = styled.div`
+  position: relative;
+`;
+
 const Button = styled.button`
   background: #5987db;
   border: none;
   color: #ffffff;
-  &:disabled {
+  &.disabled {
     background: #ccc;
   }
-  &:disabled:hover {
+  &.disabled:hover {
     cursor: not-allowed;
     background: #1c1d22;
     color: #ffffff;
