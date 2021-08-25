@@ -2,13 +2,35 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import Image from "next/image";
 import { Row, Col } from "./../../styles/flex-grid";
-import { sizes, colors } from "./../../styles/styleguide";
-import Tooltip from "./../Tooltip";
+import CONTRACT_ABI from "./../../lib/abi_2021_02_25.json";
 
-export default function DethCalculation({ dETHbalance, dETHtoETHvalue, web3 }) {
+export default function DethCalculation({
+  dETHbalance,
+  dETHtoETHvalue,
+  web3,
+  walletAddress,
+}) {
   const [deth, setDeth] = useState(null);
   const [eth, setEth] = useState(null);
   const [dollar, setDollar] = useState(null);
+
+  const withdrawDETHtoETH = async () => {
+    let new_contract = await new web3.eth.Contract(
+      CONTRACT_ABI,
+      process.env.ETH_CONTRACT_ADDRESS
+    );
+    const balanceOfDETH = await new_contract.methods
+      .balanceOf(walletAddress)
+      .call();
+
+    console.log(118, balanceOfDETH);
+
+    const fundit = await new_contract.methods
+      .redeem(walletAddress, web3.utils.toWei(dETHbalance.toString(), "ether"))
+      .call();
+
+    console.log(fundit);
+  };
 
   useEffect(() => {
     setDeth(dETHbalance);
@@ -31,6 +53,16 @@ export default function DethCalculation({ dETHbalance, dETHtoETHvalue, web3 }) {
           />
         </Col>
       </StyledRow>
+      <StyledRow className="text-center">
+        <Col size={1}>
+          <Button
+            disabled={walletAddress && deth > 0 ? false : true}
+            onClick={withdrawDETHtoETH}
+          >
+            Withdraw All
+          </Button>
+        </Col>
+      </StyledRow>
       <MaxRow>
         <Col className="text-center" size={1}>
           Buy/sell dETH on{" "}
@@ -47,6 +79,20 @@ export default function DethCalculation({ dETHbalance, dETHtoETHvalue, web3 }) {
   );
 }
 
+const Button = styled.button`
+  background: #5987db;
+  border: none;
+  color: #ffffff;
+  &:disabled {
+    background: #ccc;
+  }
+  &:disabled:hover {
+    cursor: not-allowed;
+    background: #1c1d22;
+    color: #ffffff;
+  }
+`;
+
 const MaxRow = styled(Row)``;
 
 const StyledRow = styled(Row)`
@@ -55,7 +101,7 @@ const StyledRow = styled(Row)`
   background: #ffffff;
   margin: auto;
   margin-bottom: 2em;
-  padding: 3em 2em 2.5em 2em;
+  padding: 2em 2em 2.5em 2em;
   align-items: center;
   max-width: 450px;
   h2.no-margin {
@@ -65,6 +111,13 @@ const StyledRow = styled(Row)`
   .l-blue {
     color: #5987db;
   }
+  &:first-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  &:nth-child(2) {
+    padding-top: 1rem;
+  }
 `;
 
 const StyledLink = styled.a`
@@ -73,4 +126,7 @@ const StyledLink = styled.a`
 
 const StyledCol = styled(Col)`
   margin: 1em 2em 2em;
+  @media screen and (max-width: 40rem) {
+    margin: 1em 0 2em;
+  }
 `;

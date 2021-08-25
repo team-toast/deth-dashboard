@@ -26,6 +26,7 @@ export default function Calculator({
             dETHbalance={dETHbalance}
             dETHtoETHvalue={dETHtoETHvalue}
             web3={web3}
+            walletAddress={walletAddress}
           />
           <Deposit
             eTHbalance={eTHbalance}
