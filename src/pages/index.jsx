@@ -5,6 +5,7 @@ import styled, { keyframes } from "styled-components";
 import { Row, Col } from "./../styles/flex-grid";
 import { sizes, colors } from "./../styles/styleguide";
 
+import CalculatorEstimate from "../components/CalculatorEstimation";
 import Calculator from "./../components/Calculator";
 
 export default function Home() {
@@ -94,6 +95,7 @@ export default function Home() {
           </StyledConnectCol>
         </Row>
       </StyledHeader>
+      <CalculatorEstimate />
       <Calculator />
     </Layout>
   );
