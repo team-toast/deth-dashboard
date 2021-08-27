@@ -5,6 +5,7 @@ export default function DonutChart({
   potential = 0,
   color = "#000000",
   difference = 0,
+  reverse = false,
 }) {
   const [svg, setSvg] = useState(null);
   let values = {
@@ -31,7 +32,7 @@ export default function DonutChart({
     const svgHtml = (
       <DonutChartSVG
         color={color}
-        className="DonutChart"
+        className={reverse ? `DonutChart reverse` : `DonutChart`}
         width={values.size}
         height={values.size}
       >
@@ -51,38 +52,52 @@ export default function DonutChart({
           style={indicatorstyle}
           className="donutchart-indicator"
         />
-        <text
-          className="donutchart-text"
-          x={halfsize}
-          y={halfsize}
-          style={{ textAnchor: "middle" }}
-        >
-          <tspan className="donutchart-text-val" x={halfsize} y={halfsize - 35}>
-            {`You'll have*`}
-          </tspan>
-          <tspan
-            className="donutchart-text-percent"
-            x={halfsize + 3}
-            y={halfsize + 10}
-          >
-            {difference}
-          </tspan>
-          <tspan
-            className="donutchart-text-label"
-            x={halfsize}
-            y={halfsize + 35}
-          >
-            {values.valuelabel}
-          </tspan>
-        </text>
       </DonutChartSVG>
     );
 
     setSvg(svgHtml);
   }, [potential]);
 
-  return <div>{svg}</div>;
+  return (
+    <RelPos>
+      <PosDiv color={color} className="donutchart-text">
+        <div className="donutchart-text-val">{`You'll have*`}</div>
+        <div className="donutchart-text-percent">{difference}</div>
+        <div className="donutchart-text-label">{values.valuelabel}</div>
+      </PosDiv>
+      {svg}
+    </RelPos>
+  );
 }
+
+const RelPos = styled.div`
+  position: relative;
+`;
+
+const PosDiv = styled.div`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  text-align: center;
+  transform: translateX(-50%) translateY(-50%);
+  &.donutchart-text {
+    color: #607580;
+    .donutchart-text-val {
+      font-size: 1rem;
+      color: #2e2942;
+    }
+    .donutchart-text-percent {
+      color: ${(props) => props.color};
+      font-size: 3rem;
+      font-weight: bold;
+      line-height: 3rem;
+    }
+    .donutchart-text-label {
+      font-size: 1rem;
+      color: #2e2942;
+    }
+  }
+`;
 
 const DonutChartSVG = styled.svg`
   &.DonutChart {
@@ -100,22 +115,10 @@ const DonutChartSVG = styled.svg`
     fill: transparent;
     stroke-width: 1rem;
     stroke-dasharray: 0 10000;
-    transition: stroke-dasharray 0.3s ease;
+    transition: stroke-dasharray 0.3s ease-in-out;
   }
-
-  .donutchart-text {
-    fill: #607580;
-  }
-  .donutchart-text-val {
-    font-size: 1rem;
-    fill: #2e2942;
-  }
-  .donutchart-text-percent {
-    fill: #5987db;
-    font-size: 3rem;
-  }
-  .donutchart-text-label {
-    font-size: 1rem;
-    fill: #2e2942;
+  &.reverse {
+    display: block;
+    transform: scale(-1, 1);
   }
 `;

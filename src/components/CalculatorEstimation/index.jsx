@@ -81,6 +81,7 @@ export default function CalculatorEstimate() {
                       ? parseFloat((eth * percentage) / 100).toFixed(4)
                       : parseFloat((eth * percentage) / 100).toFixed(0)
                   }
+                  reverse={true}
                 />
               </GraphCol>
             </Row>
