@@ -59,7 +59,7 @@ export default function CalculatorEstimate() {
             </Posrelative>
           </Col>
           <Col size={1}>
-            <Row xsNoflex>
+            <Row>
               <GraphCol size={1}>
                 <Styledh4>Possible gain</Styledh4>
                 <DonutChart
@@ -168,6 +168,11 @@ const StyledInput = styled.input`
       height: 20px;
       background: #5987db;
       cursor: pointer;
+      transition: all 0.25s ease;
+      &:active {
+        transition: all 0.25s ease;
+        box-shadow: 0 0 40px 10px #5987db;
+      }
     }
     &::-moz-range-thumb {
       width: 20px;

@@ -14,8 +14,29 @@ export default function DonutChart({
     size: 230,
     strokewidth: 20,
   };
+  const [dimensions, setDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
+  useState(() => {
+    if (typeof window !== "undefined") {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+  });
+  const handleResize = () => {
+    setDimensions({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  };
 
   useEffect(() => {
+    if (window.innerWidth <= 640) {
+      values.size = 140;
+    }
     const halfsize = values.size * 0.5;
     const radius = halfsize - values.strokewidth * 0.5;
     const circumference = 2 * Math.PI * radius;
@@ -56,7 +77,8 @@ export default function DonutChart({
     );
 
     setSvg(svgHtml);
-  }, [potential]);
+    window.addEventListener("resize", handleResize, false);
+  }, [potential, dimensions]);
 
   return (
     <RelPos>
@@ -78,10 +100,14 @@ const PosDiv = styled.div`
   position: absolute;
   left: 50%;
   top: 50%;
+  z-index: 1;
   text-align: center;
   transform: translateX(-50%) translateY(-50%);
   &.donutchart-text {
     color: #607580;
+    @media screen and (max-width: 40rem) {
+      width: 100%;
+    }
     .donutchart-text-val {
       font-size: 1rem;
       color: #2e2942;
@@ -91,6 +117,10 @@ const PosDiv = styled.div`
       font-size: 3rem;
       font-weight: bold;
       line-height: 3rem;
+      @media screen and (max-width: 40rem) {
+        font-size: 2rem;
+        line-height: 2rem;
+      }
     }
     .donutchart-text-label {
       font-size: 1rem;
@@ -110,10 +140,16 @@ const DonutChartSVG = styled.svg`
     fill: transparent;
     stroke: #dddddd;
     stroke-width: 0.7rem;
+    @media screen and (max-width: 40em) {
+      stroke-width: 0.4rem;
+    }
   }
   .donutchart-indicator {
     fill: transparent;
     stroke-width: 1rem;
+    @media screen and (max-width: 40em) {
+      stroke-width: 0.6rem;
+    }
     stroke-dasharray: 0 10000;
     transition: stroke-dasharray 0.3s ease-in-out;
   }
