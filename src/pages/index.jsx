@@ -84,7 +84,7 @@ export default function Home() {
       process.env.ETH_CONTRACT_ADDRESS
     );
     const balanceOfDETH = await new_contract.methods.balanceOf(data).call();
-    setDETHbalance(balanceOfDETH);
+    setDETHbalance(web3?.utils?.fromWei(balanceOfDETH));
     await getDETHtoETHValue(balanceOfDETH);
   };
 

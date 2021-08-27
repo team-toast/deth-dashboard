@@ -28,10 +28,7 @@ export default function DethCalculation({
       console.log(118, balanceOfDETH);
 
       const fundit = await new_contract.methods
-        .redeem(
-          walletAddress,
-          web3.utils.toWei(dETHbalance.toString(), "ether")
-        )
+        .redeem(walletAddress, deth.toString())
         .call();
 
       console.log(fundit);

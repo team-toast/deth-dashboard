@@ -15,7 +15,7 @@ html {
   body {
     padding: 0;
     margin: 0;
-    font: normal normal normal 100% / 1.5em "Helvetica Neue";
+    font: normal normal normal 100% / 1.5em "Helvetica Neue", Arial;
     color: ${colors.Dark1};
     cursor: default;
   }
