@@ -170,6 +170,7 @@ const StyledInput = styled.input`
       cursor: pointer;
       transition: all 0.25s ease;
       &:active {
+        cursor: grabbing;
         transition: all 0.25s ease;
         box-shadow: 0 0 40px 10px #5987db;
       }
