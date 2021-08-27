@@ -9,6 +9,13 @@ import DonutChart from "./DonutChart";
 export default function CalculatorEstimate() {
   const [eth, setEth] = useState(0);
   const [percentage, setPercentage] = useState(10);
+  const updateEth = (value) => {
+    if (isNaN(value)) {
+      return;
+    } else {
+      setEth(value);
+    }
+  };
   return (
     <StyledSection>
       <GridContainer>
@@ -28,7 +35,9 @@ export default function CalculatorEstimate() {
                 type="text"
                 value={eth}
                 className="input"
-                onChange={() => setEth(parseFloat(event.target.value))}
+                placeholder="0"
+                pattern="[0-9]+"
+                onChange={() => updateEth(event.target.value)}
               />
             </Posrelative>
             <Posrelative>

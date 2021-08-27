@@ -62,7 +62,7 @@ export default function DonutChart({
     <RelPos>
       <PosDiv color={color} className="donutchart-text">
         <div className="donutchart-text-val">{`You'll have*`}</div>
-        <div className="donutchart-text-percent">{difference}</div>
+        <div className="donutchart-text-percent">{Number(difference)}</div>
         <div className="donutchart-text-label">{values.valuelabel}</div>
       </PosDiv>
       {svg}
