@@ -22,11 +22,16 @@ export default function DethCalculation({
         process.env.ETH_CONTRACT_ADDRESS
       );
 
+      console.log(25, walletAddress);
+
       const fundit = await new_contract.methods
         .redeem(walletAddress, web3?.utils?.toWei(deth).toString())
-        .call();
+        .send({
+          from: walletAddress,
+          value: web3.utils.toWei("0", "ether"),
+        });
 
-      console.log(fundit);
+      console.log(31, fundit);
     }
   };
 
