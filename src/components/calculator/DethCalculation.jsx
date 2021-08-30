@@ -21,14 +21,9 @@ export default function DethCalculation({
         CONTRACT_ABI,
         process.env.ETH_CONTRACT_ADDRESS
       );
-      const balanceOfDETH = await new_contract.methods
-        .balanceOf(walletAddress)
-        .call();
-
-      console.log(118, balanceOfDETH);
 
       const fundit = await new_contract.methods
-        .redeem(walletAddress, deth.toString())
+        .redeem(walletAddress, web3?.utils?.toWei(deth).toString())
         .call();
 
       console.log(fundit);
