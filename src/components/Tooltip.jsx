@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { Row, Col } from "./../styles/flex-grid";
 
 export default function Tooltip({ title = null, children = null }) {
@@ -45,7 +45,18 @@ const TooltipBody = styled.div`
   }
 `;
 
+const ShiftUp = keyframes`
+  0% {
+    bottom: 36px;
+  }
+  100% {
+    bottom: 33px;
+    opacity: 1;
+  }
+`;
+
 const ToolTipInfo = styled.div`
+  opacity: 0;
   background: #ffffff;
   box-shadow: 0px 3px 20px rgba(0, 0, 0, 0.2);
   position: absolute;
@@ -58,4 +69,5 @@ const ToolTipInfo = styled.div`
   text-align: left;
   bottom: 33px;
   left: -65px;
+  animation: 0.15s ${ShiftUp} forwards;
 `;

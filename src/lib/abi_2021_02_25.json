@@ -3,10 +3,27 @@
     "inputs": [
       {
         "internalType": "address payable",
-        "name": "_donationAddress",
+        "name": "_gulper",
+        "type": "address"
+      },
+      { "internalType": "uint256", "name": "_cdpId", "type": "uint256" },
+      {
+        "internalType": "contract Oracle",
+        "name": "_oracle",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_initialRecipient",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_automationAuthority",
         "type": "address"
       }
     ],
+    "payable": false,
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -15,30 +32,116 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "_hash",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "_from",
+        "name": "spender",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_burnAmount",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "Approval",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_receiver",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_suppliedCollateral",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_burnUsdValue",
+        "name": "_protocolFee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_automationFee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_actualCollateralAdded",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_accreditedCollateral",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_tokensIssued",
         "type": "uint256"
       }
     ],
-    "name": "HashBurn",
+    "name": "Issued",
+    "type": "event"
+  },
+  {
+    "anonymous": true,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes4",
+        "name": "sig",
+        "type": "bytes4"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "guy",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "foo",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "bar",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "wad",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "fax",
+        "type": "bytes"
+      }
+    ],
+    "name": "LogNote",
     "type": "event"
   },
   {
@@ -46,30 +149,12 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "_hash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
         "internalType": "address",
-        "name": "_from",
+        "name": "authority",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_tipAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_tipUsdValue",
-        "type": "uint256"
       }
     ],
-    "name": "HashTip",
+    "name": "LogSetAuthority",
     "type": "event"
   },
   {
@@ -77,112 +162,630 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "_hash",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "LogSetOwner",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_redeemer",
+        "type": "address"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
-        "name": "_from",
+        "name": "_receiver",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_burnAmount",
+        "name": "_tokensRedeemed",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_burnUsdValue",
+        "name": "_protocolFee",
         "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "_message",
-        "type": "string"
+        "internalType": "uint256",
+        "name": "_automationFee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_collateralRedeemed",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_collateralReturned",
+        "type": "uint256"
       }
     ],
-    "name": "MessageBurn",
+    "name": "Redeemed",
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_minRedemptionRatio",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_automationFeePerc",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_riskLimit",
+        "type": "uint256"
+      }
+    ],
+    "name": "SettingsChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "Transfer",
+    "type": "event"
+  },
+  { "payable": true, "stateMutability": "payable", "type": "fallback" },
+  {
+    "constant": true,
+    "inputs": [
+      { "internalType": "address", "name": "owner", "type": "address" },
+      { "internalType": "address", "name": "spender", "type": "address" }
+    ],
+    "name": "allowance",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "address", "name": "spender", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "approve",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
     "inputs": [],
-    "name": "EthPrice",
+    "name": "authority",
     "outputs": [
-      { "internalType": "uint256", "name": "_price", "type": "uint256" }
+      { "internalType": "contract DSAuthority", "name": "", "type": "address" }
     ],
+    "payable": false,
     "stateMutability": "view",
     "type": "function"
   },
   {
+    "constant": true,
+    "inputs": [],
+    "name": "automationFeePerc",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
     "inputs": [
-      { "internalType": "bytes32", "name": "_hash", "type": "bytes32" },
-      { "internalType": "uint256", "name": "donateAmount", "type": "uint256" }
+      { "internalType": "address", "name": "account", "type": "address" }
     ],
-    "name": "burnHash",
+    "name": "balanceOf",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "cache",
+    "outputs": [
+      { "internalType": "contract DSProxyCache", "name": "", "type": "address" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_suppliedCollateral",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateIssuanceAmount",
+    "outputs": [
+      { "internalType": "uint256", "name": "_protocolFee", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "_automationFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_actualCollateralAdded",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_accreditedCollateral",
+        "type": "uint256"
+      },
+      { "internalType": "uint256", "name": "_tokensIssued", "type": "uint256" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokensToRedeem",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateRedemptionValue",
+    "outputs": [
+      { "internalType": "uint256", "name": "_protocolFee", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "_automationFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_collateralRedeemed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_collateralReturned",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "cdpId",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "_newGulper",
+        "type": "address"
+      }
+    ],
+    "name": "changeGulper",
     "outputs": [],
-    "stateMutability": "payable",
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
+    "constant": false,
     "inputs": [
-      { "internalType": "string", "name": "_message", "type": "string" },
-      { "internalType": "uint256", "name": "donateAmount", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_minRedemptionRatio",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_automationFeePerc",
+        "type": "uint256"
+      },
+      { "internalType": "uint256", "name": "_riskLimit", "type": "uint256" }
     ],
-    "name": "burnMessage",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
-    "stateMutability": "payable",
+    "name": "changeSettings",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "uint256", "name": "ethAmount", "type": "uint256" }
-    ],
-    "name": "ethToUsd",
-    "outputs": [
-      { "internalType": "uint256", "name": "usdAmount", "type": "uint256" }
-    ],
+    "constant": true,
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
+    "payable": false,
     "stateMutability": "view",
     "type": "function"
   },
   {
+    "constant": false,
+    "inputs": [
+      { "internalType": "address", "name": "spender", "type": "address" },
+      {
+        "internalType": "uint256",
+        "name": "subtractedValue",
+        "type": "uint256"
+      }
+    ],
+    "name": "decreaseAllowance",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "ethGemJoin",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "address", "name": "_target", "type": "address" },
+      { "internalType": "bytes", "name": "_data", "type": "bytes" }
+    ],
+    "name": "execute",
+    "outputs": [
+      { "internalType": "bytes32", "name": "response", "type": "bytes32" }
+    ],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "bytes", "name": "_code", "type": "bytes" },
+      { "internalType": "bytes", "name": "_data", "type": "bytes" }
+    ],
+    "name": "execute",
+    "outputs": [
+      { "internalType": "address", "name": "target", "type": "address" },
+      { "internalType": "bytes32", "name": "response", "type": "bytes32" }
+    ],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getCollateral",
+    "outputs": [
+      { "internalType": "uint256", "name": "_priceRAY", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "_totalCollateral",
+        "type": "uint256"
+      },
+      { "internalType": "uint256", "name": "_debt", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "_collateralDenominatedDebt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_excessCollateral",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getCollateralPriceRAY",
+    "outputs": [
+      { "internalType": "uint256", "name": "_priceRAY", "type": "uint256" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getExcessCollateral",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_excessCollateral",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getRatio",
+    "outputs": [
+      { "internalType": "uint256", "name": "_ratio", "type": "uint256" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "address", "name": "_dsProxy", "type": "address" }
+    ],
+    "name": "giveCDPToDSProxy",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "gulper",
+    "outputs": [
+      { "internalType": "address payable", "name": "", "type": "address" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "address", "name": "spender", "type": "address" },
+      { "internalType": "uint256", "name": "addedValue", "type": "uint256" }
+    ],
+    "name": "increaseAllowance",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "makerManager",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "minRedemptionRatio",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "name",
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
     "inputs": [],
     "name": "oracle",
     "outputs": [
+      { "internalType": "contract Oracle", "name": "", "type": "address" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "address", "name": "_receiver", "type": "address" },
       {
-        "internalType": "contract EthPriceOracle",
-        "name": "",
+        "internalType": "uint256",
+        "name": "_tokensToRedeem",
+        "type": "uint256"
+      }
+    ],
+    "name": "redeem",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "riskLimit",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "saverProxy",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "saverProxyActions",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "contract DSAuthority",
+        "name": "authority_",
         "type": "address"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
-    "name": "storedMessageData",
-    "outputs": [
-      { "internalType": "address", "name": "firstAuthor", "type": "address" },
-      { "internalType": "uint256", "name": "nativeBurned", "type": "uint256" },
-      { "internalType": "uint256", "name": "dollarsBurned", "type": "uint256" },
-      { "internalType": "uint256", "name": "nativeTipped", "type": "uint256" },
-      { "internalType": "uint256", "name": "dollarsTipped", "type": "uint256" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "bytes32", "name": "_hash", "type": "bytes32" },
-      { "internalType": "uint256", "name": "donateAmount", "type": "uint256" }
-    ],
-    "name": "tipHashOrBurnIfNoAuthor",
+    "name": "setAuthority",
     "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "address", "name": "_cacheAddr", "type": "address" }
+    ],
+    "name": "setCache",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "payable": true,
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "address", "name": "owner_", "type": "address" }
+    ],
+    "name": "setOwner",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "address", "name": "_receiver", "type": "address" }
+    ],
+    "name": "squanderMyEthForWorthlessBeansAndAgreeToTerms",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "totalSupply",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "address", "name": "recipient", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "transfer",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "internalType": "address", "name": "sender", "type": "address" },
+      { "internalType": "address", "name": "recipient", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "transferFrom",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "payable": false,
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]

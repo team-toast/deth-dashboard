@@ -15,7 +15,7 @@ html {
   body {
     padding: 0;
     margin: 0;
-    font: normal normal normal 100% / 1.5em "Helvetica Neue";
+    font: normal normal normal 100% / 1.5em "Helvetica Neue", Arial;
     color: ${colors.Dark1};
     cursor: default;
   }
@@ -101,6 +101,9 @@ button, .button {
         background: ${colors.lRed};
         color: ${colors.White};
         transition: all 0.15s ease;
+    }
+    &:active {
+        color: #ffffff;
     }
 }
 .button.button-secondary {
