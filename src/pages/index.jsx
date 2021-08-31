@@ -4,6 +4,7 @@ import useScript from "./../lib/useScript";
 import styled, { keyframes } from "styled-components";
 import { Row, Col } from "./../styles/flex-grid";
 import { sizes, colors } from "./../styles/styleguide";
+import CONTRACT_ABI from "./../lib/abi_2021_02_25.json";
 
 import CalculatorEstimate from "../components/CalculatorEstimation";
 import Calculator from "./../components/Calculator";
@@ -11,9 +12,27 @@ import Calculator from "./../components/Calculator";
 export default function Home() {
   const [web3, setWeb3] = useState(null);
   const [walletAddress, setWalletAddress] = useState(null);
+  const [dETHbalance, setDETHbalance] = useState(null);
+  const [eTHbalance, setETHbalance] = useState(0);
+  const [dETHtoETHvalue, setDETHtoETHvalue] = useState(0);
   const web3LoadStatus = useScript(
     "https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"
   );
+  useEffect(() => {
+    if (
+      typeof window != "undefined" &&
+      window.ethereum !== undefined &&
+      web3LoadStatus === "ready" &&
+      !web3
+    ) {
+      try {
+        const newWeb3 = new window.Web3(window.ethereum);
+        setWeb3(newWeb3);
+      } catch (error) {
+        console.log("Could not connect Web3");
+      }
+    }
+  }, [web3LoadStatus, web3]);
   const disconnectWallet = () => {
     setWeb3(null);
     setWalletAddress(null);
@@ -23,7 +42,7 @@ export default function Home() {
       typeof window != "undefined" &&
       window.ethereum !== undefined &&
       web3LoadStatus === "ready" &&
-      !web3
+      web3
     ) {
       (async () => {
         console.log("Startup, test eth_requestAccounts");
@@ -40,14 +59,40 @@ export default function Home() {
         if (testPassed) {
           console.log("updating web3");
           const newWeb3 = new window.Web3(window.ethereum);
-          console.log("newWeb3", newWeb3);
           const accounts = await newWeb3.eth.getAccounts();
           console.log("accounts", accounts);
           setWalletAddress(accounts[0]);
-          setWeb3(newWeb3);
+          await getDETHbalance(accounts[0]);
+          await getETHbalance(accounts[0]);
         }
       })();
     }
+  };
+  const getDETHtoETHValue = async (data) => {
+    let new_contract = await new web3.eth.Contract(
+      CONTRACT_ABI,
+      process.env.ETH_CONTRACT_ADDRESS
+    );
+    const balanceOfDETH = await new_contract.methods
+      .calculateRedemptionValue(data)
+      .call();
+    console.log(balanceOfDETH);
+    setDETHtoETHvalue(balanceOfDETH);
+  };
+  const getDETHbalance = async (data) => {
+    let new_contract = await new web3.eth.Contract(
+      CONTRACT_ABI,
+      process.env.ETH_CONTRACT_ADDRESS
+    );
+    const balanceOfDETH = await new_contract.methods.balanceOf(data).call();
+    setDETHbalance(web3?.utils?.fromWei(balanceOfDETH));
+    await getDETHtoETHValue(balanceOfDETH);
+  };
+
+  const getETHbalance = async (data) => {
+    const getBalance = await web3.eth.getBalance(data);
+    const getWeiValue = await web3?.utils?.fromWei(getBalance.toString());
+    setETHbalance(getWeiValue);
   };
   useEffect(() => {
     if (window.ethereum) {
@@ -95,8 +140,14 @@ export default function Home() {
           </StyledConnectCol>
         </Row>
       </StyledHeader>
-      <CalculatorEstimate />
-      <Calculator />
+      <CalculatorEstimate web3={web3} />
+      <Calculator
+        eTHbalance={eTHbalance}
+        dETHbalance={dETHbalance}
+        walletAddress={walletAddress}
+        web3={web3}
+        dETHtoETHvalue={dETHtoETHvalue}
+      />
     </Layout>
   );
 }

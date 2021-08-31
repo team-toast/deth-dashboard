@@ -4,18 +4,87 @@ import { Row, Col } from "../../styles/flex-grid";
 import { sizes, colors } from "../../styles/styleguide";
 import Tooltip from "./../Tooltip";
 
+import CONTRACT_ABI from "./../../lib/abi_2021_02_25.json";
+import CONTRACT_ABI_WITH_ETH_PRICE from "./../../lib/abi.json";
+
+const axios = require("axios");
+
 import DonutChart from "./DonutChart";
 
-export default function CalculatorEstimate() {
+export default function CalculatorEstimate({ web3 }) {
   const [eth, setEth] = useState(0);
-  const [percentage, setPercentage] = useState(10);
-  const updateEth = (value) => {
-    if (isNaN(value)) {
-      return;
-    } else {
-      setEth(value);
-    }
+  const [percentage, setPercentage] = useState(1);
+  const [ethPrice, setEthPrice] = useState(3000);
+  const [gains, setGains] = useState(0);
+  const [gainsText, setGainsText] = useState(0);
+  const [losses, setLosses] = useState(0);
+  const [lossesText, setLossesText] = useState(0);
+  const [calculatedDeposit, setCalculatedDeposit] = useState({});
+
+  const calculateGains = async () => {
+    const x = parseInt(percentage) / 100;
+    const getPercentage = x * ethPrice;
+    const getFullPrice = ethPrice + getPercentage;
+    const ratio = getFullPrice / ethPrice;
+    const dollarValue = eth * ethPrice * ratio;
+    const dollarWithFees = dollarValue * (1 - 2 * 0.009) * (1 - 2 * 0.01);
+    const currentEthValue = ethPrice * eth;
+    const priceDiff = dollarWithFees - currentEthValue;
+    const truePercentage = (priceDiff / currentEthValue) * 100;
+    const toA100 = truePercentage;
+    setGainsText(eth * ratio);
+    setGains(toA100);
   };
+  const calculateLosses = () => {
+    const x = parseInt(percentage) / 100;
+    const getPercentage = x * ethPrice;
+    const getFullPrice = ethPrice - getPercentage;
+    const ratio = getFullPrice / ethPrice;
+    const dollarValue = eth * ethPrice * ratio;
+    const dollarWithFees = dollarValue * (1 - 2 * 0.009) * (1 - 2 * 0.01);
+    const currentEthValue = ethPrice * eth;
+    const priceDiff = dollarWithFees - currentEthValue;
+    const truePercentage = Math.abs((priceDiff / currentEthValue) * 100);
+    const toA100 = truePercentage;
+    setLossesText(eth * ratio);
+    setLosses(toA100);
+  };
+  const getEthPrice = async () => {
+    const getPrice = await axios(
+      // `https://api.etherscan.io/api?module=stats&action=ethprice&apikey=VWF8XCBQTDWZMVMXNN6JX81MK29VSDZEPQ`
+      `https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=ETH,USD`
+    );
+    setEthPrice(await getPrice.data.USD);
+  };
+  const calculateDeposit = async (value) => {
+    if (isNaN(value) || value === "") {
+      return;
+    }
+    let new_contract = await new web3.eth.Contract(
+      CONTRACT_ABI,
+      process.env.ETH_CONTRACT_ADDRESS
+    );
+    const getCalculate = await new_contract.methods
+      .calculateIssuanceAmount(web3.utils.toWei(value.toString(), "ether"))
+      .call();
+    let obj = {
+      protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
+      automation: web3?.utils?.fromWei(getCalculate._automationFee),
+      actualValue: web3?.utils?.fromWei(getCalculate._actualCollateralAdded),
+      issued: web3?.utils?.fromWei(getCalculate._tokensIssued),
+    };
+    setCalculatedDeposit(obj);
+  };
+  useEffect(() => {
+    if (!isNaN(eth)) {
+      getEthPrice();
+      calculateGains();
+      calculateLosses();
+      if (web3) {
+        calculateDeposit(eth);
+      }
+    }
+  }, [percentage, eth]);
   return (
     <StyledSection>
       <GridContainer>
@@ -37,7 +106,10 @@ export default function CalculatorEstimate() {
                 className="input"
                 placeholder="0"
                 pattern="[0-9]+"
-                onChange={() => updateEth(event.target.value)}
+                setEth
+                onChange={({ target: { value: eth } }) => {
+                  setEth(eth);
+                }}
               />
             </Posrelative>
             <Posrelative>
@@ -45,11 +117,13 @@ export default function CalculatorEstimate() {
               <br />
               <StyledInput
                 type="range"
-                min="0"
+                min="1"
                 max="100"
                 className="slider"
                 value={percentage}
-                onChange={() => setPercentage(parseFloat(event.target.value))}
+                onInput={({ target: { value: percentage } }) => {
+                  setPercentage(percentage);
+                }}
               />
               <MaxWidth>
                 <StyledInputValue value={percentage}>
@@ -64,32 +138,16 @@ export default function CalculatorEstimate() {
                 <Styledh4>Possible gain</Styledh4>
                 <DonutChart
                   color="#5987DB"
-                  potential={
-                    parseFloat((eth * percentage) / 100) % 1 != 0
-                      ? parseFloat((eth * percentage) / 100).toFixed(4)
-                      : parseFloat((eth * percentage) / 100).toFixed(0)
-                  }
-                  difference={
-                    parseFloat((eth * percentage) / 100) % 1 != 0
-                      ? parseFloat((eth * percentage) / 100).toFixed(4)
-                      : parseFloat((eth * percentage) / 100).toFixed(0)
-                  }
+                  potential={parseFloat(gains).toFixed(4)}
+                  difference={parseFloat(gainsText).toFixed(4)}
                 />
               </GraphCol>
               <GraphCol size={1}>
                 <Styledh4>Possible loss</Styledh4>
                 <DonutChart
                   color="#DB596D"
-                  potential={
-                    parseFloat((eth * percentage) / 100) % 1 != 0
-                      ? parseFloat((eth * percentage) / 100).toFixed(4)
-                      : parseFloat((eth * percentage) / 100).toFixed(0)
-                  }
-                  difference={
-                    parseFloat((eth * percentage) / 100) % 1 != 0
-                      ? parseFloat((eth * percentage) / 100).toFixed(4)
-                      : parseFloat((eth * percentage) / 100).toFixed(0)
-                  }
+                  potential={parseFloat(losses).toFixed(4)}
+                  difference={parseFloat(lossesText).toFixed(4)}
                   reverse={true}
                 />
               </GraphCol>
@@ -101,27 +159,27 @@ export default function CalculatorEstimate() {
                   title={`*minus fees <span class="info-icon"></span>`}
                 >
                   <Row>
-                    <Col size={2}>Automation Fee:</Col>
-                    <Col className="text-right" size={1}>
-                      1
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col size={2}>Collateral Redeemed:</Col>
-                    <Col className="text-right" size={1}>
-                      2
-                    </Col>
-                  </Row>
-                  <Row>
                     <Col size={2}>Protocol Fee:</Col>
                     <Col className="text-right" size={1}>
-                      344
+                      {calculatedDeposit.protocol
+                        ? parseFloat(calculatedDeposit.protocol).toFixed(4)
+                        : 0}
                     </Col>
                   </Row>
                   <Row>
-                    <Col size={2}>Collateral Returned:</Col>
+                    <Col size={2}>Automation Fee:</Col>
                     <Col className="text-right" size={1}>
-                      43
+                      {calculatedDeposit.protocol
+                        ? parseFloat(calculatedDeposit.automation).toFixed(4)
+                        : 0}
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col size={2}>Actual ETH Added:</Col>
+                    <Col className="text-right" size={1}>
+                      {calculatedDeposit.protocol
+                        ? parseFloat(calculatedDeposit.actualValue).toFixed(4)
+                        : 0}
                     </Col>
                   </Row>
                 </Tooltip>
@@ -144,7 +202,7 @@ const StyledInputValue = styled.div`
   color: #1f1f1f;
   left: ${(props) => (props.value >= 90 ? props.value - 10 : props.value)}%;
   bottom: 0;
-  transition: all 0.15s ease-out;
+  transition: all 0.15s ease;
 `;
 
 const Posrelative = styled.div`
