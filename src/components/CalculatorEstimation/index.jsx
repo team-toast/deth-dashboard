@@ -51,7 +51,6 @@ export default function CalculatorEstimate({ web3 }) {
   };
   const getEthPrice = async () => {
     const getPrice = await axios(
-      // `https://api.etherscan.io/api?module=stats&action=ethprice&apikey=VWF8XCBQTDWZMVMXNN6JX81MK29VSDZEPQ`
       `https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=ETH,USD`
     );
     setEthPrice(await getPrice.data.USD);
