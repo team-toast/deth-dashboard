@@ -233,7 +233,7 @@ const StyledHeader = styled.header`
   top: 0;
   left: 0;
   background: #ffffff;
-  z-index: 1;
+  z-index: 2;
   padding: 0.5em 1em;
   box-shadow: 0px 3px 20px #0000001a;
   > div {

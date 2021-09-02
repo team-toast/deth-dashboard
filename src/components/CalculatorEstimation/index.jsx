@@ -5,13 +5,17 @@ import { sizes, colors } from "../../styles/styleguide";
 import Tooltip from "./../Tooltip";
 
 import CONTRACT_ABI from "./../../lib/abi_2021_02_25.json";
-import CONTRACT_ABI_WITH_ETH_PRICE from "./../../lib/abi.json";
 
 const axios = require("axios");
 
 import DonutChart from "./DonutChart";
 
-export default function CalculatorEstimate({ web3 }) {
+import Web3 from "web3";
+
+export default function CalculatorEstimate() {
+  const web3Provider = new Web3.providers.HttpProvider(process.env.ETH_RPC);
+  const web3 = new Web3(web3Provider);
+
   const [eth, setEth] = useState(0);
   const [percentage, setPercentage] = useState(1);
   const [ethPrice, setEthPrice] = useState(3000);
@@ -20,6 +24,7 @@ export default function CalculatorEstimate({ web3 }) {
   const [losses, setLosses] = useState(0);
   const [lossesText, setLossesText] = useState(0);
   const [calculatedDeposit, setCalculatedDeposit] = useState({});
+  const [contract, setContract] = useState(null);
 
   const calculateGains = async () => {
     const x = parseInt(percentage) / 100;
@@ -56,23 +61,27 @@ export default function CalculatorEstimate({ web3 }) {
     setEthPrice(await getPrice.data.USD);
   };
   const calculateDeposit = async (value) => {
-    if (isNaN(value) || value === "") {
-      return;
+    try {
+      if (isNaN(value) || value === "") {
+        return;
+      }
+      let new_contract = await new web3.eth.Contract(
+        CONTRACT_ABI,
+        process.env.ETH_CONTRACT_ADDRESS
+      );
+      const getCalculate = await new_contract.methods
+        .calculateIssuanceAmount(web3.utils.toWei(value.toString(), "ether"))
+        .call();
+      let obj = {
+        protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
+        automation: web3?.utils?.fromWei(getCalculate._automationFee),
+        actualValue: web3?.utils?.fromWei(getCalculate._actualCollateralAdded),
+        issued: web3?.utils?.fromWei(getCalculate._tokensIssued),
+      };
+      setCalculatedDeposit(obj);
+    } catch (error) {
+      console.log(error);
     }
-    let new_contract = await new web3.eth.Contract(
-      CONTRACT_ABI,
-      process.env.ETH_CONTRACT_ADDRESS
-    );
-    const getCalculate = await new_contract.methods
-      .calculateIssuanceAmount(web3.utils.toWei(value.toString(), "ether"))
-      .call();
-    let obj = {
-      protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
-      automation: web3?.utils?.fromWei(getCalculate._automationFee),
-      actualValue: web3?.utils?.fromWei(getCalculate._actualCollateralAdded),
-      issued: web3?.utils?.fromWei(getCalculate._tokensIssued),
-    };
-    setCalculatedDeposit(obj);
   };
   useEffect(() => {
     if (!isNaN(eth)) {
@@ -107,7 +116,7 @@ export default function CalculatorEstimate({ web3 }) {
                 pattern="[0-9]+"
                 setEth
                 onChange={({ target: { value: eth } }) => {
-                  setEth(eth);
+                  !isNaN(eth) ? setEth(eth) : "";
                 }}
               />
             </Posrelative>
