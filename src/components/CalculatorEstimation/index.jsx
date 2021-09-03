@@ -17,14 +17,15 @@ export default function CalculatorEstimate() {
   const web3 = new Web3(web3Provider);
 
   const [eth, setEth] = useState(0);
-  const [percentage, setPercentage] = useState(1);
+  const [percentage, setPercentage] = useState(10);
   const [ethPrice, setEthPrice] = useState(3000);
   const [gains, setGains] = useState(0);
   const [gainsText, setGainsText] = useState(0);
   const [losses, setLosses] = useState(0);
   const [lossesText, setLossesText] = useState(0);
   const [calculatedDeposit, setCalculatedDeposit] = useState({});
-  const [contract, setContract] = useState(null);
+  const [gainsDollars, setGainsDollars] = useState(0);
+  const [lossesDollars, setLossesDollars] = useState(0);
 
   const calculateGains = async () => {
     const x = parseInt(percentage) / 100;
@@ -37,7 +38,11 @@ export default function CalculatorEstimate() {
     const priceDiff = dollarWithFees - currentEthValue;
     const truePercentage = (priceDiff / currentEthValue) * 100;
     const toA100 = truePercentage;
-    setGainsText(eth * ratio);
+    const ethGains = eth * ratio;
+    const ethGainsWithFees = ethGains * (1 - 2 * 0.009) * (1 - 2 * 0.01);
+    const ethGainsWithFeesPrice = ethGainsWithFees * ethPrice - currentEthValue;
+    setGainsDollars(ethGainsWithFeesPrice);
+    setGainsText(ethGainsWithFees);
     setGains(toA100);
   };
   const calculateLosses = () => {
@@ -51,7 +56,11 @@ export default function CalculatorEstimate() {
     const priceDiff = dollarWithFees - currentEthValue;
     const truePercentage = Math.abs((priceDiff / currentEthValue) * 100);
     const toA100 = truePercentage;
-    setLossesText(eth * ratio);
+    const ethGains = eth * ratio;
+    const ethGainsWithFees = ethGains * (1 - 2 * 0.009) * (1 - 2 * 0.01);
+    const ethGainsWithFeesPrice = ethGainsWithFees * ethPrice - currentEthValue;
+    setLossesDollars(ethGainsWithFeesPrice);
+    setLossesText(ethGainsWithFees);
     setLosses(toA100);
   };
   const getEthPrice = async () => {
@@ -88,9 +97,6 @@ export default function CalculatorEstimate() {
       getEthPrice();
       calculateGains();
       calculateLosses();
-      if (web3) {
-        calculateDeposit(eth);
-      }
     }
   }, [percentage, eth]);
   return (
@@ -143,7 +149,12 @@ export default function CalculatorEstimate() {
           <Col size={1}>
             <Row>
               <GraphCol size={1}>
-                <Styledh4>Possible gain</Styledh4>
+                <Styledh4>
+                  Possible gain{" "}
+                  <span className={gainsDollars >= 0 ? "green" : "red"}>
+                    ${Number(gainsDollars.toFixed(0))}
+                  </span>
+                </Styledh4>
                 <DonutChart
                   color="#5987DB"
                   potential={parseFloat(gains).toFixed(4)}
@@ -151,7 +162,12 @@ export default function CalculatorEstimate() {
                 />
               </GraphCol>
               <GraphCol size={1}>
-                <Styledh4>Possible loss</Styledh4>
+                <Styledh4>
+                  Possible loss{" "}
+                  <span className={lossesDollars >= 0 ? "green" : "red"}>
+                    ${Number(lossesDollars.toFixed(0))}
+                  </span>
+                </Styledh4>
                 <DonutChart
                   color="#DB596D"
                   potential={parseFloat(losses).toFixed(4)}
@@ -161,7 +177,11 @@ export default function CalculatorEstimate() {
               </GraphCol>
             </Row>
             <Row>
-              <MinusFeesCol className="text-center" size={1}>
+              <MinusFeesCol
+                className="text-center"
+                size={1}
+                onClick={() => calculateDeposit(eth)}
+              >
                 <Tooltip
                   key={2}
                   title={`*minus fees <span class="info-icon"></span>`}
@@ -271,6 +291,12 @@ const Styledh4 = styled.h4`
   font-weight: bold;
   text-align: center;
   margin-bottom: 1rem;
+  .green {
+    color: green;
+  }
+  .red {
+    color: red;
+  }
 `;
 
 const GraphCol = styled(Col)`
