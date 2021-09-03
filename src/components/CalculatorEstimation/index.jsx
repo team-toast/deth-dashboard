@@ -259,6 +259,9 @@ const StyledInput = styled.input`
         cursor: grabbing;
         transition: all 0.25s ease;
         box-shadow: 0 0 40px 10px #5987db;
+        @media screen and (max-width: 40rem) {
+          box-shadow: none;
+        }
       }
     }
     &::-moz-range-thumb {
