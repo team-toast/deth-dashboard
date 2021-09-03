@@ -118,7 +118,7 @@ const PosDiv = styled.div`
       font-weight: bold;
       line-height: 3rem;
       @media screen and (max-width: 40rem) {
-        font-size: 2rem;
+        font-size: 1.8rem;
         line-height: 2rem;
       }
     }

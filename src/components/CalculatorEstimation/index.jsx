@@ -83,12 +83,18 @@ export default function CalculatorEstimate({ ethPrice }) {
       console.log(error);
     }
   };
-  useEffect(() => {
-    if (!isNaN(eth)) {
+  const triggerChanges = () => {
+    setTimeout(() => {
       calculateGains();
       calculateLosses();
-    }
-  }, [percentage, eth]);
+    }, 500);
+  };
+  // useEffect(() => {
+  //   if (!isNaN(eth)) {
+  //     calculateGains();
+  //     calculateLosses();
+  //   }
+  // }, [percentage, eth]);
   return (
     <StyledSection>
       <GridContainer>
@@ -106,13 +112,15 @@ export default function CalculatorEstimate({ ethPrice }) {
               <br />
               <StyledInput
                 type="text"
-                value={eth}
+                defaultValue={eth}
                 className="input"
                 placeholder="0"
                 pattern="[0-9]+"
-                setEth
-                onChange={({ target: { value: eth } }) => {
-                  !isNaN(eth) ? setEth(eth) : "";
+                onChange={() => {
+                  if (!isNaN(event.target.value)) {
+                    setEth(event.target.value);
+                    triggerChanges();
+                  }
                 }}
               />
             </Posrelative>
@@ -125,9 +133,10 @@ export default function CalculatorEstimate({ ethPrice }) {
                 min="1"
                 max="100"
                 className="slider"
-                value={percentage}
+                defaultValue={percentage}
                 onInput={({ target: { value: percentage } }) => {
                   setPercentage(percentage);
+                  triggerChanges();
                 }}
               />
               <MaxWidth>
