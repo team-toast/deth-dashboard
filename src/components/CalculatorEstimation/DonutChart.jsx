@@ -151,7 +151,7 @@ const DonutChartSVG = styled.svg`
       stroke-width: 0.6rem;
     }
     stroke-dasharray: 0 10000;
-    transition: stroke-dasharray 0.3s ease-in-out;
+    transition: stroke-dasharray 0.3s ease;
   }
   &.reverse {
     display: block;

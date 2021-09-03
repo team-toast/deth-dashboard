@@ -5,6 +5,7 @@ import styled, { keyframes } from "styled-components";
 import { Row, Col } from "./../styles/flex-grid";
 import { sizes, colors } from "./../styles/styleguide";
 import CONTRACT_ABI from "./../lib/abi_2021_02_25.json";
+import axios from "axios";
 
 import CalculatorEstimate from "../components/CalculatorEstimation";
 import Calculator from "./../components/Calculator";
@@ -15,6 +16,7 @@ export default function Home() {
   const [dETHbalance, setDETHbalance] = useState(null);
   const [eTHbalance, setETHbalance] = useState(0);
   const [dETHtoETHvalue, setDETHtoETHvalue] = useState(0);
+  const [ethPrice, setEthPrice] = useState(3000);
   const web3LoadStatus = useScript(
     "https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"
   );
@@ -94,7 +96,14 @@ export default function Home() {
     const getWeiValue = await web3?.utils?.fromWei(getBalance.toString());
     setETHbalance(getWeiValue);
   };
+  const getEthPrice = async () => {
+    const getPrice = await axios(
+      `https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=ETH,USD`
+    );
+    setEthPrice(await getPrice.data.USD);
+  };
   useEffect(() => {
+    getEthPrice();
     if (window.ethereum) {
       // Metamask account change
       window.ethereum.on("accountsChanged", function (accounts) {
@@ -140,7 +149,7 @@ export default function Home() {
           </StyledConnectCol>
         </Row>
       </StyledHeader>
-      <CalculatorEstimate web3={web3} />
+      <CalculatorEstimate ethPrice={ethPrice} />
       <Calculator
         eTHbalance={eTHbalance}
         dETHbalance={dETHbalance}

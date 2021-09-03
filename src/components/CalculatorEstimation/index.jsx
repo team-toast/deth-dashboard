@@ -6,19 +6,17 @@ import Tooltip from "./../Tooltip";
 
 import CONTRACT_ABI from "./../../lib/abi_2021_02_25.json";
 
-const axios = require("axios");
-
 import DonutChart from "./DonutChart";
 
 import Web3 from "web3";
 
-export default function CalculatorEstimate() {
+export default function CalculatorEstimate({ ethPrice }) {
   const web3Provider = new Web3.providers.HttpProvider(process.env.ETH_RPC);
   const web3 = new Web3(web3Provider);
 
   const [eth, setEth] = useState(0);
   const [percentage, setPercentage] = useState(10);
-  const [ethPrice, setEthPrice] = useState(3000);
+  const [inputPercentage, setInputPercentage] = useState(10);
   const [gains, setGains] = useState(0);
   const [gainsText, setGainsText] = useState(0);
   const [losses, setLosses] = useState(0);
@@ -63,12 +61,6 @@ export default function CalculatorEstimate() {
     setLossesText(ethGainsWithFees);
     setLosses(toA100);
   };
-  const getEthPrice = async () => {
-    const getPrice = await axios(
-      `https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=ETH,USD`
-    );
-    setEthPrice(await getPrice.data.USD);
-  };
   const calculateDeposit = async (value) => {
     try {
       if (isNaN(value) || value === "") {
@@ -94,7 +86,6 @@ export default function CalculatorEstimate() {
   };
   useEffect(() => {
     if (!isNaN(eth)) {
-      getEthPrice();
       calculateGains();
       calculateLosses();
     }
@@ -134,7 +125,7 @@ export default function CalculatorEstimate() {
                 min="1"
                 max="100"
                 className="slider"
-                value={percentage}
+                defaultValue={percentage}
                 onInput={({ target: { value: percentage } }) => {
                   setPercentage(percentage);
                 }}
@@ -230,7 +221,7 @@ const StyledInputValue = styled.div`
   color: #1f1f1f;
   left: ${(props) => (props.value >= 90 ? props.value - 10 : props.value)}%;
   bottom: 0;
-  transition: all 0.15s ease;
+  transition: all 0.35s ease-out;
 `;
 
 const Posrelative = styled.div`
@@ -296,9 +287,15 @@ const Styledh4 = styled.h4`
   margin-bottom: 1rem;
   .green {
     color: green;
+    @media screen and (max-width: 40rem) {
+      display: block;
+    }
   }
   .red {
     color: red;
+    @media screen and (max-width: 40rem) {
+      display: block;
+    }
   }
 `;
 
