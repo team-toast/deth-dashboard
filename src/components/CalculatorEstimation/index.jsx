@@ -89,12 +89,12 @@ export default function CalculatorEstimate({ ethPrice }) {
       calculateLosses();
     }, 500);
   };
-  // useEffect(() => {
-  //   if (!isNaN(eth)) {
-  //     calculateGains();
-  //     calculateLosses();
-  //   }
-  // }, [percentage, eth]);
+  useEffect(() => {
+    if (!isNaN(eth)) {
+      calculateGains();
+      calculateLosses();
+    }
+  }, [percentage, eth]);
   return (
     <StyledSection>
       <GridContainer>
@@ -119,7 +119,7 @@ export default function CalculatorEstimate({ ethPrice }) {
                 onChange={() => {
                   if (!isNaN(event.target.value)) {
                     setEth(event.target.value);
-                    triggerChanges();
+                    // triggerChanges();
                   }
                 }}
               />
@@ -136,7 +136,7 @@ export default function CalculatorEstimate({ ethPrice }) {
                 defaultValue={percentage}
                 onInput={({ target: { value: percentage } }) => {
                   setPercentage(percentage);
-                  triggerChanges();
+                  // triggerChanges();
                 }}
               />
               <MaxWidth>
