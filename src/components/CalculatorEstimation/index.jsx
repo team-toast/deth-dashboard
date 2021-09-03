@@ -14,8 +14,9 @@ export default function CalculatorEstimate({ ethPrice }) {
   const web3Provider = new Web3.providers.HttpProvider(process.env.ETH_RPC);
   const web3 = new Web3(web3Provider);
 
-  const [eth, setEth] = useState(0);
-  const [percentage, setPercentage] = useState(10);
+  const [eth, setEth] = useState(1);
+  const [percentage, setPercentage] = useState(0);
+  const [sliderPercentage, setSliderPercentage] = useState(0);
   const [gains, setGains] = useState(0);
   const [gainsText, setGainsText] = useState(0);
   const [losses, setLosses] = useState(0);
@@ -23,12 +24,15 @@ export default function CalculatorEstimate({ ethPrice }) {
   const [calculatedDeposit, setCalculatedDeposit] = useState({});
   const [gainsDollars, setGainsDollars] = useState(0);
   const [lossesDollars, setLossesDollars] = useState(0);
+  const [potentialPrice, setPotentialPrice] = useState(0);
 
   const calculateGains = async () => {
-    const x = parseInt(percentage) / 100;
-    const getPercentage = x * ethPrice;
+    console.log(ethPrice);
+    const sliderPotentialPrice = parseInt(sliderPercentage);
+    const getPercentage = sliderPotentialPrice * ethPrice;
     const getFullPrice = ethPrice + getPercentage;
-    const ratio = getFullPrice / ethPrice;
+    const ratio = sliderPotentialPrice / ethPrice;
+    setPotentialPrice(sliderPotentialPrice);
     const dollarValue = eth * ethPrice * ratio;
     const dollarWithFees = dollarValue * (1 - 2 * 0.009) * (1 - 2 * 0.01);
     const currentEthValue = ethPrice * eth;
@@ -37,16 +41,16 @@ export default function CalculatorEstimate({ ethPrice }) {
     const toA100 = truePercentage;
     const ethGains = eth * ratio;
     const ethGainsWithFees = ethGains * (1 - 2 * 0.009) * (1 - 2 * 0.01);
-    const ethGainsWithFeesPrice = ethGainsWithFees * ethPrice - currentEthValue;
-    setGainsDollars(ethGainsWithFeesPrice);
+    const ethGainsWithFeesPrice = ethGainsWithFees;
+    setGainsDollars(sliderPotentialPrice - ethPrice);
     setGainsText(ethGainsWithFees);
     setGains(toA100);
   };
   const calculateLosses = () => {
-    const x = parseInt(percentage) / 100;
-    const getPercentage = x * ethPrice;
+    const potentialPrice = parseInt(sliderPercentage);
+    const getPercentage = potentialPrice * ethPrice;
     const getFullPrice = ethPrice - getPercentage;
-    const ratio = getFullPrice / ethPrice;
+    const ratio = potentialPrice / ethPrice;
     const dollarValue = eth * ethPrice * ratio;
     const dollarWithFees = dollarValue * (1 - 2 * 0.009) * (1 - 2 * 0.01);
     const currentEthValue = ethPrice * eth;
@@ -55,10 +59,13 @@ export default function CalculatorEstimate({ ethPrice }) {
     const toA100 = truePercentage;
     const ethGains = eth * ratio;
     const ethGainsWithFees = ethGains * (1 - 2 * 0.009) * (1 - 2 * 0.01);
-    const ethGainsWithFeesPrice = ethGainsWithFees * ethPrice - currentEthValue;
+    const ethGainsWithFeesPrice = ethGainsWithFees - dollarWithFees;
     setLossesDollars(ethGainsWithFeesPrice);
     setLossesText(ethGainsWithFees);
     setLosses(toA100);
+  };
+  const relDiff = (a, b) => {
+    return 100 * Math.abs((a - b) / ((a + b) / 2));
   };
   const calculateDeposit = async (value) => {
     try {
@@ -83,18 +90,12 @@ export default function CalculatorEstimate({ ethPrice }) {
       console.log(error);
     }
   };
-  const triggerChanges = () => {
-    setTimeout(() => {
-      calculateGains();
-      calculateLosses();
-    }, 500);
-  };
   useEffect(() => {
     if (!isNaN(eth)) {
       calculateGains();
-      calculateLosses();
+      // calculateLosses();
     }
-  }, [percentage, eth]);
+  }, [sliderPercentage, eth]);
   return (
     <StyledSection>
       <GridContainer>
@@ -130,18 +131,20 @@ export default function CalculatorEstimate({ ethPrice }) {
               <br />
               <StyledInput
                 type="range"
-                min="1"
-                max="100"
+                min="0"
+                max={ethPrice * 2}
                 className="slider"
-                defaultValue={percentage}
-                onInput={({ target: { value: percentage } }) => {
-                  setPercentage(percentage);
+                defaultValue={ethPrice}
+                onInput={({ target: { value: sliderPercentage } }) => {
+                  setSliderPercentage(sliderPercentage);
+                  // setPercentage(ethPrice / percentage);
                   // triggerChanges();
                 }}
               />
               <MaxWidth>
                 <StyledInputValue value={percentage}>
-                  {percentage}%
+                  ${Number(potentialPrice)}{" "}
+                  {Number((potentialPrice / ethPrice).toFixed(2))}%
                 </StyledInputValue>
               </MaxWidth>
             </Posrelative>
@@ -156,12 +159,13 @@ export default function CalculatorEstimate({ ethPrice }) {
                   </span>
                 </Styledh4>
                 <DonutChart
-                  color="#5987DB"
+                  color={potentialPrice - ethPrice < 0 ? "#DB596D" : "#5987DB"}
                   potential={parseFloat(gains).toFixed(4)}
                   difference={parseFloat(gainsText).toFixed(4)}
+                  reverse={potentialPrice - ethPrice < 0 ? true : false}
                 />
               </GraphCol>
-              <GraphCol size={1}>
+              {/* <GraphCol size={1}>
                 <Styledh4>
                   Possible loss{" "}
                   <span className={lossesDollars >= 0 ? "green" : "red"}>
@@ -174,7 +178,7 @@ export default function CalculatorEstimate({ ethPrice }) {
                   difference={parseFloat(lossesText).toFixed(4)}
                   reverse={true}
                 />
-              </GraphCol>
+              </GraphCol> */}
             </Row>
             <Row>
               <MinusFeesCol
@@ -260,6 +264,18 @@ const StyledInput = styled.input`
     background: #dddddd;
     height: 0.32rem;
     margin-top: 1.5rem;
+    &:after {
+      content: " ";
+      width: 6px;
+      height: 30px;
+      border-radius: 3px;
+      background: #dddddd;
+      position: absolute;
+      left: 50%;
+      z-index: 0;
+      margin-left: -2px;
+      margin-top: -10px;
+    }
     &::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
@@ -268,6 +284,8 @@ const StyledInput = styled.input`
       background: #5987db;
       cursor: pointer;
       transition: all 0.25s ease;
+      z-index: 2;
+      position: relative;
       &:active {
         cursor: grabbing;
         transition: all 0.25s ease;
