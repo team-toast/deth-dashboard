@@ -16,7 +16,6 @@ export default function CalculatorEstimate({ ethPrice }) {
 
   const [eth, setEth] = useState(0);
   const [percentage, setPercentage] = useState(10);
-  const [inputPercentage, setInputPercentage] = useState(10);
   const [gains, setGains] = useState(0);
   const [gainsText, setGainsText] = useState(0);
   const [losses, setLosses] = useState(0);
@@ -119,13 +118,14 @@ export default function CalculatorEstimate({ ethPrice }) {
             </Posrelative>
             <Posrelative>
               <strong>Assumed price change</strong>
+              <span className="visible-on-xsmall"> of {percentage}%</span>
               <br />
               <StyledInput
                 type="range"
                 min="1"
                 max="100"
                 className="slider"
-                defaultValue={percentage}
+                value={percentage}
                 onInput={({ target: { value: percentage } }) => {
                   setPercentage(percentage);
                 }}
@@ -214,6 +214,9 @@ export default function CalculatorEstimate({ ethPrice }) {
 const MaxWidth = styled.div`
   max-width: 500px;
   position: relative;
+  @media screen and (max-width: 40rem) {
+    display: none;
+  }
 `;
 
 const StyledInputValue = styled.div`
@@ -222,10 +225,20 @@ const StyledInputValue = styled.div`
   left: ${(props) => (props.value >= 90 ? props.value - 10 : props.value)}%;
   bottom: 0;
   transition: all 0.35s ease-out;
+  @media screen and (max-width: 40rem) {
+    left: 0;
+    transition: none;
+  }
 `;
 
 const Posrelative = styled.div`
   position: relative;
+  .visible-on-xsmall {
+    display: none;
+    @media screen and (max-width: 40rem) {
+      display: inline;
+    }
+  }
 `;
 
 const StyledInput = styled.input`

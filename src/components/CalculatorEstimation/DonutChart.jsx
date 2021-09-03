@@ -100,7 +100,7 @@ const PosDiv = styled.div`
   position: absolute;
   left: 50%;
   top: 50%;
-  z-index: 1;
+  z-index: 0;
   text-align: center;
   transform: translateX(-50%) translateY(-50%);
   &.donutchart-text {
