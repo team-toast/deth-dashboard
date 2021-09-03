@@ -33,6 +33,8 @@ export default function DonutChart({
     });
   };
 
+  const [params, setParams] = useState({});
+
   useEffect(() => {
     if (window.innerWidth <= 640) {
       values.size = 140;
@@ -49,34 +51,14 @@ export default function DonutChart({
       stroke: color,
     };
     const rotateval = "rotate(-90 " + halfsize + "," + halfsize + ")";
-
-    const svgHtml = (
-      <DonutChartSVG
-        color={color}
-        className={reverse ? `DonutChart reverse` : `DonutChart`}
-        width={values.size}
-        height={values.size}
-      >
-        <circle
-          r={radius}
-          cx={halfsize}
-          cy={halfsize}
-          transform={rotateval}
-          style={trackstyle}
-          className="donutchart-track"
-        />
-        <circle
-          r={radius}
-          cx={halfsize}
-          cy={halfsize}
-          transform={rotateval}
-          style={indicatorstyle}
-          className="donutchart-indicator"
-        />
-      </DonutChartSVG>
-    );
-
-    setSvg(svgHtml);
+    setParams({
+      size: values.size,
+      halfsize,
+      radius,
+      trackstyle,
+      indicatorstyle,
+      rotateval,
+    });
     window.addEventListener("resize", handleResize, false);
   }, [potential, dimensions]);
 
@@ -87,7 +69,29 @@ export default function DonutChart({
         <div className="donutchart-text-percent">{Number(difference)}</div>
         <div className="donutchart-text-label">{values.valuelabel}</div>
       </PosDiv>
-      {svg}
+      <DonutChartSVG
+        color={color}
+        className={reverse ? `DonutChart reverse` : `DonutChart`}
+        width={params.size}
+        height={params.size}
+      >
+        <circle
+          r={params.radius}
+          cx={params.halfsize}
+          cy={params.halfsize}
+          transform={params.rotateval}
+          style={params.trackstyle}
+          className="donutchart-track"
+        />
+        <circle
+          r={params.radius}
+          cx={params.halfsize}
+          cy={params.halfsize}
+          transform={params.rotateval}
+          style={params.indicatorstyle}
+          className="donutchart-indicator"
+        />
+      </DonutChartSVG>
     </RelPos>
   );
 }
@@ -152,6 +156,9 @@ const DonutChartSVG = styled.svg`
     }
     stroke-dasharray: 0 10000;
     transition: stroke-dasharray 0.3s ease;
+    @media screen and (max-width: 40rem) {
+      transition: none;
+    }
   }
   &.reverse {
     display: block;
