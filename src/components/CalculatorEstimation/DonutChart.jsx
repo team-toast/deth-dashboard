@@ -35,30 +35,35 @@ export default function DonutChart({
 
   const [params, setParams] = useState({});
 
+  let timeout;
+
   useEffect(() => {
     if (window.innerWidth <= 640) {
       values.size = 140;
     }
-    const halfsize = values.size * 0.5;
-    const radius = halfsize - values.strokewidth * 0.5;
-    const circumference = 2 * Math.PI * radius;
-    const strokeval = (values.value * circumference) / 100;
-    const dashval = strokeval + " " + circumference;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      const halfsize = values.size * 0.5;
+      const radius = halfsize - values.strokewidth * 0.5;
+      const circumference = 2 * Math.PI * radius;
+      const strokeval = (values.value * circumference) / 100;
+      const dashval = strokeval + " " + circumference;
 
-    const trackstyle = {};
-    const indicatorstyle = {
-      strokeDasharray: dashval,
-      stroke: color,
-    };
-    const rotateval = "rotate(-90 " + halfsize + "," + halfsize + ")";
-    setParams({
-      size: values.size,
-      halfsize,
-      radius,
-      trackstyle,
-      indicatorstyle,
-      rotateval,
-    });
+      const trackstyle = {};
+      const indicatorstyle = {
+        strokeDasharray: dashval,
+        stroke: color,
+      };
+      const rotateval = "rotate(-90 " + halfsize + "," + halfsize + ")";
+      setParams({
+        size: values.size,
+        halfsize,
+        radius,
+        trackstyle,
+        indicatorstyle,
+        rotateval,
+      });
+    }, 1000);
     window.addEventListener("resize", handleResize, false);
   }, [potential, dimensions]);
 
