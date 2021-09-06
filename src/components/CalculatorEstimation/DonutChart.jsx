@@ -7,10 +7,9 @@ export default function DonutChart({
   difference = 0,
   reverse = false,
 }) {
-  const [svg, setSvg] = useState(null);
   let values = {
     value: potential,
-    valuelabel: `ETH`,
+    valuelabel: `DOLLARS`,
     size: 230,
     strokewidth: 20,
   };
@@ -18,14 +17,14 @@ export default function DonutChart({
     width: 0,
     height: 0,
   });
-  useState(() => {
-    if (typeof window !== "undefined") {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
-  });
+  // useState(() => {
+  //   if (typeof window !== "undefined") {
+  //     setDimensions({
+  //       width: window.innerWidth,
+  //       height: window.innerHeight,
+  //     });
+  //   }
+  // });
   const handleResize = () => {
     setDimensions({
       width: window.innerWidth,
@@ -38,9 +37,9 @@ export default function DonutChart({
   let timeout;
 
   useEffect(() => {
-    if (window.innerWidth <= 640) {
-      values.size = 140;
-    }
+    // if (window.innerWidth <= 640) {
+    //   values.size = 140;
+    // }
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       const halfsize = values.size * 0.5;
@@ -64,14 +63,14 @@ export default function DonutChart({
         rotateval,
       });
     }, 1000);
-    window.addEventListener("resize", handleResize, false);
-  }, [potential, dimensions]);
+    // window.addEventListener("resize", handleResize, false);
+  }, [potential]);
 
   return (
     <RelPos>
       <PosDiv color={color} className="donutchart-text">
-        <div className="donutchart-text-val">{`You'll have*`}</div>
-        <div className="donutchart-text-percent">{Number(difference)}</div>
+        <div className="donutchart-text-val">{`You'll gain*`}</div>
+        <div className="donutchart-text-percent">${Number(difference)}</div>
         <div className="donutchart-text-label">{values.valuelabel}</div>
       </PosDiv>
       <DonutChartSVG

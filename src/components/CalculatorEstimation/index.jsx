@@ -10,21 +10,18 @@ import DonutChart from "./DonutChart";
 
 import Web3 from "web3";
 
-export default function CalculatorEstimate({ ethPrice }) {
+export default function CalculatorEstimate({ ethPriceWeb }) {
   const web3Provider = new Web3.providers.HttpProvider(process.env.ETH_RPC);
   const web3 = new Web3(web3Provider);
 
   const [eth, setEth] = useState(1);
-  const [percentage, setPercentage] = useState(0);
-  const [sliderPercentage, setSliderPercentage] = useState(0);
+  const [sliderPercentage, setSliderPercentage] = useState(ethPriceWeb * 1.1);
   const [gains, setGains] = useState(0);
   const [gainsText, setGainsText] = useState(0);
-  const [losses, setLosses] = useState(0);
-  const [lossesText, setLossesText] = useState(0);
   const [calculatedDeposit, setCalculatedDeposit] = useState({});
   const [gainsDollars, setGainsDollars] = useState(0);
-  const [lossesDollars, setLossesDollars] = useState(0);
   const [potentialPrice, setPotentialPrice] = useState(0);
+  const [ethPrice, setEthPrice] = useState(ethPriceWeb);
 
   const calculateGains = async () => {
     console.log(ethPrice);
@@ -41,31 +38,9 @@ export default function CalculatorEstimate({ ethPrice }) {
     const toA100 = truePercentage;
     const ethGains = eth * ratio;
     const ethGainsWithFees = ethGains * (1 - 2 * 0.009) * (1 - 2 * 0.01);
-    const ethGainsWithFeesPrice = ethGainsWithFees;
     setGainsDollars(sliderPotentialPrice - ethPrice);
     setGainsText(ethGainsWithFees);
     setGains(toA100);
-  };
-  const calculateLosses = () => {
-    const potentialPrice = parseInt(sliderPercentage);
-    const getPercentage = potentialPrice * ethPrice;
-    const getFullPrice = ethPrice - getPercentage;
-    const ratio = potentialPrice / ethPrice;
-    const dollarValue = eth * ethPrice * ratio;
-    const dollarWithFees = dollarValue * (1 - 2 * 0.009) * (1 - 2 * 0.01);
-    const currentEthValue = ethPrice * eth;
-    const priceDiff = dollarWithFees - currentEthValue;
-    const truePercentage = Math.abs((priceDiff / currentEthValue) * 100);
-    const toA100 = truePercentage;
-    const ethGains = eth * ratio;
-    const ethGainsWithFees = ethGains * (1 - 2 * 0.009) * (1 - 2 * 0.01);
-    const ethGainsWithFeesPrice = ethGainsWithFees - dollarWithFees;
-    setLossesDollars(ethGainsWithFeesPrice);
-    setLossesText(ethGainsWithFees);
-    setLosses(toA100);
-  };
-  const relDiff = (a, b) => {
-    return 100 * Math.abs((a - b) / ((a + b) / 2));
   };
   const calculateDeposit = async (value) => {
     try {
@@ -90,12 +65,24 @@ export default function CalculatorEstimate({ ethPrice }) {
       console.log(error);
     }
   };
+  const setBubble = () => {
+    const range = document.querySelector(".slider");
+    const bubble = document.querySelector(".range-bubble");
+    const val = range.value;
+    const min = range.min ? range.min : 0;
+    const max = range.max ? range.max : 100;
+    const newVal = Number(((val - min) * 100) / (max - min));
+    bubble.style.left = `calc(${newVal}% + (${8 - newVal * 0.15}px))`;
+  };
+  useEffect(() => {
+    calculateGains();
+  }, []);
   useEffect(() => {
     if (!isNaN(eth)) {
       calculateGains();
-      // calculateLosses();
+      setBubble();
     }
-  }, [sliderPercentage, eth]);
+  }, [sliderPercentage, eth, ethPrice]);
   return (
     <StyledSection>
       <GridContainer>
@@ -108,45 +95,103 @@ export default function CalculatorEstimate({ ethPrice }) {
         </Row>
         <Row xsNoflex>
           <Col size={1}>
-            <Posrelative>
-              <strong>ETH you want to place</strong>
-              <br />
-              <StyledInput
-                type="text"
-                defaultValue={eth}
-                className="input"
-                placeholder="0"
-                pattern="[0-9]+"
-                onChange={() => {
-                  if (!isNaN(event.target.value)) {
-                    setEth(event.target.value);
-                    // triggerChanges();
-                  }
-                }}
-              />
-            </Posrelative>
+            <FlexBox>
+              <FlexRow>
+                <Posrelative>
+                  <strong>
+                    ETH <span className="hide-xs">you want</span> to place
+                  </strong>
+                  <br />
+                  <StyledInput
+                    type="text"
+                    defaultValue={eth}
+                    className="input"
+                    placeholder="0"
+                    pattern="[0-9]+"
+                    onChange={() => {
+                      if (!isNaN(event.target.value)) {
+                        setEth(event.target.value);
+                        // triggerChanges();
+                      }
+                    }}
+                  />
+                </Posrelative>
+              </FlexRow>
+              <FlexRow>
+                <Posrelative>
+                  <strong>ETH price</strong>
+                  <br />
+                  <StyledInput
+                    type="text"
+                    value={ethPrice}
+                    className="input"
+                    placeholder="0"
+                    pattern="[0-9]+"
+                    onChange={() => {
+                      if (!isNaN(event.target.value)) {
+                        setEthPrice(event.target.value);
+                      }
+                    }}
+                  />
+                </Posrelative>
+              </FlexRow>
+            </FlexBox>
             <Posrelative>
               <strong>Assumed price change</strong>
-              <span className="visible-on-xsmall"> of {percentage}%</span>
+              <span>
+                {" "}
+                of{" "}
+                <strong>
+                  {Number((potentialPrice / ethPrice).toFixed(2)) < 1.0
+                    ? Number(
+                        ((potentialPrice / ethPrice) * 100 - 100).toFixed(2)
+                      )
+                    : Number(
+                        ((potentialPrice / ethPrice) * 100 - 100).toFixed(2)
+                      )}
+                  %
+                </strong>
+              </span>
               <br />
+              <MaxWidth className="margin-top-2">
+                <StyledInputValue className="range-bubble">
+                  ${Number(potentialPrice)}
+                </StyledInputValue>
+              </MaxWidth>
               <StyledInput
                 type="range"
                 min="0"
                 max={ethPrice * 2}
                 className="slider"
-                defaultValue={ethPrice}
+                defaultValue={sliderPercentage}
                 onInput={({ target: { value: sliderPercentage } }) => {
                   setSliderPercentage(sliderPercentage);
-                  // setPercentage(ethPrice / percentage);
-                  // triggerChanges();
                 }}
               />
               <MaxWidth>
-                <StyledInputValue value={percentage}>
-                  ${Number(potentialPrice)}{" "}
-                  {Number((potentialPrice / ethPrice).toFixed(2))}%
-                </StyledInputValue>
+                <div>$0</div>
+                <div>${Number(ethPrice * 2)}</div>
               </MaxWidth>
+            </Posrelative>
+            <Posrelative>
+              <br />
+              <br />
+              <strong>Custom future ETH price</strong>
+              <br />
+              <StyledInput
+                type="text"
+                value={potentialPrice}
+                className="input"
+                placeholder="0"
+                pattern="[0-9]+"
+                onChange={() => {
+                  if (event.target.value.length > 0) {
+                    if (!isNaN(event.target.value)) {
+                      setSliderPercentage(event.target.value);
+                    }
+                  }
+                }}
+              />
             </Posrelative>
           </Col>
           <Col size={1}>
@@ -155,30 +200,16 @@ export default function CalculatorEstimate({ ethPrice }) {
                 <Styledh4>
                   Possible gain{" "}
                   <span className={gainsDollars >= 0 ? "green" : "red"}>
-                    ${Number(gainsDollars.toFixed(0))}
+                    {parseFloat(gainsText).toFixed(4)} ETH
                   </span>
                 </Styledh4>
                 <DonutChart
                   color={potentialPrice - ethPrice < 0 ? "#DB596D" : "#5987DB"}
                   potential={parseFloat(gains).toFixed(4)}
-                  difference={parseFloat(gainsText).toFixed(4)}
+                  difference={Number(gainsDollars.toFixed(0))}
                   reverse={potentialPrice - ethPrice < 0 ? true : false}
                 />
               </GraphCol>
-              {/* <GraphCol size={1}>
-                <Styledh4>
-                  Possible loss{" "}
-                  <span className={lossesDollars >= 0 ? "green" : "red"}>
-                    ${Number(lossesDollars.toFixed(0))}
-                  </span>
-                </Styledh4>
-                <DonutChart
-                  color="#DB596D"
-                  potential={parseFloat(losses).toFixed(4)}
-                  difference={parseFloat(lossesText).toFixed(4)}
-                  reverse={true}
-                />
-              </GraphCol> */}
             </Row>
             <Row>
               <MinusFeesCol
@@ -224,20 +255,46 @@ export default function CalculatorEstimate({ ethPrice }) {
   );
 }
 
+const FlexBox = styled.div`
+  display: flex;
+`;
+
+const FlexRow = styled.div`
+  flex: 1;
+  padding: 0 0.5rem;
+  &:first-child {
+    padding-left: 0;
+  }
+  &:last-child {
+    padding-right: 0;
+  }
+`;
+
 const MaxWidth = styled.div`
-  max-width: 500px;
+  // max-width: 500px;
   position: relative;
-  @media screen and (max-width: 40rem) {
-    display: none;
+  display: flex;
+  > div {
+    flex: 1;
+    &:last-child {
+      text-align: right;
+    }
+  }
+  &.margin-top-2 {
+    margin-top: 2.5rem;
+    width: 88%;
   }
 `;
 
 const StyledInputValue = styled.div`
   position: absolute;
   color: #1f1f1f;
-  left: ${(props) => (props.value >= 90 ? props.value - 10 : props.value)}%;
   bottom: 0;
   transition: all 0.35s ease-out;
+  background: #5987db;
+  border-radius: 5px;
+  padding: 2px 10px;
+  color: #ffffff;
   @media screen and (max-width: 40rem) {
     left: 0;
     transition: none;
@@ -258,12 +315,14 @@ const StyledInput = styled.input`
   margin-top: 1rem;
   margin-bottom: 2rem;
   width: 100%;
-  max-width: 500px;
+  // max-width: 500px;
   &.slider {
     -webkit-appearance: none;
     background: #dddddd;
     height: 0.32rem;
     margin-top: 1.5rem;
+    margin-bottom: 0;
+    position: relative;
     &:after {
       content: " ";
       width: 6px;
@@ -301,7 +360,6 @@ const StyledInput = styled.input`
       background: #5987db;
       cursor: pointer;
       border-radius: 0;
-      border-radius: 0;
     }
   }
   &.input {
@@ -326,13 +384,13 @@ const Styledh4 = styled.h4`
   text-align: center;
   margin-bottom: 1rem;
   .green {
-    color: green;
+    color: #5987db;
     @media screen and (max-width: 40rem) {
       display: block;
     }
   }
   .red {
-    color: red;
+    color: rgb(219, 89, 109);
     @media screen and (max-width: 40rem) {
       display: block;
     }

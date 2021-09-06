@@ -52,6 +52,12 @@ ${reset}
             text-align: right;
         }
     }
+    &-green {
+        color: green;
+    }
+    &-red {
+        color: red;
+    }
 }
 h1 {
     font-size: ${sizes.xxxl};
@@ -137,5 +143,10 @@ button, .button {
     position: relative;
     top: 3px;
     cursor: pointer;
+}
+@media screen and (max-width: 48em) {
+    .hide-xs {
+        display: none;
+    }
 }
 `;
