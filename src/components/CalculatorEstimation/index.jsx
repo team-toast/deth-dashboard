@@ -24,12 +24,11 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
   const [ethPrice, setEthPrice] = useState(ethPriceWeb);
 
   const calculateGains = async () => {
-    console.log(ethPrice);
     const sliderPotentialPrice = parseInt(sliderPercentage);
+    setPotentialPrice(sliderPotentialPrice);
     const getPercentage = sliderPotentialPrice * ethPrice;
     const getFullPrice = ethPrice + getPercentage;
     const ratio = sliderPotentialPrice / ethPrice;
-    setPotentialPrice(sliderPotentialPrice);
     const dollarValue = eth * ethPrice * ratio;
     const dollarWithFees = dollarValue * (1 - 2 * 0.009) * (1 - 2 * 0.01);
     const currentEthValue = ethPrice * eth;
@@ -38,7 +37,7 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
     const toA100 = truePercentage;
     const ethGains = eth * ratio;
     const ethGainsWithFees = ethGains * (1 - 2 * 0.009) * (1 - 2 * 0.01);
-    setGainsDollars(sliderPotentialPrice - ethPrice);
+    setGainsDollars(sliderPotentialPrice * eth - ethPrice * eth);
     setGainsText(ethGainsWithFees);
     setGains(toA100);
   };
@@ -79,8 +78,10 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
   }, []);
   useEffect(() => {
     if (!isNaN(eth)) {
-      calculateGains();
-      setBubble();
+      if (ethPrice !== 0 || eth !== 0) {
+        calculateGains();
+        setBubble();
+      }
     }
   }, [sliderPercentage, eth, ethPrice]);
   return (
@@ -104,13 +105,13 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
                   <br />
                   <StyledInput
                     type="text"
-                    defaultValue={eth}
+                    defaultValue={isNaN(eth) ? 1 : eth}
                     className="input"
                     placeholder="0"
                     pattern="[0-9]+"
                     onChange={() => {
                       if (!isNaN(event.target.value)) {
-                        setEth(event.target.value);
+                        setEth(parseFloat(event.target.value));
                         // triggerChanges();
                       }
                     }}
@@ -138,23 +139,27 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
             </FlexBox>
             <Posrelative>
               <strong>Assumed price change</strong>
-              <span>
-                {" "}
-                of{" "}
-                <strong>
-                  {Number((potentialPrice / ethPrice).toFixed(2)) < 1.0
-                    ? Number(
-                        ((potentialPrice / ethPrice) * 100 - 100).toFixed(2)
-                      )
-                    : Number(
-                        ((potentialPrice / ethPrice) * 100 - 100).toFixed(2)
-                      )}
-                  %
-                </strong>
-              </span>
+              {ethPrice && (
+                <span>
+                  {" "}
+                  of{" "}
+                  <strong>
+                    {Number((potentialPrice / ethPrice).toFixed(2)) < 1.0
+                      ? Number(
+                          ((potentialPrice / ethPrice) * 100 - 100).toFixed(2)
+                        )
+                      : Number(
+                          ((potentialPrice / ethPrice) * 100 - 100).toFixed(2)
+                        )}
+                    %
+                  </strong>
+                </span>
+              )}
               <br />
               <MaxWidth className="margin-top-2">
-                <StyledInputValue className="range-bubble">
+                <StyledInputValue
+                  className={ethPrice ? "range-bubble" : "range-bubble hidden"}
+                >
                   ${Number(potentialPrice)}
                 </StyledInputValue>
               </MaxWidth>
@@ -163,7 +168,9 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
                 min="0"
                 max={ethPrice * 2}
                 className="slider"
-                defaultValue={sliderPercentage}
+                defaultValue={
+                  isNaN(sliderPercentage) ? ethPrice : sliderPercentage
+                }
                 onInput={({ target: { value: sliderPercentage } }) => {
                   setSliderPercentage(sliderPercentage);
                 }}
@@ -180,7 +187,7 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
               <br />
               <StyledInput
                 type="text"
-                value={potentialPrice}
+                defaultValue={isNaN(potentialPrice) ? ethPrice : potentialPrice}
                 className="input"
                 placeholder="0"
                 pattern="[0-9]+"
@@ -200,7 +207,8 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
                 <Styledh4>
                   Possible gain{" "}
                   <span className={gainsDollars >= 0 ? "green" : "red"}>
-                    {parseFloat(gainsText).toFixed(4)} ETH
+                    {isNaN(gainsText) ? 0 : parseFloat(gainsText).toFixed(4)}{" "}
+                    ETH
                   </span>
                 </Styledh4>
                 <DonutChart

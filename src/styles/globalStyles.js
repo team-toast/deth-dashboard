@@ -144,6 +144,9 @@ button, .button {
     top: 3px;
     cursor: pointer;
 }
+.hidden {
+    display: none;
+}
 @media screen and (max-width: 48em) {
     .hide-xs {
         display: none;
