@@ -9,7 +9,7 @@ export default function DonutChart({
 }) {
   let values = {
     value: potential,
-    valuelabel: `DOLLARS`,
+    valuelabel: `USD`,
     size: 230,
     strokewidth: 20,
   };
@@ -126,8 +126,8 @@ const PosDiv = styled.div`
       font-weight: bold;
       line-height: 3rem;
       @media screen and (max-width: 40rem) {
-        font-size: 1.8rem;
-        line-height: 2rem;
+        font-size: 2.5rem;
+        line-height: 3rem;
       }
     }
     .donutchart-text-label {
@@ -149,14 +149,14 @@ const DonutChartSVG = styled.svg`
     stroke: #dddddd;
     stroke-width: 0.7rem;
     @media screen and (max-width: 40em) {
-      stroke-width: 0.4rem;
+      stroke-width: 0.7rem;
     }
   }
   .donutchart-indicator {
     fill: transparent;
     stroke-width: 1rem;
     @media screen and (max-width: 40em) {
-      stroke-width: 0.6rem;
+      stroke-width: 1rem;
     }
     stroke-dasharray: 0 10000;
     transition: stroke-dasharray 0.3s ease;
