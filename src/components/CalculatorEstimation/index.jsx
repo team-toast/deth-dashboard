@@ -72,6 +72,10 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
     const max = range.max ? range.max : 100;
     const newVal = Number(((val - min) * 100) / (max - min));
     bubble.style.left = `calc(${newVal}% + (${8 - newVal * 0.15}px))`;
+    bubble.style.setProperty(
+      "--left",
+      `${newVal > 70 ? newVal - 29 : newVal < 20 ? newVal + 15 : newVal - 10}%`
+    );
   };
   useEffect(() => {
     calculateGains();
@@ -303,6 +307,16 @@ const StyledInputValue = styled.div`
   border-radius: 5px;
   padding: 2px 10px;
   color: #ffffff;
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: var(--left, 50%);
+    border-top: 7px solid #5987db !important;
+    border-top-color: inherit;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+  }
   @media screen and (max-width: 40rem) {
     left: 0;
     transition: none;
