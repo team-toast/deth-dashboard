@@ -365,7 +365,7 @@ const StyledInput = styled.input`
       background: #5987db;
       cursor: pointer;
       transition: all 0.25s ease;
-      z-index: 2;
+      z-index: 1;
       position: relative;
       &:active {
         cursor: grabbing;
