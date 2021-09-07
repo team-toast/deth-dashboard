@@ -143,11 +143,9 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
                     className="input"
                     placeholder="0"
                     pattern="[0-9]+"
-                    onChange={() => {
-                      if (!isNaN(event.target.value)) {
-                        setEthPrice(event.target.value);
-                      }
-                    }}
+                    disabled
+                    readonly
+                    title={`Current ETH price $${ethPrice}`}
                   />
                 </Posrelative>
               </FlexRow>
@@ -368,6 +366,9 @@ const StyledInput = styled.input`
   margin-bottom: 2rem;
   width: 100%;
   // max-width: 500px;
+  &:disabled {
+    cursor: not-allowed;
+  }
   &.slider {
     -webkit-appearance: none;
     background: #dddddd;
