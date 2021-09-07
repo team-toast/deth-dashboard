@@ -72,10 +72,10 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
     const max = range.max ? range.max : 100;
     const newVal = Number(((val - min) * 100) / (max - min));
     bubble.style.left = `calc(${newVal}% + (${8 - newVal * 0.15}px))`;
-    bubble.style.setProperty(
-      "--left",
-      `${newVal > 70 ? newVal - 29 : newVal < 20 ? newVal + 15 : newVal - 10}%`
-    );
+    // bubble.style.setProperty(
+    //   "--left",
+    //   `${newVal > 70 ? newVal - 29 : newVal < 20 ? newVal + 15 : newVal - 10}%`
+    // );
   };
   useEffect(() => {
     calculateGains();
@@ -294,7 +294,7 @@ const MaxWidth = styled.div`
   }
   &.margin-top-2 {
     margin-top: 2.5rem;
-    width: 88%;
+    width: 91%;
   }
 `;
 
@@ -310,8 +310,9 @@ const StyledInputValue = styled.div`
   &::after {
     content: "";
     position: absolute;
-    top: 100%;
-    left: var(--left, 50%);
+    top: 96%;
+    left: 50%;
+    margin-left: -3px;
     border-top: 7px solid #5987db !important;
     border-top-color: inherit;
     border-left: 7px solid transparent;
