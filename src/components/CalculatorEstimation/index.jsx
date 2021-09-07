@@ -67,15 +67,24 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
   const setBubble = () => {
     const range = document.querySelector(".slider");
     const bubble = document.querySelector(".range-bubble");
+    var slider = range;
+    var sliderPos = slider.value / slider.max;
+
+    var pixelPostion = slider.clientWidth * sliderPos;
+    //this is your pixel value
+    // console.log(pixelPostion);
     const val = range.value;
     const min = range.min ? range.min : 0;
     const max = range.max ? range.max : 100;
     const newVal = Number(((val - min) * 100) / (max - min));
-    if (newVal < 60) {
-      bubble.style.left = `calc(${newVal + 10}%)`;
+    if (newVal < 40) {
+      bubble.style.left = `${Number(pixelPostion + 35)}px`;
+      bubble.classList.remove("flip-arrow");
+    } else if (newVal < 60) {
+      bubble.style.left = `${Number(pixelPostion + 25)}px`;
       bubble.classList.remove("flip-arrow");
     } else {
-      bubble.style.left = `calc(${newVal - 21}%)`;
+      bubble.style.left = `${Number(pixelPostion - 90)}px`;
       bubble.classList.add("flip-arrow");
     }
   };
@@ -327,9 +336,6 @@ const StyledInputValue = styled.div`
     border-bottom: 7px solid transparent;
   }
   &.flip-arrow {
-    @media screen and (min-width: 40rem) {
-      margin-left: 8%;
-    }
     &::after {
       content: "";
       position: absolute;
