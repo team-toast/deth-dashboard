@@ -119,7 +119,7 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
                 </Posrelative>
               </FlexRow>
               <FlexRow>
-                <Posrelative>
+                <Posrelative className="dollar-symbol">
                   <strong>ETH price</strong>
                   <br />
                   <StyledInput
@@ -180,7 +180,7 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
                 <div>${Number(ethPrice * 2)}</div>
               </MaxWidth>
             </Posrelative>
-            <Posrelative>
+            <Posrelative className="dollar-symbol">
               <br />
               <br />
               <strong>Custom future ETH price</strong>

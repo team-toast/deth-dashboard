@@ -147,6 +147,25 @@ button, .button {
 .hidden {
     display: none;
 }
+input {
+    outline: none;
+}
+.dollar-symbol input {
+    padding: 0px 1rem 0 2.5rem !important;
+}
+.dollar-symbol::after {
+    content: "$";
+    position: absolute;
+    left: 0;
+    bottom: 32px;
+    width: 30px;
+    background: rgb(221, 221, 221);
+    height: 50px;
+    color: rgb(46, 41, 66);
+    line-height: 50px;
+    text-align: center;
+    border-radius: 5px 0 0 5px;
+}
 @media screen and (max-width: 48em) {
     .hide-xs {
         display: none;
