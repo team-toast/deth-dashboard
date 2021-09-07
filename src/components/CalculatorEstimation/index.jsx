@@ -71,11 +71,13 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
     const min = range.min ? range.min : 0;
     const max = range.max ? range.max : 100;
     const newVal = Number(((val - min) * 100) / (max - min));
-    bubble.style.left = `calc(${newVal}% + (${8 - newVal * 0.15}px))`;
-    // bubble.style.setProperty(
-    //   "--left",
-    //   `${newVal > 70 ? newVal - 29 : newVal < 20 ? newVal + 15 : newVal - 10}%`
-    // );
+    if (newVal < 60) {
+      bubble.style.left = `calc(${newVal + 10}%)`;
+      bubble.classList.remove("flip-arrow");
+    } else {
+      bubble.style.left = `calc(${newVal - 21}%)`;
+      bubble.classList.add("flip-arrow");
+    }
   };
   useEffect(() => {
     calculateGains();
@@ -124,7 +126,7 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
               </FlexRow>
               <FlexRow>
                 <Posrelative className="dollar-symbol">
-                  <strong>ETH price</strong>
+                  <strong>Current ETH price</strong>
                   <br />
                   <StyledInput
                     type="text"
@@ -166,6 +168,11 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
                 >
                   ${Number(potentialPrice)}
                 </StyledInputValue>
+              </MaxWidth>
+              <MaxWidth className="grey-text">
+                <div>-100%</div>
+                <div className="text-center">0%</div>
+                <div className="text-right">100%</div>
               </MaxWidth>
               <StyledInput
                 type="range"
@@ -293,7 +300,7 @@ const MaxWidth = styled.div`
     }
   }
   &.margin-top-2 {
-    margin-top: 2.5rem;
+    margin-top: 1.5rem;
     width: 91%;
   }
 `;
@@ -302,7 +309,9 @@ const StyledInputValue = styled.div`
   position: absolute;
   color: #1f1f1f;
   bottom: 0;
-  transition: all 0.35s ease-out;
+  bottom: -53px;
+  z-index: 1;
+  transition: all 0.15s ease-out;
   background: #5987db;
   border-radius: 5px;
   padding: 2px 10px;
@@ -310,13 +319,27 @@ const StyledInputValue = styled.div`
   &::after {
     content: "";
     position: absolute;
-    top: 96%;
-    left: 50%;
-    margin-left: -3px;
-    border-top: 7px solid #5987db !important;
-    border-top-color: inherit;
-    border-left: 7px solid transparent;
-    border-right: 7px solid transparent;
+    top: 27%;
+    left: -12px;
+    border-top: 7px solid transparent;
+    border-left: 7px solid transparent !important;
+    border-right: 7px solid #5987db !important;
+    border-bottom: 7px solid transparent;
+  }
+  &.flip-arrow {
+    @media screen and (min-width: 40rem) {
+      margin-left: 8%;
+    }
+    &::after {
+      content: "";
+      position: absolute;
+      top: 27%;
+      left: 97%;
+      border-top: 7px solid transparent;
+      border-left: 7px solid #5987db !important;
+      border-right: 7px solid transparent !important;
+      border-bottom: 7px solid transparent;
+    }
   }
   @media screen and (max-width: 40rem) {
     left: 0;
@@ -343,8 +366,8 @@ const StyledInput = styled.input`
     -webkit-appearance: none;
     background: #dddddd;
     height: 0.32rem;
-    margin-top: 1.5rem;
-    margin-bottom: 0;
+    margin-top: 0rem;
+    margin-bottom: 0.8rem;
     position: relative;
     &:after {
       content: " ";

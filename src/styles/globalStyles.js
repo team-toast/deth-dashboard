@@ -166,6 +166,10 @@ input {
     text-align: center;
     border-radius: 5px 0 0 5px;
 }
+.grey-text {
+    font-size: 0.9rem;
+    color: #888;
+}
 @media screen and (max-width: 48em) {
     .hide-xs {
         display: none;
