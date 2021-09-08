@@ -8,7 +8,7 @@ export default function DonutChart({
   reverse = false,
 }) {
   let values = {
-    value: potential,
+    value: Math.sign(potential) >= 0 ? potential : Math.abs(potential),
     valuelabel: `USD`,
     size: 230,
     strokewidth: 20,
@@ -34,14 +34,11 @@ export default function DonutChart({
 
   const [params, setParams] = useState({});
 
-  let timeout;
-
   useEffect(() => {
     // if (window.innerWidth <= 640) {
     //   values.size = 140;
     // }
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
+    let timeout = setTimeout(() => {
       const halfsize = values.size * 0.5;
       const radius = halfsize - values.strokewidth * 0.5;
       const circumference = 2 * Math.PI * radius;
@@ -62,7 +59,10 @@ export default function DonutChart({
         indicatorstyle,
         rotateval,
       });
-    }, 1000);
+    }, 500);
+    return () => {
+      clearTimeout(timeout);
+    };
     // window.addEventListener("resize", handleResize, false);
   }, [potential]);
 
