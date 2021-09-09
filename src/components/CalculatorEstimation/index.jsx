@@ -27,7 +27,6 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
     const sliderPotentialPrice = parseInt(sliderPercentage);
     setPotentialPrice(sliderPotentialPrice);
     const getPercentage = sliderPotentialPrice * ethPrice;
-    const getFullPrice = ethPrice + getPercentage;
     const ratio = sliderPotentialPrice / ethPrice;
     const dollarValue = eth * ethPrice * ratio;
     const dollarWithFees = dollarValue * (1 - 2 * 0.009) * (1 - 2 * 0.01);
@@ -37,7 +36,7 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
     const toA100 = truePercentage;
     const ethGains = eth * ratio;
     const ethGainsWithFees = ethGains * (1 - 2 * 0.009) * (1 - 2 * 0.01);
-    setGainsDollars(sliderPotentialPrice * eth - ethPrice * eth);
+    setGainsDollars(sliderPotentialPrice * ethGainsWithFees - ethPrice * eth);
     setGainsText(ethGainsWithFees);
     setGains(toA100);
   };
