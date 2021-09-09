@@ -221,7 +221,7 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
             <Row>
               <GraphCol size={1}>
                 <Styledh4>
-                  Possible gain{" "}
+                  Possible Total ETH{" "}
                   <span className={gainsDollars >= 0 ? "green" : "red"}>
                     {isNaN(gainsText) ? 0 : parseFloat(gainsText).toFixed(4)}{" "}
                     ETH
