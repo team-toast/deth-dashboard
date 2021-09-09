@@ -17,14 +17,6 @@ export default function DonutChart({
     width: 0,
     height: 0,
   });
-  // useState(() => {
-  //   if (typeof window !== "undefined") {
-  //     setDimensions({
-  //       width: window.innerWidth,
-  //       height: window.innerHeight,
-  //     });
-  //   }
-  // });
   const handleResize = () => {
     setDimensions({
       width: window.innerWidth,
@@ -35,9 +27,6 @@ export default function DonutChart({
   const [params, setParams] = useState({});
 
   useEffect(() => {
-    // if (window.innerWidth <= 640) {
-    //   values.size = 140;
-    // }
     let timeout = setTimeout(() => {
       const halfsize = values.size * 0.5;
       const radius = halfsize - values.strokewidth * 0.5;
@@ -59,11 +48,10 @@ export default function DonutChart({
         indicatorstyle,
         rotateval,
       });
-    }, 500);
+    }, 250);
     return () => {
       clearTimeout(timeout);
     };
-    // window.addEventListener("resize", handleResize, false);
   }, [potential]);
 
   return (

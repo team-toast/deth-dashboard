@@ -26,19 +26,18 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
   const calculateGains = async () => {
     const sliderPotentialPrice = parseInt(sliderPercentage);
     setPotentialPrice(sliderPotentialPrice);
-    const getPercentage = sliderPotentialPrice * ethPrice;
     const ratio = sliderPotentialPrice / ethPrice;
     const dollarValue = eth * ethPrice * ratio;
-    const dollarWithFees = dollarValue * (1 - 2 * 0.009) * (1 - 2 * 0.01);
     const currentEthValue = ethPrice * eth;
-    const priceDiff = dollarWithFees - currentEthValue;
+    const priceDiff = dollarValue - currentEthValue;
     const truePercentage = (priceDiff / currentEthValue) * 100;
-    const toA100 = truePercentage;
     const ethGains = eth * ratio;
     const ethGainsWithFees = ethGains * (1 - 2 * 0.009) * (1 - 2 * 0.01);
-    setGainsDollars(sliderPotentialPrice * ethGainsWithFees - ethPrice * eth);
+    const dollarGrowthWithFees =
+      sliderPotentialPrice * ethGains * (1 - 2 * 0.009) * (1 - 2 * 0.01);
+    setGainsDollars(dollarGrowthWithFees - eth * ethPrice);
     setGainsText(ethGainsWithFees);
-    setGains(toA100);
+    setGains(truePercentage);
   };
   const calculateDeposit = async (value) => {
     try {
@@ -183,7 +182,7 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
               <StyledInput
                 type="range"
                 min="0"
-                max={ethPrice * 2}
+                max={parseInt(ethPrice * 2)}
                 className="slider"
                 defaultValue={
                   isNaN(sliderPercentage) ? ethPrice : sliderPercentage
@@ -194,7 +193,7 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
               />
               <MaxWidth>
                 <div>$0</div>
-                <div>${Number(ethPrice * 2)}</div>
+                <div>${Number(parseInt(ethPrice * 2))}</div>
               </MaxWidth>
             </Posrelative>
             <Posrelative className="dollar-symbol">
