@@ -33,6 +33,17 @@ export default function Layout({ title = "dETH", children = null }) {
           key="ogdescription"
         />
         <meta property="og:image" content="https://levr.ly/deth-logo-svg.svg" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta
+          name="twitter:description"
+          content="dETH is a novel token that provides holders with leveraged exposure to the price of ETH, without risking a full default of the funds being leveraged."
+        />
+        <meta
+          name="twitter:image"
+          content="https://levr.ly/deth-logo-svg.svg"
+        />
       </Head>
 
       <StyledMain>{children}</StyledMain>
