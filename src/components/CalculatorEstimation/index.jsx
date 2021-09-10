@@ -315,6 +315,9 @@ const StyledInputValue = styled.div`
   color: #1f1f1f;
   bottom: 0;
   bottom: -53px;
+  @-moz-document url-prefix() {
+    bottom: -40px;
+  }
   z-index: 1;
   transition: all 0.15s ease-out;
   background: #5987db;
@@ -366,6 +369,7 @@ const StyledInput = styled.input`
   // max-width: 500px;
   &:disabled {
     cursor: not-allowed;
+    background: #f3f3f3;
   }
   &.slider {
     -webkit-appearance: none;

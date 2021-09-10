@@ -119,7 +119,10 @@ export default function Deposit({
           walletAddress,
           web3.utils.toWei(depositJson.toString(), "ether")
         )
-        .send()
+        .send({
+          from: walletAddress,
+          value: web3.utils.toWei(depositJson.toString(), "ether"),
+        })
         .then((res) => console.log("Success", res))
         .catch((err) => console.log(err));
 
