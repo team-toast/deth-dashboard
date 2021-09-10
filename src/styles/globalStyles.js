@@ -52,6 +52,12 @@ ${reset}
             text-align: right;
         }
     }
+    &-green {
+        color: green;
+    }
+    &-red {
+        color: red;
+    }
 }
 h1 {
     font-size: ${sizes.xxxl};
@@ -137,5 +143,36 @@ button, .button {
     position: relative;
     top: 3px;
     cursor: pointer;
+}
+.hidden {
+    display: none;
+}
+input {
+    outline: none;
+}
+.dollar-symbol input {
+    padding: 0px 1rem 0 2.5rem !important;
+}
+.dollar-symbol::after {
+    content: "$";
+    position: absolute;
+    left: 0;
+    bottom: 32px;
+    width: 30px;
+    background: rgb(221, 221, 221);
+    height: 50px;
+    color: rgb(46, 41, 66);
+    line-height: 50px;
+    text-align: center;
+    border-radius: 5px 0 0 5px;
+}
+.grey-text {
+    font-size: 0.9rem;
+    color: #888;
+}
+@media screen and (max-width: 48em) {
+    .hide-xs {
+        display: none;
+    }
 }
 `;

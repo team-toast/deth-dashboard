@@ -5,10 +5,12 @@ import styled, { keyframes } from "styled-components";
 import { Row, Col } from "./../styles/flex-grid";
 import { sizes, colors } from "./../styles/styleguide";
 import CONTRACT_ABI from "./../lib/abi_2021_02_25.json";
+import axios from "axios";
 
+import CalculatorEstimate from "../components/CalculatorEstimation";
 import Calculator from "./../components/Calculator";
 
-export default function Home() {
+export default function Home({ ethPrice }) {
   const [web3, setWeb3] = useState(null);
   const [walletAddress, setWalletAddress] = useState(null);
   const [dETHbalance, setDETHbalance] = useState(null);
@@ -139,6 +141,7 @@ export default function Home() {
           </StyledConnectCol>
         </Row>
       </StyledHeader>
+      <CalculatorEstimate ethPriceWeb={ethPrice} />
       <Calculator
         eTHbalance={eTHbalance}
         dETHbalance={dETHbalance}
@@ -231,10 +234,21 @@ const StyledHeader = styled.header`
   top: 0;
   left: 0;
   background: #ffffff;
-  z-index: 1;
+  z-index: 2;
   padding: 0.5em 1em;
   box-shadow: 0px 3px 20px #0000001a;
   > div {
     align-items: center;
   }
 `;
+
+export async function getServerSideProps() {
+  const ethPrice = await axios(
+    `https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=ETH,USD`
+  );
+  return {
+    props: {
+      ethPrice: ethPrice.data.USD ? ethPrice.data.USD : "3000",
+    },
+  };
+}
