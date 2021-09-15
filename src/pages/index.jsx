@@ -77,7 +77,6 @@ export default function Home({ ethPrice }) {
     const balanceOfDETH = await new_contract.methods
       .calculateRedemptionValue(data)
       .call();
-    console.log(balanceOfDETH);
     setDETHtoETHvalue(balanceOfDETH);
   };
   const getDETHbalance = async (data) => {
@@ -148,6 +147,7 @@ export default function Home({ ethPrice }) {
         walletAddress={walletAddress}
         web3={web3}
         dETHtoETHvalue={dETHtoETHvalue}
+        getDETHbalanceFunc={() => getDETHbalance(walletAddress)}
       />
     </Layout>
   );

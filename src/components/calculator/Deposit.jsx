@@ -10,6 +10,7 @@ export default function Deposit({
   dETHbalance,
   walletAddress,
   web3,
+  getDETHbalanceFunc,
 }) {
   const [deposit, setDeposit] = useState(true);
   const [depositJson, setDepositJson] = useState(0);
@@ -94,7 +95,12 @@ export default function Deposit({
           from: walletAddress,
           value: web3.utils.toWei(depositJson.toString(), "ether"),
         })
-        .then((res) => console.log("Success", res))
+        .then((res) => {
+          if (parseFloat(dETHbalance) === 0) {
+            addDETHtokenToMM();
+          }
+          getDETHbalanceFunc();
+        })
         .catch((err) => console.log(err));
     } else {
       setNotEnoughBalance(true);
@@ -112,23 +118,51 @@ export default function Deposit({
         .balanceOf(walletAddress)
         .call();
 
-      console.log(118, balanceOfDETH);
-
       const fundit = await new_contract.methods
-        .redeem(
-          walletAddress,
-          web3.utils.toWei(depositJson.toString(), "ether")
-        )
+        .redeem(walletAddress, web3?.utils?.toWei(depositJson).toString())
         .send({
           from: walletAddress,
-          value: web3.utils.toWei(depositJson.toString(), "ether"),
+          value: web3.utils.toWei("0", "ether"),
         })
-        .then((res) => console.log("Success", res))
+        .then((res) => {
+          console.log("Success", res);
+          getDETHbalanceFunc();
+        })
         .catch((err) => console.log(err));
 
       console.log(fundit);
     } else {
       setNotEnoughBalance(true);
+    }
+  };
+
+  const addDETHtokenToMM = async () => {
+    const tokenAddress = "0x51863Ec92BA14ede7B17fb2B053145C90E215A57";
+    const tokenSymbol = "dETH";
+    const tokenDecimals = 18;
+    const tokenImage = "https://app.levr.ly/deth-logo-svg.svg";
+
+    try {
+      const wasAdded = await ethereum.request({
+        method: "wallet_watchAsset",
+        params: {
+          type: "ERC20", // Initially only supports ERC20, but eventually more!
+          options: {
+            address: tokenAddress, // The address that the token is at.
+            symbol: tokenSymbol, // A ticker symbol or shorthand, up to 5 chars.
+            decimals: tokenDecimals, // The number of decimals in the token
+            image: tokenImage, // A string url of the token logo
+          },
+        },
+      });
+
+      if (wasAdded) {
+        console.log("User added token.");
+      } else {
+        console.log("User cancelled.");
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 

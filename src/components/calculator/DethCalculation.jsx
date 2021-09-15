@@ -9,6 +9,7 @@ export default function DethCalculation({
   dETHtoETHvalue,
   web3,
   walletAddress,
+  getDETHbalanceFunc,
 }) {
   const [deth, setDeth] = useState(null);
   const [eth, setEth] = useState(null);
@@ -22,14 +23,17 @@ export default function DethCalculation({
         process.env.ETH_CONTRACT_ADDRESS
       );
 
-      console.log(25, walletAddress);
-
       const fundit = await new_contract.methods
         .redeem(walletAddress, web3?.utils?.toWei(deth).toString())
         .send({
           from: walletAddress,
           value: web3.utils.toWei("0", "ether"),
-        });
+        })
+        .then((res) => {
+          console.log("Success", res);
+          getDETHbalanceFunc();
+        })
+        .catch((err) => console.log(err));
 
       console.log(31, fundit);
     }
@@ -43,8 +47,12 @@ export default function DethCalculation({
     <StyledCol size={1}>
       <StyledRow>
         <Col size={1}>
-          <h2 className="no-margin">{deth ? deth : 0} dETH</h2>
-          <div>{eth ? eth : 0} ETH Redeemable</div>
+          <h2 className="no-margin">
+            {deth ? Number(parseFloat(deth).toFixed(4)) : 0} dETH
+          </h2>
+          <div>
+            {eth ? Number(parseFloat(eth).toFixed(4)) : 0} ETH Redeemable
+          </div>
           {dollar && <div className="l-blue">≈ $ {dollar ? dollar : 0}</div>}
         </Col>
         <Col className="text-center" size={1}>
