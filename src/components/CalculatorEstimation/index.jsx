@@ -62,7 +62,7 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
       console.log(error);
     }
   };
-  let timeoutTime = 100;
+  let timeoutTime = 500;
   const setBubble = () => {
     setTimeout(() => {
       const range = document.querySelector(".slider");
