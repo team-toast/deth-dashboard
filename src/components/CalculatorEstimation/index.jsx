@@ -62,28 +62,32 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
       console.log(error);
     }
   };
+  let timeoutTime = 100;
   const setBubble = () => {
-    const range = document.querySelector(".slider");
-    const bubble = document.querySelector(".range-bubble");
-    var slider = range;
-    var sliderPos = slider.value / slider.max;
+    setTimeout(() => {
+      const range = document.querySelector(".slider");
+      const bubble = document.querySelector(".range-bubble");
+      var slider = range;
+      var sliderPos = slider.value / slider.max;
 
-    var pixelPostion = slider.clientWidth * sliderPos;
-    //this is your pixel value
-    // console.log(pixelPostion);
-    const val = range.value;
-    const min = range.min ? range.min : 0;
-    const max = range.max ? range.max : 100;
-    const newVal = Number(((val - min) * 100) / (max - min));
-    if (newVal < 40) {
-      bubble.style.left = `${Number(pixelPostion + 35)}px`;
-      bubble.classList.remove("flip-arrow");
-    } else if (newVal < 60) {
-      bubble.style.left = `${Number(pixelPostion + 25)}px`;
-      bubble.classList.remove("flip-arrow");
-    } else {
-      bubble.style.left = `${Number(pixelPostion - 90)}px`;
-      bubble.classList.add("flip-arrow");
+      var pixelPostion = slider.clientWidth * sliderPos;
+      const val = range.value;
+      const min = range.min ? range.min : 0;
+      const max = range.max ? range.max : 100;
+      const newVal = Number(((val - min) * 100) / (max - min));
+      if (newVal < 40) {
+        bubble.style.left = `${Number(pixelPostion + 35)}px`;
+        bubble.classList.remove("flip-arrow");
+      } else if (newVal < 60) {
+        bubble.style.left = `${Number(pixelPostion + 25)}px`;
+        bubble.classList.remove("flip-arrow");
+      } else {
+        bubble.style.left = `${Number(pixelPostion - 90)}px`;
+        bubble.classList.add("flip-arrow");
+      }
+    }, timeoutTime);
+    if (timeoutTime > 0) {
+      timeoutTime = 0;
     }
   };
   useEffect(() => {
