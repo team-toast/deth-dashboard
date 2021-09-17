@@ -21,16 +21,22 @@ export default function Home({ ethPrice }) {
   const [eTHbalance, setETHbalance] = useState(0);
   const [dETHtoETHvalue, setDETHtoETHvalue] = useState(0);
   const [showConnectOptions, setShowConnectOptions] = useState(false);
+  const [web3Detect, setWeb3Detect] = useState(false);
+  const [showDisconnectWallet, setShowDisconnectWallet] = useState(false);
   useEffect(() => {
     if (
       typeof window != "undefined" &&
-      window.ethereum !== undefined &&
+      // window.ethereum !== undefined &&
       !web3
     ) {
+      if (window.ethereum !== undefined) {
+        setWeb3Detect(true);
+      }
       connectSelectedWallet();
     }
   }, [wallet]);
   const connectSelectedWallet = async () => {
+    console.log("connectSelectedWallet");
     if (wallet === "metamask") {
       try {
         const newWeb3 = await new Web3(window.ethereum);
@@ -63,10 +69,15 @@ export default function Home({ ethPrice }) {
     // setWeb3(null);
     setWalletAddress(null);
   };
+  const disconnectWalletConnect = () => {
+    localStorage.removeItem("walletconnect");
+    web3 = null;
+    setWeb3Obj(null);
+    setWalletAddress(null);
+  };
   const connectWallet = () => {
     console.log(66, `connectWallet`);
-    console.log(67, window.ethereum, web3);
-    if (typeof window != "undefined" && window.ethereum !== undefined && web3) {
+    if (typeof window != "undefined" && web3) {
       (async () => {
         console.log("Startup, test eth_requestAccounts");
         let testPassed = false;
@@ -121,13 +132,14 @@ export default function Home({ ethPrice }) {
       setDETHbalance(web3?.utils?.fromWei(balanceOfDETH));
       await getDETHtoETHValue(balanceOfDETH);
     } catch (error) {
-      console.log("Unable to connect to wallet.");
+      console.log("Unable to connect to wallet.", error);
     }
   };
 
   const getETHbalance = async (data) => {
-    const getBalance = await web3.eth.getBalance(data);
+    const getBalance = await web3?.eth?.getBalance(data);
     const getWeiValue = await web3?.utils?.fromWei(getBalance.toString());
+    //  Get Chain Id
     setETHbalance(getWeiValue);
   };
   useEffect(() => {
@@ -143,12 +155,12 @@ export default function Home({ ethPrice }) {
       });
       // Network account change
       window.ethereum.on("chainChanged", function (networkId) {
-        console.log(networkId);
+        console.log(157, networkId);
       });
     } else {
       console.warn("No web3 detected.");
     }
-  });
+  }, []);
   const shortenAddress = (data) => {
     const first = data.slice(0, 6);
     const last = data.slice(data.length - 4, data.length);
@@ -171,7 +183,24 @@ export default function Home({ ethPrice }) {
               <ConnectedDiv title={walletAddress}>
                 <div>
                   <StyledOnIcon></StyledOnIcon>
-                  <strong>Connected to</strong>
+                  <strong onClick={() => setShowDisconnectWallet(true)}>
+                    Connected to
+                  </strong>
+                  <DisconnectWallet
+                    className={showDisconnectWallet ? "" : "hidden"}
+                  >
+                    <div>
+                      <button onClick={disconnectWalletConnect}>
+                        Disconnect
+                      </button>
+                    </div>
+                    <button
+                      className="close-btn"
+                      onClick={() => setShowDisconnectWallet(false)}
+                    >
+                      X
+                    </button>
+                  </DisconnectWallet>
                 </div>
                 <EllipsisSpan>{shortenAddress(walletAddress)}</EllipsisSpan>
               </ConnectedDiv>
@@ -183,14 +212,16 @@ export default function Home({ ethPrice }) {
                 <StyledWalletOptions
                   className={showConnectOptions ? "" : "hidden"}
                 >
-                  <div>
-                    <button
-                      className="metamask"
-                      onClick={() => setWallet("metamask")}
-                    >
-                      MetaMask
-                    </button>
-                  </div>
+                  {web3Detect && (
+                    <div>
+                      <button
+                        className="metamask"
+                        onClick={() => setWallet("metamask")}
+                      >
+                        MetaMask
+                      </button>
+                    </div>
+                  )}
                   <div>
                     <button
                       className="walletconnect"
@@ -278,6 +309,49 @@ const EllipsisSpan = styled.span`
 const ConnectedDiv = styled.div`
   overflow: hidden;
   display: inline-block;
+`;
+
+const DisconnectWallet = styled.div`
+  background: #2e2942;
+  position: absolute;
+  top: 6px;
+  right: 3px;
+  padding: 0.5rem 0 0;
+  border-radius: 23px;
+  min-width: 14.625em;
+  text-align: center;
+  box-shadow: 0 0 10px rgb(0 0 0 / 30%);
+  button {
+    margin-bottom: 0.5rem;
+    text-align: center;
+    padding-left: 0;
+    &.metamask {
+      background: #fff url(/metamask.png) no-repeat;
+      background-size: 20px;
+      background-position: 17px;
+      &:hover {
+        background-color: #db596d;
+      }
+    }
+    &.walletconnect {
+      background: #fff url(/walletConnect.svg) no-repeat;
+      background-size: 20px;
+      background-position: 17px;
+      &:hover {
+        background-color: #db596d;
+      }
+    }
+  }
+  .close-btn {
+    position: absolute;
+    left: -25px;
+    bottom: -28px;
+    min-width: initial;
+    padding: 0 1rem;
+  }
+  &.hidden {
+    display: none;
+  }
 `;
 
 const StyledSpan = styled.span`

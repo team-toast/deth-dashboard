@@ -42,48 +42,57 @@ export default function Deposit({
     if (isNaN(value) || value === "") {
       return;
     }
-    let new_contract = await new web3.eth.Contract(
-      CONTRACT_ABI,
-      process.env.ETH_CONTRACT_ADDRESS
-    );
-    setShowOutput(false);
-    const getCalculate = await new_contract.methods
-      .calculateIssuanceAmount(web3.utils.toWei(value.toString(), "ether"))
-      .call();
-    let obj = {
-      protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
-      automation: web3?.utils?.fromWei(getCalculate._automationFee),
-      actualValue: web3?.utils?.fromWei(getCalculate._actualCollateralAdded),
-      issued: web3?.utils?.fromWei(getCalculate._tokensIssued),
-    };
-    setCalculatedDeposit(obj);
-    setShowOutput(true);
-    setNotEnoughBalance(false);
+    try {
+      let new_contract = await new web3.eth.Contract(
+        CONTRACT_ABI,
+        process.env.ETH_CONTRACT_ADDRESS
+      );
+      setShowOutput(false);
+      const getCalculate = await new_contract.methods
+        .calculateIssuanceAmount(web3.utils.toWei(value.toString(), "ether"))
+        .call();
+      let obj = {
+        protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
+        automation: web3?.utils?.fromWei(getCalculate._automationFee),
+        actualValue: web3?.utils?.fromWei(getCalculate._actualCollateralAdded),
+        issued: web3?.utils?.fromWei(getCalculate._tokensIssued),
+      };
+      setCalculatedDeposit(obj);
+      setShowOutput(true);
+      setNotEnoughBalance(false);
+    } catch (error) {
+      console.log("Increase -error", error);
+    }
   };
   const calculateWithdraw = async (value) => {
     if (isNaN(value) || value === "") {
       return;
     }
-    let new_contract = await new web3.eth.Contract(
-      CONTRACT_ABI,
-      process.env.ETH_CONTRACT_ADDRESS
-    );
-    setShowOutput(false);
-    const getCalculate = await new_contract.methods
-      .calculateRedemptionValue(web3.utils.toWei(value.toString(), "ether"))
-      .call();
-    let obj = {
-      protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
-      automation: web3?.utils?.fromWei(getCalculate._automationFee),
-      redeemed: web3?.utils?.fromWei(getCalculate._collateralRedeemed),
-      returned: web3?.utils?.fromWei(getCalculate._collateralReturned),
-    };
-    setNotEnoughBalance(false);
-    setCalculatedDeposit(obj);
-    setShowOutput(true);
+    try {
+      let new_contract = await new web3.eth.Contract(
+        CONTRACT_ABI,
+        process.env.ETH_CONTRACT_ADDRESS
+      );
+      setShowOutput(false);
+      const getCalculate = await new_contract.methods
+        .calculateRedemptionValue(web3.utils.toWei(value.toString(), "ether"))
+        .call();
+      let obj = {
+        protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
+        automation: web3?.utils?.fromWei(getCalculate._automationFee),
+        redeemed: web3?.utils?.fromWei(getCalculate._collateralRedeemed),
+        returned: web3?.utils?.fromWei(getCalculate._collateralReturned),
+      };
+      setNotEnoughBalance(false);
+      setCalculatedDeposit(obj);
+      setShowOutput(true);
+    } catch (error) {
+      console.log("Decrease -error", error);
+    }
   };
 
   const depositEthToDETH = async () => {
+    console.log(`depositEthToDETH`);
     if (parseFloat(eTHbalance) >= parseFloat(depositJson)) {
       let new_contract = await new web3.eth.Contract(
         CONTRACT_ABI,
@@ -96,12 +105,14 @@ export default function Deposit({
           value: web3.utils.toWei(depositJson.toString(), "ether"),
         })
         .then((res) => {
+          console.log("Success");
+          console.log(dETHbalance);
           if (parseFloat(dETHbalance) === 0) {
             addDETHtokenToMM();
           }
           getDETHbalanceFunc();
         })
-        .catch((err) => console.log(err));
+        .catch((err) => console.log("err", err));
     } else {
       setNotEnoughBalance(true);
     }
@@ -137,13 +148,14 @@ export default function Deposit({
   };
 
   const addDETHtokenToMM = async () => {
+    console.log(`addDETHtokenToMM`);
     const tokenAddress = "0x51863Ec92BA14ede7B17fb2B053145C90E215A57";
     const tokenSymbol = "dETH";
     const tokenDecimals = 18;
     const tokenImage = "https://app.levr.ly/deth-logo-svg.svg";
 
     try {
-      const wasAdded = await ethereum.request({
+      const wasAdded = await web3?.currentProvider.request({
         method: "wallet_watchAsset",
         params: {
           type: "ERC20", // Initially only supports ERC20, but eventually more!
@@ -392,6 +404,7 @@ export default function Deposit({
           </Posrelative>
         </div>
       )}
+      {/* <button onClick={addDETHtokenToMM}>Add dETH token to your wallet</button> */}
     </Col>
   );
 }
