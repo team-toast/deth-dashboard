@@ -24,11 +24,7 @@ export default function Home({ ethPrice }) {
   const [web3Detect, setWeb3Detect] = useState(false);
   const [showDisconnectWallet, setShowDisconnectWallet] = useState(false);
   useEffect(() => {
-    if (
-      typeof window != "undefined" &&
-      // window.ethereum !== undefined &&
-      !web3
-    ) {
+    if (typeof window != "undefined" && setWallet !== null && !web3) {
       if (window.ethereum !== undefined) {
         setWeb3Detect(true);
       }
@@ -44,6 +40,7 @@ export default function Home({ ethPrice }) {
         setWeb3Obj(web3);
         connectWallet();
       } catch (error) {
+        setWallet(null);
         console.log("Could not connect Web3");
       }
     } else if (wallet === "walletconnect") {
@@ -61,7 +58,9 @@ export default function Home({ ethPrice }) {
         console.log(56, accounts);
         connectWallet();
       } catch (error) {
+        setWallet(null);
         console.log("Could not connect Web3");
+        console.log(62, web3Obj);
       }
     }
   };
@@ -154,7 +153,14 @@ export default function Home({ ethPrice }) {
           setWalletAddress(accounts[0]);
         } else {
           // setWeb3(null);
+          localStorage.removeItem("walletconnect");
+          web3 = null;
+          setWeb3Obj(null);
           setWalletAddress(null);
+          setWallet(null);
+          setDETHbalance(null);
+          setDETHtoETHvalue(0);
+          setETHbalance(0);
         }
       });
       // Network account change

@@ -5,6 +5,8 @@ import { sizes, colors } from "./../../styles/styleguide";
 import Tooltip from "./../Tooltip";
 import CONTRACT_ABI from "./../../lib/abi_2021_02_25.json";
 
+import ProgressBar from "./../ProgressBar";
+
 export default function Deposit({
   eTHbalance,
   dETHbalance,
@@ -17,6 +19,7 @@ export default function Deposit({
   const [calculatedDeposit, setCalculatedDeposit] = useState({});
   const [showOutput, setShowOutput] = useState(true);
   const [notEnoughBalance, setNotEnoughBalance] = useState(false);
+  const [status, setStatus] = useState(false);
   const increase = () => {
     const copyOfObject = (
       isNaN(depositJson) || depositJson === ""
@@ -98,6 +101,7 @@ export default function Deposit({
         CONTRACT_ABI,
         process.env.ETH_CONTRACT_ADDRESS
       );
+      setStatus("Depositing ...");
       const fundit = await new_contract.methods
         .squanderMyEthForWorthlessBeansAndAgreeToTerms(walletAddress)
         .send({
@@ -111,8 +115,12 @@ export default function Deposit({
             addDETHtokenToMM();
           }
           getDETHbalanceFunc();
+          setStatus(false);
         })
-        .catch((err) => console.log("err", err));
+        .catch((err) => {
+          console.log("err", err);
+          setStatus("Unable to deposit, please try again.");
+        });
     } else {
       setNotEnoughBalance(true);
     }
@@ -129,6 +137,8 @@ export default function Deposit({
         .balanceOf(walletAddress)
         .call();
 
+      setStatus("Withdrawing ...");
+
       const fundit = await new_contract.methods
         .redeem(walletAddress, web3?.utils?.toWei(depositJson).toString())
         .send({
@@ -138,8 +148,12 @@ export default function Deposit({
         .then((res) => {
           console.log("Success", res);
           getDETHbalanceFunc();
+          setStatus(false);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          setStatus("Unable to withdraw, please try again.");
+          console.log(err);
+        });
 
       console.log(fundit);
     } else {
@@ -195,6 +209,12 @@ export default function Deposit({
 
   return (
     <Col size={1}>
+      {status !== false && (
+        <ProgressBar
+          status={status}
+          closeBtn={() => setStatus(false)}
+        ></ProgressBar>
+      )}
       {/* Tabs to switch between deposit or Withdraw */}
       <StyledCalculator>
         <SelectButton

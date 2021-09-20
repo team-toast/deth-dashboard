@@ -4,6 +4,8 @@ import Image from "next/image";
 import { Row, Col } from "./../../styles/flex-grid";
 import CONTRACT_ABI from "./../../lib/abi_2021_02_25.json";
 
+import ProgressBar from "./../ProgressBar";
+
 export default function DethCalculation({
   dETHbalance,
   dETHtoETHvalue,
@@ -16,12 +18,16 @@ export default function DethCalculation({
   const [dollar, setDollar] = useState(null);
   const [showNoFundsTooltip, setShowNoFundsTooltip] = useState(false);
 
+  const [status, setStatus] = useState(false);
+
   const withdrawDETHtoETH = async () => {
     if (walletAddress && deth > 0) {
       let new_contract = await new web3.eth.Contract(
         CONTRACT_ABI,
         process.env.ETH_CONTRACT_ADDRESS
       );
+
+      setStatus("Withdrawing all ...");
 
       const fundit = await new_contract.methods
         .redeem(walletAddress, web3?.utils?.toWei(deth).toString())
@@ -32,8 +38,12 @@ export default function DethCalculation({
         .then((res) => {
           console.log("Success", res);
           getDETHbalanceFunc();
+          setStatus(false);
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          setStatus("Unable to withdraw, please try again.");
+          console.log(err);
+        });
 
       console.log(31, fundit);
     }
@@ -45,6 +55,12 @@ export default function DethCalculation({
   }, [dETHtoETHvalue]);
   return (
     <StyledCol size={1}>
+      {status !== false && (
+        <ProgressBar
+          status={status}
+          closeBtn={() => setStatus(false)}
+        ></ProgressBar>
+      )}
       <StyledRow>
         <Col size={1}>
           <h2 className="no-margin">
