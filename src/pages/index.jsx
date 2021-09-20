@@ -24,7 +24,7 @@ export default function Home({ ethPrice }) {
   const [web3Detect, setWeb3Detect] = useState(false);
   const [showDisconnectWallet, setShowDisconnectWallet] = useState(false);
   useEffect(() => {
-    if (typeof window != "undefined" && wallet !== null && !web3) {
+    if (typeof window != "undefined" && !web3) {
       if (window.ethereum !== undefined) {
         setWeb3Detect(true);
       }
@@ -41,6 +41,8 @@ export default function Home({ ethPrice }) {
         connectWallet();
       } catch (error) {
         setWallet(null);
+        web3 = false;
+        setWeb3Obj(null);
         console.log("Could not connect Web3");
       }
     } else if (wallet === "walletconnect") {
@@ -59,8 +61,9 @@ export default function Home({ ethPrice }) {
         connectWallet();
       } catch (error) {
         setWallet(null);
+        web3 = false;
+        setWeb3Obj(null);
         console.log("Could not connect Web3");
-        console.log(62, web3Obj);
       }
     }
   };
@@ -90,6 +93,9 @@ export default function Home({ ethPrice }) {
             console.log("sendTest", sendTest);
             testPassed = true;
           } catch (error) {
+            setWallet(null);
+            web3 = false;
+            setWeb3Obj(null);
             console.log("sendTest Error: ", error);
           }
         }
