@@ -74,6 +74,7 @@ export default function Home({ ethPrice }) {
     web3 = null;
     setWeb3Obj(null);
     setWalletAddress(null);
+    setWallet(null);
   };
   const connectWallet = () => {
     console.log(66, `connectWallet`);
