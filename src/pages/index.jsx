@@ -24,7 +24,7 @@ export default function Home({ ethPrice }) {
   const [web3Detect, setWeb3Detect] = useState(false);
   const [showDisconnectWallet, setShowDisconnectWallet] = useState(false);
   useEffect(() => {
-    if (typeof window != "undefined" && setWallet !== null && !web3) {
+    if (typeof window != "undefined" && wallet !== null && !web3) {
       if (window.ethereum !== undefined) {
         setWeb3Detect(true);
       }
