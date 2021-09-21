@@ -5,17 +5,23 @@ import { sizes, colors } from "./../../styles/styleguide";
 import Tooltip from "./../Tooltip";
 import CONTRACT_ABI from "./../../lib/abi_2021_02_25.json";
 
+import ProgressBar from "./../ProgressBar";
+
 export default function Deposit({
   eTHbalance,
   dETHbalance,
   walletAddress,
   web3,
+  getDETHbalanceFunc,
+  getETHbalanceFunc,
+  wrongChain,
 }) {
   const [deposit, setDeposit] = useState(true);
   const [depositJson, setDepositJson] = useState(0);
   const [calculatedDeposit, setCalculatedDeposit] = useState({});
   const [showOutput, setShowOutput] = useState(true);
   const [notEnoughBalance, setNotEnoughBalance] = useState(false);
+  const [status, setStatus] = useState(false);
   const increase = () => {
     const copyOfObject = (
       isNaN(depositJson) || depositJson === ""
@@ -41,61 +47,83 @@ export default function Deposit({
     if (isNaN(value) || value === "") {
       return;
     }
-    let new_contract = await new web3.eth.Contract(
-      CONTRACT_ABI,
-      process.env.ETH_CONTRACT_ADDRESS
-    );
-    setShowOutput(false);
-    const getCalculate = await new_contract.methods
-      .calculateIssuanceAmount(web3.utils.toWei(value.toString(), "ether"))
-      .call();
-    let obj = {
-      protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
-      automation: web3?.utils?.fromWei(getCalculate._automationFee),
-      actualValue: web3?.utils?.fromWei(getCalculate._actualCollateralAdded),
-      issued: web3?.utils?.fromWei(getCalculate._tokensIssued),
-    };
-    setCalculatedDeposit(obj);
-    setShowOutput(true);
-    setNotEnoughBalance(false);
+    try {
+      let new_contract = await new web3.eth.Contract(
+        CONTRACT_ABI,
+        process.env.ETH_CONTRACT_ADDRESS
+      );
+      setShowOutput(false);
+      const getCalculate = await new_contract.methods
+        .calculateIssuanceAmount(web3.utils.toWei(value.toString(), "ether"))
+        .call();
+      let obj = {
+        protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
+        automation: web3?.utils?.fromWei(getCalculate._automationFee),
+        actualValue: web3?.utils?.fromWei(getCalculate._actualCollateralAdded),
+        issued: web3?.utils?.fromWei(getCalculate._tokensIssued),
+      };
+      setCalculatedDeposit(obj);
+      setShowOutput(true);
+      setNotEnoughBalance(false);
+    } catch (error) {
+      console.log("Increase -error", error);
+    }
   };
   const calculateWithdraw = async (value) => {
     if (isNaN(value) || value === "") {
       return;
     }
-    let new_contract = await new web3.eth.Contract(
-      CONTRACT_ABI,
-      process.env.ETH_CONTRACT_ADDRESS
-    );
-    setShowOutput(false);
-    const getCalculate = await new_contract.methods
-      .calculateRedemptionValue(web3.utils.toWei(value.toString(), "ether"))
-      .call();
-    let obj = {
-      protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
-      automation: web3?.utils?.fromWei(getCalculate._automationFee),
-      redeemed: web3?.utils?.fromWei(getCalculate._collateralRedeemed),
-      returned: web3?.utils?.fromWei(getCalculate._collateralReturned),
-    };
-    setNotEnoughBalance(false);
-    setCalculatedDeposit(obj);
-    setShowOutput(true);
+    try {
+      let new_contract = await new web3.eth.Contract(
+        CONTRACT_ABI,
+        process.env.ETH_CONTRACT_ADDRESS
+      );
+      setShowOutput(false);
+      const getCalculate = await new_contract.methods
+        .calculateRedemptionValue(web3.utils.toWei(value.toString(), "ether"))
+        .call();
+      let obj = {
+        protocol: web3?.utils?.fromWei(getCalculate._protocolFee),
+        automation: web3?.utils?.fromWei(getCalculate._automationFee),
+        redeemed: web3?.utils?.fromWei(getCalculate._collateralRedeemed),
+        returned: web3?.utils?.fromWei(getCalculate._collateralReturned),
+      };
+      setNotEnoughBalance(false);
+      setCalculatedDeposit(obj);
+      setShowOutput(true);
+    } catch (error) {
+      console.log("Decrease -error", error);
+    }
   };
 
   const depositEthToDETH = async () => {
+    console.log(`depositEthToDETH`);
+    await getETHbalanceFunc();
     if (parseFloat(eTHbalance) >= parseFloat(depositJson)) {
       let new_contract = await new web3.eth.Contract(
         CONTRACT_ABI,
         process.env.ETH_CONTRACT_ADDRESS
       );
+      setStatus("Depositing ...");
       const fundit = await new_contract.methods
         .squanderMyEthForWorthlessBeansAndAgreeToTerms(walletAddress)
         .send({
           from: walletAddress,
           value: web3.utils.toWei(depositJson.toString(), "ether"),
         })
-        .then((res) => console.log("Success", res))
-        .catch((err) => console.log(err));
+        .then((res) => {
+          console.log("Success");
+          console.log(dETHbalance);
+          if (parseFloat(dETHbalance) === 0) {
+            addDETHtokenToMM();
+          }
+          getDETHbalanceFunc();
+          setStatus(false);
+        })
+        .catch((err) => {
+          console.log("err", err);
+          setStatus("Unable to deposit, please try again.");
+        });
     } else {
       setNotEnoughBalance(true);
     }
@@ -112,23 +140,58 @@ export default function Deposit({
         .balanceOf(walletAddress)
         .call();
 
-      console.log(118, balanceOfDETH);
+      setStatus("Withdrawing ...");
 
       const fundit = await new_contract.methods
-        .redeem(
-          walletAddress,
-          web3.utils.toWei(depositJson.toString(), "ether")
-        )
+        .redeem(walletAddress, web3?.utils?.toWei(depositJson).toString())
         .send({
           from: walletAddress,
-          value: web3.utils.toWei(depositJson.toString(), "ether"),
+          value: web3.utils.toWei("0", "ether"),
         })
-        .then((res) => console.log("Success", res))
-        .catch((err) => console.log(err));
+        .then((res) => {
+          console.log("Success", res);
+          getDETHbalanceFunc();
+          setStatus(false);
+        })
+        .catch((err) => {
+          setStatus("Unable to withdraw, please try again.");
+          console.log(err);
+        });
 
       console.log(fundit);
     } else {
       setNotEnoughBalance(true);
+    }
+  };
+
+  const addDETHtokenToMM = async () => {
+    console.log(`addDETHtokenToMM`);
+    const tokenAddress = "0x51863Ec92BA14ede7B17fb2B053145C90E215A57";
+    const tokenSymbol = "dETH";
+    const tokenDecimals = 18;
+    const tokenImage = "https://app.levr.ly/deth-logo-svg.svg";
+
+    try {
+      const wasAdded = await web3?.currentProvider.request({
+        method: "wallet_watchAsset",
+        params: {
+          type: "ERC20", // Initially only supports ERC20, but eventually more!
+          options: {
+            address: tokenAddress, // The address that the token is at.
+            symbol: tokenSymbol, // A ticker symbol or shorthand, up to 5 chars.
+            decimals: tokenDecimals, // The number of decimals in the token
+            image: tokenImage, // A string url of the token logo
+          },
+        },
+      });
+
+      if (wasAdded) {
+        console.log("User added token.");
+      } else {
+        console.log("User cancelled.");
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -148,7 +211,13 @@ export default function Deposit({
   }, [deposit]);
 
   return (
-    <Col size={1}>
+    <Col size={1} className={walletAddress ? "" : "disabledBlock"}>
+      {status !== false && (
+        <ProgressBar
+          status={status}
+          closeBtn={() => setStatus(false)}
+        ></ProgressBar>
+      )}
       {/* Tabs to switch between deposit or Withdraw */}
       <StyledCalculator>
         <SelectButton
@@ -358,6 +427,7 @@ export default function Deposit({
           </Posrelative>
         </div>
       )}
+      {/* <button onClick={addDETHtokenToMM}>Add dETH token to your wallet</button> */}
     </Col>
   );
 }
