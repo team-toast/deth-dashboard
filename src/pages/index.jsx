@@ -206,7 +206,9 @@ export default function Home({ ethPrice }) {
     <Layout>
       {wrongChain !== false && (
         <ProgressBar
-          status={`Wrong chain, please switch to Ethereum Mainnet.`}
+          status={`Wrong chain, please switch to Ethereum Mainnet${
+            wallet === "walletconnect" ? " and refresh." : "."
+          }`}
           closeBtn={() => setWrongChain(false)}
         ></ProgressBar>
       )}
