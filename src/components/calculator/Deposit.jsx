@@ -13,6 +13,7 @@ export default function Deposit({
   walletAddress,
   web3,
   getDETHbalanceFunc,
+  getETHbalanceFunc,
   wrongChain,
 }) {
   const [deposit, setDeposit] = useState(true);
@@ -97,6 +98,7 @@ export default function Deposit({
 
   const depositEthToDETH = async () => {
     console.log(`depositEthToDETH`);
+    await getETHbalanceFunc();
     if (parseFloat(eTHbalance) >= parseFloat(depositJson)) {
       let new_contract = await new web3.eth.Contract(
         CONTRACT_ABI,

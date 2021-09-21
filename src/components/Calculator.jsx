@@ -12,6 +12,7 @@ export default function Calculator({
   web3,
   dETHtoETHvalue,
   getDETHbalanceFunc,
+  getETHbalanceFunc,
 }) {
   const [deposit, setDeposit] = useState(true);
   return (
@@ -36,6 +37,7 @@ export default function Calculator({
             walletAddress={walletAddress}
             web3={web3}
             getDETHbalanceFunc={getDETHbalanceFunc}
+            getETHbalanceFunc={getETHbalanceFunc}
           />
         </StyledReverseRow>
       </GridContainer>

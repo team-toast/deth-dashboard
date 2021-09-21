@@ -164,6 +164,7 @@ export default function Home({ ethPrice }) {
     const getBalance = await web3?.eth?.getBalance(data);
     const getWeiValue = await web3?.utils?.fromWei(getBalance.toString());
     //  Get Chain Id
+    console.log("ETH Balance", getWeiValue);
     setETHbalance(getWeiValue);
   };
   useEffect(() => {
@@ -294,6 +295,7 @@ export default function Home({ ethPrice }) {
         web3={web3Obj}
         dETHtoETHvalue={dETHtoETHvalue}
         getDETHbalanceFunc={() => getDETHbalance(walletAddress)}
+        getETHbalanceFunc={() => getETHbalance(walletAddress)}
         wrongChain={wrongChain}
       />
     </Layout>
