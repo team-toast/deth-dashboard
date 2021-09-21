@@ -22,7 +22,7 @@ export default function Calculator({
             <h2 className="text-center">dETH Dashboard</h2>
           </Col>
         </Row>
-        <StyledReverseRow xsNoflex className="toets">
+        <StyledReverseRow xsNoflex>
           <DethCalculation
             dETHbalance={dETHbalance}
             dETHtoETHvalue={dETHtoETHvalue}

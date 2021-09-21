@@ -153,6 +153,11 @@ input {
 .dollar-symbol input {
     padding: 0px 1rem 0 2.5rem !important;
 }
+.disabledBlock {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
 .dollar-symbol::after {
     content: "$";
     position: absolute;

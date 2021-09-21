@@ -10,9 +10,11 @@ import axios from "axios";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Web3 from "web3";
 
+import ProgressBar from "./../components/ProgressBar";
 import CalculatorEstimate from "../components/CalculatorEstimation";
 import Calculator from "./../components/Calculator";
 let web3;
+
 export default function Home({ ethPrice }) {
   const [wallet, setWallet] = useState(null);
   const [web3Obj, setWeb3Obj] = useState(null);
@@ -23,6 +25,7 @@ export default function Home({ ethPrice }) {
   const [showConnectOptions, setShowConnectOptions] = useState(false);
   const [web3Detect, setWeb3Detect] = useState(false);
   const [showDisconnectWallet, setShowDisconnectWallet] = useState(false);
+  const [wrongChain, setWrongChain] = useState(false);
   useEffect(() => {
     if (typeof window != "undefined" && !web3) {
       if (window.ethereum !== undefined) {
@@ -112,6 +115,18 @@ export default function Home({ ethPrice }) {
       })();
     }
   };
+  useEffect(() => {
+    if (web3Obj !== null) {
+      web3Obj.eth.getChainId().then((chainID) => {
+        // Detect which blockchain MM is connected to. ID 1 means Ethereum
+        if (chainID == 1) {
+          setWrongChain(false);
+        } else {
+          setWrongChain(true);
+        }
+      });
+    }
+  }, [web3, web3Obj, walletAddress]);
   const getDETHtoETHValue = async (data) => {
     let new_contract = await new web3.eth.Contract(
       CONTRACT_ABI,
@@ -172,6 +187,11 @@ export default function Home({ ethPrice }) {
       // Network account change
       window.ethereum.on("chainChanged", function (networkId) {
         console.log(157, networkId);
+        if (networkId === "0x1") {
+          setWrongChain(false);
+        } else {
+          setWrongChain(true);
+        }
       });
     } else {
       console.warn("No web3 detected.");
@@ -184,6 +204,12 @@ export default function Home({ ethPrice }) {
   };
   return (
     <Layout>
+      {wrongChain !== false && (
+        <ProgressBar
+          status={`Wrong chain, please switch to Ethereum Mainnet.`}
+          closeBtn={() => setWrongChain(false)}
+        ></ProgressBar>
+      )}
       <StyledHeader>
         <Row>
           <Col size={1}>
@@ -266,6 +292,7 @@ export default function Home({ ethPrice }) {
         web3={web3Obj}
         dETHtoETHvalue={dETHtoETHvalue}
         getDETHbalanceFunc={() => getDETHbalance(walletAddress)}
+        wrongChain={wrongChain}
       />
     </Layout>
   );

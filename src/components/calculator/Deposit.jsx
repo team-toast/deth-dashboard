@@ -13,6 +13,7 @@ export default function Deposit({
   walletAddress,
   web3,
   getDETHbalanceFunc,
+  wrongChain,
 }) {
   const [deposit, setDeposit] = useState(true);
   const [depositJson, setDepositJson] = useState(0);
@@ -208,7 +209,7 @@ export default function Deposit({
   }, [deposit]);
 
   return (
-    <Col size={1}>
+    <Col size={1} className={walletAddress ? "" : "disabledBlock"}>
       {status !== false && (
         <ProgressBar
           status={status}

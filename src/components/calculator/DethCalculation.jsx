@@ -54,7 +54,7 @@ export default function DethCalculation({
     setEth(web3?.utils?.fromWei(dETHtoETHvalue._collateralRedeemed));
   }, [dETHtoETHvalue]);
   return (
-    <StyledCol size={1}>
+    <StyledCol size={1} className={walletAddress ? "" : "disabledBlock"}>
       {status !== false && (
         <ProgressBar
           status={status}
