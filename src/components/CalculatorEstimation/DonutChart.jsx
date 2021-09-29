@@ -58,7 +58,15 @@ export default function DonutChart({
     <RelPos>
       <PosDiv color={color} className="donutchart-text">
         <div className="donutchart-text-val">{`You'll gain*`}</div>
-        <div className="donutchart-text-percent">${Number(difference)}</div>
+        <div
+          className={
+            difference.toString().length > 6
+              ? "donutchart-text-percent smaller-font-2-5"
+              : "donutchart-text-percent"
+          }
+        >
+          ${Number(difference)}
+        </div>
         <div className="donutchart-text-label">{values.valuelabel}</div>
       </PosDiv>
       <DonutChartSVG
@@ -113,6 +121,9 @@ const PosDiv = styled.div`
       font-size: 3rem;
       font-weight: bold;
       line-height: 3rem;
+      &.smaller-font-2-5 {
+        font-size: 2.5rem;
+      }
       @media screen and (max-width: 40rem) {
         font-size: 2.5rem;
         line-height: 3rem;
