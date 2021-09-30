@@ -1,7 +1,28 @@
+import { useState, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
 import { Row, Col } from "./../styles/flex-grid";
 
 export default function Media() {
+  const [showTwitterError, setShowTwitterError] = useState(false);
+  useEffect(() => {
+    try {
+      // let twitterElement = document.querySelector(".twitter-feed-col");
+      var script = document.createElement("script");
+      script.onload = function () {
+        setShowTwitterError(false);
+      };
+      script.onerror = function () {
+        setShowTwitterError(true);
+      };
+      script.async = true;
+      script.charSet = "utf-8";
+      script.id = "twitterScript";
+      script.src = "https://platform.twitter.com/widgets.js";
+      document.head.appendChild(script);
+    } catch (error) {
+      setShowTwitterError(true);
+    }
+  }, []);
   return (
     <GridContainer>
       <h2 className="text-center">Media</h2>
@@ -27,22 +48,45 @@ export default function Media() {
           </div>
         </Col>
         <Col className="max-height twitter-feed-col" size={1}>
-          <a
-            className="twitter-timeline"
-            href="https://twitter.com/FoundryDAO?ref_src=twsrc%5Etfw"
-          >
-            Tweets by FoundryDAO
-          </a>{" "}
-          <script
-            async
-            src="https://platform.twitter.com/widgets.js"
-            charSet="utf-8"
-          ></script>{" "}
+          {showTwitterError ? (
+            <AlternativeTwitter>
+              <h3>Twitter Feeds</h3>
+              <p>
+                Your browser is blocking Twitter feeds. Alternatively click the
+                link below.
+              </p>
+              <a
+                href="https://twitter.com/FoundryDAO"
+                target="_blank"
+                rel="noreferrer"
+              >
+                @FoundryDAO
+              </a>
+            </AlternativeTwitter>
+          ) : (
+            <a
+              className="twitter-timeline"
+              href="https://twitter.com/FoundryDAO?ref_src=twsrc%5Etfw"
+            ></a>
+          )}
         </Col>
       </Row>
     </GridContainer>
   );
 }
+
+const AlternativeTwitter = styled.div`
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  text-align: center;
+  transform: translateY(-50%);
+  a {
+    padding: 1rem 0;
+    display: block;
+  }
+`;
 
 const ArticleImage = styled.div`
   background: url(/5053309.jpeg) center center / cover no-repeat rgb(26, 28, 42);
@@ -75,6 +119,10 @@ const GridContainer = styled.div`
     margin: 1rem;
     box-shadow: 0px 3px 20px #0000001a;
     border-radius: 5px;
+    &.twitter-feed-col {
+      position: relative;
+      min-height: 330px;
+    }
     @media screen and (max-width: 64em) {
       max-height: initial;
       &.twitter-feed-col {
