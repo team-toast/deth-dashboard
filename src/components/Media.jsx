@@ -50,10 +50,10 @@ export default function Media() {
         <Col className="max-height twitter-feed-col" size={1}>
           {showTwitterError ? (
             <AlternativeTwitter>
-              <h3>Twitter Feeds</h3>
+              <h3>Tweets by ‎@FoundryDAO</h3>
               <p>
-                Your browser is blocking Twitter feeds. Alternatively click the
-                link below.
+                Your browser is blocking Tweets. Alternatively click the link
+                below.
               </p>
               <a
                 href="https://twitter.com/FoundryDAO"
