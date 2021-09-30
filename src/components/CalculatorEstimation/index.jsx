@@ -22,6 +22,7 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
   const [gainsDollars, setGainsDollars] = useState(0);
   const [potentialPrice, setPotentialPrice] = useState(0);
   const [ethPrice, setEthPrice] = useState(ethPriceWeb);
+  const [hideSlider, setHideSlider] = useState(false);
 
   const calculateGains = async () => {
     const sliderPotentialPrice = parseInt(sliderPercentage);
@@ -67,6 +68,9 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
     setTimeout(() => {
       const range = document.querySelector(".slider");
       const bubble = document.querySelector(".range-bubble");
+      if (bubble === null) {
+        return false;
+      }
       var slider = range;
       var sliderPos = slider.value / slider.max;
 
@@ -171,7 +175,13 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
                 </span>
               )}
               <br />
-              <MaxWidth className="margin-top-2">
+              <MaxWidth
+                className={
+                  sliderPercentage.length > 4
+                    ? "margin-top-2 margin-left-bubble-6"
+                    : "margin-top-2"
+                }
+              >
                 <StyledInputValue
                   className={ethPrice ? "range-bubble" : "range-bubble hidden"}
                 >
@@ -181,24 +191,56 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
               <MaxWidth className="grey-text">
                 <div>-100%</div>
                 <div className="text-center">0%</div>
-                <div className="text-right">100%</div>
+                <div className="text-right">
+                  {hideSlider ? (
+                    <span>
+                      {Number((potentialPrice / ethPrice).toFixed(2)) < 1.0
+                        ? Number(
+                            ((potentialPrice / ethPrice) * 100 - 100).toFixed(2)
+                          )
+                        : Number(
+                            ((potentialPrice / ethPrice) * 100 - 100).toFixed(2)
+                          )}
+                      %
+                    </span>
+                  ) : (
+                    `100%`
+                  )}
+                </div>
               </MaxWidth>
               <StyledInput
                 type="range"
                 min="0"
                 max={parseInt(ethPrice * 2)}
                 className="slider"
-                defaultValue={
-                  isNaN(sliderPercentage) ? ethPrice : sliderPercentage
-                }
+                value={isNaN(sliderPercentage) ? ethPrice : sliderPercentage}
                 onInput={({ target: { value: sliderPercentage } }) => {
+                  if (hideSlider) {
+                    setHideSlider(false);
+                  }
                   setSliderPercentage(sliderPercentage);
                 }}
               />
               <MaxWidth>
                 <div>$0</div>
-                <div>${Number(parseInt(ethPrice * 2))}</div>
+                {!hideSlider ? (
+                  <div>${Number(parseInt(ethPrice * 2))}</div>
+                ) : (
+                  <div>${sliderPercentage}</div>
+                )}
               </MaxWidth>
+              {/* {hideSlider && (
+                <FadeSlider>
+                  <button
+                    onClick={() => {
+                      setSliderPercentage(Number(parseInt(ethPrice * 1.1)));
+                      setHideSlider(false);
+                    }}
+                  >
+                    Use slider
+                  </button>
+                </FadeSlider>
+              )} */}
             </Posrelative>
             <Posrelative className="dollar-symbol">
               <br />
@@ -207,14 +249,26 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
               <br />
               <StyledInput
                 type="text"
-                defaultValue={isNaN(potentialPrice) ? ethPrice : potentialPrice}
+                value={isNaN(potentialPrice) ? ethPrice : potentialPrice}
                 className="input"
                 placeholder="0"
                 pattern="[0-9]+"
                 onChange={() => {
                   if (event.target.value.length > 0) {
                     if (!isNaN(event.target.value)) {
-                      setSliderPercentage(event.target.value);
+                      console.log(217, event.target.value);
+                      if (
+                        Number(event.target.value) >
+                        Number(parseInt(ethPrice * 2))
+                      ) {
+                        setSliderPercentage(event.target.value);
+                        // setPotentialPrice(event.target.value);
+                        setHideSlider(true);
+                      } else {
+                        setSliderPercentage(event.target.value);
+                        // setPotentialPrice(event.target.value);
+                        setHideSlider(false);
+                      }
                     }
                   }
                 }}
@@ -283,6 +337,23 @@ export default function CalculatorEstimate({ ethPriceWeb }) {
   );
 }
 
+const FadeSlider = styled.div`
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(3px);
+  position: absolute;
+  top: 0;
+  left: -5px;
+  width: 103%;
+  height: 100%;
+  z-index: 1;
+  button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    left: 50%;
+  }
+`;
+
 const FlexBox = styled.div`
   display: flex;
 `;
@@ -311,6 +382,11 @@ const MaxWidth = styled.div`
   &.margin-top-2 {
     margin-top: 1.5rem;
     width: 91%;
+  }
+  &.margin-left-bubble-6 {
+    .range-bubble {
+      margin-left: -6px;
+    }
   }
 `;
 
