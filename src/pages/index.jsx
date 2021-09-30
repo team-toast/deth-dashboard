@@ -13,6 +13,8 @@ import Web3 from "web3";
 import ProgressBar from "./../components/ProgressBar";
 import CalculatorEstimate from "../components/CalculatorEstimation";
 import Calculator from "./../components/Calculator";
+import Media from "./../components/Media";
+
 let web3;
 
 export default function Home({ ethPrice }) {
@@ -298,6 +300,7 @@ export default function Home({ ethPrice }) {
         getETHbalanceFunc={() => getETHbalance(walletAddress)}
         wrongChain={wrongChain}
       />
+      <Media></Media>
     </Layout>
   );
 }
