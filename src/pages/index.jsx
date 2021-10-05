@@ -28,6 +28,7 @@ export default function Home({ ethPrice }) {
   const [web3Detect, setWeb3Detect] = useState(false);
   const [showDisconnectWallet, setShowDisconnectWallet] = useState(false);
   const [wrongChain, setWrongChain] = useState(false);
+  const [toggleMobileMenu, setToggleMobileMenu] = useState(false);
   useEffect(() => {
     if (typeof window != "undefined" && !web3) {
       if (window.ethereum !== undefined) {
@@ -287,6 +288,16 @@ export default function Home({ ethPrice }) {
               </div>
             )}
           </StyledConnectCol>
+          <MobileMenuCol size={1}>
+            <StyledHamburgerMenu
+              toggleMobileMenu={toggleMobileMenu}
+              onClick={() => setToggleMobileMenu(!toggleMobileMenu)}
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </StyledHamburgerMenu>
+          </MobileMenuCol>
         </Row>
       </StyledHeader>
       <CalculatorEstimate ethPriceWeb={ethPrice} />
@@ -304,6 +315,49 @@ export default function Home({ ethPrice }) {
     </Layout>
   );
 }
+
+const MobileMenuCol = styled(Col)`
+  @media screen and (min-width: 40rem) {
+    display: none;
+  }
+`;
+
+const StyledHamburgerMenu = styled.div`
+  position: relative;
+  margin: auto;
+  height: 3.5em;
+  width: 3.5em;
+  background: none;
+  cursor: pointer;
+  span {
+    display: block;
+    height: 5px;
+    width: 35px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.87);
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    transition: all 0.25s ease;
+    &:nth-child(1) {
+      transform: ${(props) =>
+        props.toggleMobileMenu ? "rotateZ(45deg)" : "initial"};
+      top: ${(props) => (props.toggleMobileMenu ? "25px" : "15px")};
+    }
+    &:nth-child(2) {
+      top: 27px;
+      display: ${(props) => (props.toggleMobileMenu ? "none" : "block")};
+    }
+    &:nth-child(3) {
+      top: ${(props) => (props.toggleMobileMenu ? "25px" : "39px")};
+      transform: ${(props) =>
+        props.toggleMobileMenu ? "rotateZ(135deg)" : "initial"};
+    }
+  }
+  @media screen and (min-width: 40em) {
+    display: none;
+  }
+`;
 
 const blink = keyframes`
   0% {
@@ -418,6 +472,11 @@ const StyledImg = styled.img`
 
 const StyledConnectCol = styled(Col)`
   text-align: right;
+  @media screen and (max-width: 40rem) {
+    button {
+      min-width: 13em;
+    }
+  }
 `;
 
 const StyledWalletOptions = styled.div`
@@ -461,6 +520,14 @@ const StyledWalletOptions = styled.div`
   &.hidden {
     display: none;
   }
+  @media screen and (max-width: 40rem) {
+    right: initial;
+    left: 50%;
+    transform: translateX(-50%);
+    button {
+      min-width: 92%;
+    }
+  }
 `;
 
 const StyledHeader = styled.header`
@@ -477,6 +544,9 @@ const StyledHeader = styled.header`
   box-shadow: 0px 3px 20px #0000001a;
   > div {
     align-items: center;
+  }
+  @media screen and (max-width: 40rem) {
+    padding-right: 0;
   }
 `;
 
