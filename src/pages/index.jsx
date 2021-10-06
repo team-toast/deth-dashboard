@@ -28,6 +28,7 @@ export default function Home({ ethPrice }) {
   const [web3Detect, setWeb3Detect] = useState(false);
   const [showDisconnectWallet, setShowDisconnectWallet] = useState(false);
   const [wrongChain, setWrongChain] = useState(false);
+  const [toggleMobileMenu, setToggleMobileMenu] = useState(false);
   useEffect(() => {
     if (typeof window != "undefined" && !web3) {
       if (window.ethereum !== undefined) {
@@ -217,10 +218,42 @@ export default function Home({ ethPrice }) {
       )}
       <StyledHeader>
         <Row>
-          <Col size={1}>
+          <ColLogo>
             <StyledImg src="/deth-logo-svg.svg" alt="dETH LOGO" />
+          </ColLogo>
+          <Col
+            className={
+              toggleMobileMenu ? "menu-item show-menu-item" : "menu-item"
+            }
+            size={1}
+          >
+            <a className="menu-item-links" href="https://levr.ly">
+              Home/About
+            </a>
+            <div className="menu-item-links dropdown-links">
+              <a>Social Media</a>
+              <div className="dropdown">
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://medium.com/levr-ly"
+                >
+                  Medium
+                </a>
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://twitter.com/levr_ly"
+                >
+                  Twitter
+                </a>
+                <a target="_blank" rel="noreferrer" href="https://t.me/levrly">
+                  Telegram
+                </a>
+              </div>
+            </div>
           </Col>
-          <Col hidexs size={1}>
+          <Col hidesm hidexs size={1}>
             <StyledSpan>
               Welcome to dETH, where ETH gains are squared.
             </StyledSpan>
@@ -287,6 +320,16 @@ export default function Home({ ethPrice }) {
               </div>
             )}
           </StyledConnectCol>
+          <MobileMenuCol size={1}>
+            <StyledHamburgerMenu
+              toggleMobileMenu={toggleMobileMenu}
+              onClick={() => setToggleMobileMenu(!toggleMobileMenu)}
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </StyledHamburgerMenu>
+          </MobileMenuCol>
         </Row>
       </StyledHeader>
       <CalculatorEstimate ethPriceWeb={ethPrice} />
@@ -304,6 +347,53 @@ export default function Home({ ethPrice }) {
     </Layout>
   );
 }
+
+const ColLogo = styled(Col)`
+  padding-right: 2rem;
+`;
+
+const MobileMenuCol = styled(Col)`
+  @media screen and (min-width: 40rem) {
+    display: none;
+  }
+`;
+
+const StyledHamburgerMenu = styled.div`
+  position: relative;
+  margin: auto;
+  height: 3.5em;
+  width: 3.5em;
+  background: none;
+  cursor: pointer;
+  span {
+    display: block;
+    height: 5px;
+    width: 35px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.87);
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    transition: all 0.25s ease;
+    &:nth-child(1) {
+      transform: ${(props) =>
+        props.toggleMobileMenu ? "rotateZ(45deg)" : "initial"};
+      top: ${(props) => (props.toggleMobileMenu ? "25px" : "15px")};
+    }
+    &:nth-child(2) {
+      top: 27px;
+      display: ${(props) => (props.toggleMobileMenu ? "none" : "block")};
+    }
+    &:nth-child(3) {
+      top: ${(props) => (props.toggleMobileMenu ? "25px" : "39px")};
+      transform: ${(props) =>
+        props.toggleMobileMenu ? "rotateZ(135deg)" : "initial"};
+    }
+  }
+  @media screen and (min-width: 40em) {
+    display: none;
+  }
+`;
 
 const blink = keyframes`
   0% {
@@ -418,6 +508,11 @@ const StyledImg = styled.img`
 
 const StyledConnectCol = styled(Col)`
   text-align: right;
+  @media screen and (max-width: 40rem) {
+    button {
+      min-width: 13em;
+    }
+  }
 `;
 
 const StyledWalletOptions = styled.div`
@@ -461,6 +556,14 @@ const StyledWalletOptions = styled.div`
   &.hidden {
     display: none;
   }
+  @media screen and (max-width: 40rem) {
+    right: initial;
+    left: 50%;
+    transform: translateX(-50%);
+    button {
+      min-width: 92%;
+    }
+  }
 `;
 
 const StyledHeader = styled.header`
@@ -477,6 +580,117 @@ const StyledHeader = styled.header`
   box-shadow: 0px 3px 20px #0000001a;
   > div {
     align-items: center;
+  }
+  @media screen and (max-width: 40rem) {
+    padding-right: 0;
+  }
+  .dropdown-links {
+    position: relative;
+    .dropdown {
+      opacity: 0;
+      visibility: hidden;
+      position: absolute;
+      width: 200px;
+      background: #fff;
+      box-shadow: 0 11px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 0 0 5px 5px;
+      top: 30px;
+      a {
+        display: block;
+        width: 100%;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        font-weight: normal;
+        &:hover {
+          background: #f1f1f3;
+        }
+        &:last-child {
+          padding-bottom: 1rem;
+        }
+      }
+    }
+    &:hover {
+      .dropdown {
+        transition: all 0.25s ease;
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+  }
+  .menu-item {
+    .menu-item-links {
+      display: inline-block;
+      text-decoration: none;
+      font-weight: bold;
+      &:hover,
+      > a:hover {
+        color: #5987db;
+        transition: color 0.15s;
+      }
+    }
+    @media screen and (max-width: 40rem) {
+      position: absolute;
+      top: 69px;
+      left: 0;
+      width: 100%;
+      background: white;
+      height: 100vh;
+      padding-right: 1.5rem;
+      display: none;
+      .dropdown-links {
+        a {
+          display: block;
+        }
+        > a {
+          padding-bottom: 1rem;
+          padding-top: 1rem;
+        }
+        .dropdown {
+          opacity: 1;
+          visibility: visible;
+          width: 100%;
+          box-shadow: none;
+          position: relative;
+          top: 0;
+          padding: 0 0 1rem;
+          a {
+            font-weight: normal;
+            padding-right: 0;
+          }
+        }
+      }
+      &.show-menu-item {
+        left: 0;
+        transition: all 0.25s ease;
+        display: block;
+      }
+      .menu-item-links {
+        text-decoration: none;
+        display: block;
+        text-align: right;
+        padding: 17px 0;
+        margin: 0;
+        border-bottom: solid 2px #f7f7f7;
+        font-weight: bold;
+        &:last-child {
+          border-bottom: none;
+        }
+        > a {
+          font-weight: bold;
+        }
+      }
+      .dropdown-links {
+        padding: 0;
+        a {
+          margin: 0;
+        }
+      }
+    }
+    a {
+      margin-right: 1rem;
+      padding: 1rem 0;
+      cursor: pointer;
+    }
   }
 `;
 
