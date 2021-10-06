@@ -688,7 +688,7 @@ const StyledHeader = styled.header`
     }
     a {
       margin-right: 1rem;
-      padding: 27px 0;
+      padding: 1rem 0;
       cursor: pointer;
     }
   }
