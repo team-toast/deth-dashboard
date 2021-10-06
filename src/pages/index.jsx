@@ -218,10 +218,42 @@ export default function Home({ ethPrice }) {
       )}
       <StyledHeader>
         <Row>
-          <Col size={1}>
+          <ColLogo>
             <StyledImg src="/deth-logo-svg.svg" alt="dETH LOGO" />
+          </ColLogo>
+          <Col
+            className={
+              toggleMobileMenu ? "menu-item show-menu-item" : "menu-item"
+            }
+            size={1}
+          >
+            <a className="menu-item-links" href="https://levr.ly">
+              Home/About
+            </a>
+            <div className="menu-item-links dropdown-links">
+              <a>Social Media</a>
+              <div className="dropdown">
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://medium.com/levr-ly"
+                >
+                  Medium
+                </a>
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href="https://twitter.com/levr_ly"
+                >
+                  Twitter
+                </a>
+                <a target="_blank" rel="noreferrer" href="https://t.me/levrly">
+                  Telegram
+                </a>
+              </div>
+            </div>
           </Col>
-          <Col hidexs size={1}>
+          <Col hidesm hidexs size={1}>
             <StyledSpan>
               Welcome to dETH, where ETH gains are squared.
             </StyledSpan>
@@ -315,6 +347,10 @@ export default function Home({ ethPrice }) {
     </Layout>
   );
 }
+
+const ColLogo = styled(Col)`
+  padding-right: 2rem;
+`;
 
 const MobileMenuCol = styled(Col)`
   @media screen and (min-width: 40rem) {
@@ -547,6 +583,114 @@ const StyledHeader = styled.header`
   }
   @media screen and (max-width: 40rem) {
     padding-right: 0;
+  }
+  .dropdown-links {
+    position: relative;
+    .dropdown {
+      opacity: 0;
+      visibility: hidden;
+      position: absolute;
+      width: 200px;
+      background: #fff;
+      box-shadow: 0 11px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 0 0 5px 5px;
+      top: 30px;
+      a {
+        display: block;
+        width: 100%;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        font-weight: normal;
+        &:hover {
+          background: #f1f1f3;
+        }
+        &:last-child {
+          padding-bottom: 1rem;
+        }
+      }
+    }
+    &:hover {
+      .dropdown {
+        transition: all 0.25s ease;
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+  }
+  .menu-item {
+    .menu-item-links {
+      display: inline-block;
+      text-decoration: none;
+      font-weight: bold;
+      &:hover,
+      > a:hover {
+        color: #5987db;
+        transition: color 0.15s;
+      }
+    }
+    @media screen and (max-width: 40rem) {
+      position: absolute;
+      top: 69px;
+      left: 0;
+      width: 100%;
+      background: white;
+      height: 100vh;
+      padding-right: 1.5rem;
+      display: none;
+      .dropdown-links {
+        a {
+          display: block;
+        }
+        > a {
+          padding-bottom: 1rem;
+          padding-top: 1rem;
+        }
+        .dropdown {
+          opacity: 1;
+          visibility: visible;
+          width: 100%;
+          box-shadow: none;
+          position: relative;
+          top: 0;
+          padding: 0 0 1rem;
+          a {
+            font-weight: normal;
+            padding-right: 0;
+          }
+        }
+      }
+      &.show-menu-item {
+        left: 0;
+        transition: all 0.25s ease;
+        display: block;
+      }
+      .menu-item-links {
+        text-decoration: none;
+        display: block;
+        text-align: right;
+        padding: 17px 0;
+        margin: 0;
+        border-bottom: solid 2px #f7f7f7;
+        font-weight: bold;
+        &:last-child {
+          border-bottom: none;
+        }
+        > a {
+          font-weight: bold;
+        }
+      }
+      .dropdown-links {
+        padding: 0;
+        a {
+          margin: 0;
+        }
+      }
+    }
+    a {
+      margin-right: 1rem;
+      padding: 27px 0;
+      cursor: pointer;
+    }
   }
 `;
 
