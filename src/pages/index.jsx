@@ -694,7 +694,11 @@ const StyledHeader = styled.header`
   }
 `;
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req, res }) {
+  res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=20, stale-while-revalidate=59'
+  );
   const ethPrice = await axios(
     `https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=ETH,USD`
   );
