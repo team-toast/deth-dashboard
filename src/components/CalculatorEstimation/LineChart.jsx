@@ -154,13 +154,12 @@ const LineChart = () => {
       console.log("Eth end Price: ", endEthPrice);
 
       let endEthPosition =
-        tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1] /
-        tmpEthPrices[tmpEthPrices.length - 1];
+        tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1] / endEthPrice;
 
       setFinalEthValue(endEthPosition);
 
       setFinalDollarValue(
-        endEthPosition * parseFloat(tmpEthPrices[tmpEthPrices.length - 1])
+        tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1]
       );
 
       setPercentageEthGrowth(
