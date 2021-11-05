@@ -239,7 +239,7 @@ const LineChart = () => {
           />
         </div>
       </div>
-      <label htmlfor="ethAmount: ">Pruchase Amount (ETH):</label>{" "}
+      <label htmlFor="ethAmount: ">Pruchase Amount (ETH):</label>{" "}
       <input
         type="number"
         id="ethAmount"
@@ -251,7 +251,7 @@ const LineChart = () => {
         }}
       ></input>
       <br></br>
-      <label htmlfor="startDate: ">Start Date:</label>{" "}
+      <label htmlFor="startDate: ">Start Date:</label>{" "}
       <input
         type="date"
         id="startDate"
@@ -263,7 +263,7 @@ const LineChart = () => {
         }}
       ></input>
       <br></br>
-      <label htmlfor="endDate: ">End Date:</label>{" "}
+      <label htmlFor="endDate: ">End Date:</label>{" "}
       <input
         type="date"
         id="endDate"
