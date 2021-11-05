@@ -234,8 +234,8 @@ const LineChart = () => {
               maintainAspectRatio: false,
               spanGaps: true,
             }}
-            height={500}
-            width={600}
+            height={350}
+            width={450}
           />
         </div>
       </div>
@@ -262,7 +262,7 @@ const LineChart = () => {
           console.log(e.target.value);
         }}
       ></input>
-      <br></br>
+      {"    "}
       <label htmlFor="endDate: ">End Date:</label>{" "}
       <input
         type="date"
