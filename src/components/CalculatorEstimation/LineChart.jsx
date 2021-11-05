@@ -48,144 +48,183 @@ const LineChart = () => {
   };
 
   const queryAndProcessData = async () => {
-    try {
-      let url = "https://api.studio.thegraph.com/query/5655/deth-stats/9";
-      let startTimestamp = toTimestamp(startDate);
-      let endTimestamp = toTimestamp(endDate);
+    //try {
+    let url = "https://api.studio.thegraph.com/query/5655/deth-stats/9";
+    let startTimestamp = toTimestamp(startDate);
+    let endTimestamp = toTimestamp(endDate);
 
-      console.log("Start Time: ", startTimestamp);
-      console.log("End Time: ", endTimestamp);
+    console.log("Start Time: ", startTimestamp);
+    console.log("End Time: ", endTimestamp);
 
-      let dethBought = 0;
-      let tmpTimeStamps = [];
-      let tmpEthRate = [];
-      let tmpDethRate = [];
-      let nextTimestamp = startTimestamp;
-      let endFound = false;
+    let dethBought = 0;
+    let tmpTimeStamps = [];
+    let tmpEthRate = [];
+    let tmpDethRate = [];
+    let nextTimestamp = startTimestamp;
+    let endFound = false;
 
-      // Query the graph api for deth stats
-      setChartLoading(true);
-      while (!endFound) {
-        let graphQuery = makeBatchQuery(nextTimestamp);
-        const result = await axios.post(url, { query: graphQuery });
+    // Query the graph api for deth stats
+    setChartLoading(true);
+    while (!endFound) {
+      let graphQuery = makeBatchQuery(nextTimestamp);
+      const result = await axios.post(url, { query: graphQuery });
 
-        let dataPoints = result.data.data.dataPoints;
-        for (let i = 0; i < dataPoints.length - 1; i++) {
-          tmpEthRate.push(dataPoints[i].ethRate / 10 ** 18);
-          tmpDethRate.push(dataPoints[i].dethRate / 10 ** 18);
-          tmpTimeStamps.push(dataPoints[i].timestamp);
-          if (dataPoints[i].timestamp >= toTimestamp(endDate)) {
-            break;
-          }
-        }
-
-        console.log("Datapoints length: ", dataPoints.length);
-
-        if (dataPoints.length < 1000) {
-          endFound = true;
-        } else {
-          if (
-            endDate !== "" &&
-            tmpTimeStamps[tmpTimeStamps.length - 1] > toTimestamp(endDate)
-          ) {
-            break;
-          }
-          nextTimestamp = dataPoints[dataPoints.length - 1].timestamp;
+      let dataPoints = result.data.data.dataPoints;
+      for (let i = 0; i < dataPoints.length - 1; i++) {
+        tmpEthRate.push(dataPoints[i].ethRate / 10 ** 18);
+        tmpDethRate.push(dataPoints[i].dethRate / 10 ** 18);
+        tmpTimeStamps.push(dataPoints[i].timestamp);
+        if (dataPoints[i].timestamp >= toTimestamp(endDate)) {
+          break;
         }
       }
 
-      dethBought = tmpDethRate[0] * buyAmount;
-      console.log("buyAmount: ", buyAmount);
-      console.log("Eth rate: ", tmpEthRate);
-      console.log("timestamps: ", tmpTimeStamps);
-      console.log("Deth Bought", dethBought);
+      console.log("Datapoints length: ", dataPoints.length);
 
-      let tmpEthPrices = [];
-      let tmpDethRedemptionPrice = [];
-
-      // query eth price data from exchange
-      const priceData = await axios.get(
-        "https://poloniex.com/public?command=returnChartData&currencyPair=USDT_ETH&start=" +
-          tmpTimeStamps[0] +
-          "&end=" +
-          tmpTimeStamps[tmpTimeStamps.length - 1] +
-          "&period=1800"
-      );
-
-      // Merge ETH price data from exchange with timestamps from the graph deth query
-      let startValue = 0;
-      for (var i = 0; i < tmpTimeStamps.length - 1; i++) {
-        for (var k = startValue; k < priceData.data.length; k++) {
-          if (
-            parseInt(tmpTimeStamps[i]) >= priceData.data[k]["date"] &&
-            parseInt(tmpTimeStamps[i]) <= priceData.data[k + 1]["date"]
-          ) {
-            tmpEthPrices.push(priceData.data[k]["close"] * buyAmount);
-            tmpDethRedemptionPrice.push(
-              parseFloat(priceData.data[k]["close"]) *
-                parseFloat(tmpEthRate[i] * dethBought)
-            );
-            startValue = k;
-            break;
-          }
+      if (dataPoints.length < 1000) {
+        endFound = true;
+      } else {
+        if (
+          endDate !== "" &&
+          tmpTimeStamps[tmpTimeStamps.length - 1] > toTimestamp(endDate)
+        ) {
+          break;
         }
+        nextTimestamp = dataPoints[dataPoints.length - 1].timestamp;
       }
-
-      // Get date strings
-      let tmpDates = [];
-      for (let i = 0; i < tmpTimeStamps.length; i++) {
-        tmpDates.push(timeConverter(parseInt(tmpTimeStamps[i])));
-      }
-
-      console.log(tmpEthPrices);
-
-      // Set graph data
-      setTimestamps(tmpDates);
-      setEthPrice(tmpEthPrices);
-      setDethRedemptionPrice(tmpDethRedemptionPrice);
-
-      // Calculate final postion/growth values
-      let endEthPrice =
-        parseFloat(tmpEthPrices[tmpEthPrices.length - 1]) /
-        parseFloat(buyAmount);
-
-      let startEthPrice = parseFloat(tmpEthPrices[0]) / parseFloat(buyAmount);
-
-      console.log("Eth end Price: ", endEthPrice);
-
-      let endEthPosition =
-        tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1] / endEthPrice;
-
-      setFinalEthValue(endEthPosition);
-
-      setFinalDollarValue(
-        tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1]
-      );
-
-      setPercentageEthGrowth(
-        (tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1] /
-          tmpEthPrices[tmpEthPrices.length - 1] -
-          1) *
-          100.0
-      );
-
-      setPercentageDollarGrowth(
-        (tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1] /
-          tmpEthPrices[0] -
-          1) *
-          100.0
-      );
-
-      setFinalDollarValueNoDeth(tmpEthPrices[tmpEthPrices.length - 1]);
-
-      setPercentageDollarGrowthNoDeth(
-        (tmpEthPrices[tmpEthPrices.length - 1] / tmpEthPrices[0] - 1) * 100.0
-      );
-
-      setChartLoading(false);
-    } catch (error) {
-      console.error(error);
     }
+
+    dethBought = tmpDethRate[0] * buyAmount;
+    console.log("buyAmount: ", buyAmount);
+    console.log("Eth rate: ", tmpEthRate);
+    console.log("timestamps: ", tmpTimeStamps);
+    console.log("Deth Bought", dethBought);
+
+    let tmpEthPrices = [];
+    let tmpDethRedemptionPrice = [];
+    let startTime = "1627344000";
+    let endTime = "9999999999";
+
+    // query eth price data from exchange
+    const priceData = await axios.get(
+      "https://poloniex.com/public?command=returnChartData&currencyPair=USDT_ETH&start=" +
+        startTime +
+        "&end=" +
+        endTime +
+        "&period=14400"
+    );
+
+    // Merge ETH price data from exchange with timestamps from the graph deth query
+    let startValue = 0;
+    // for (var i = 0; i < tmpTimeStamps.length - 1; i++) {
+    //   for (var k = startValue; k < priceData.data.length; k++) {
+    //     if (
+    //       parseInt(tmpTimeStamps[i]) >= priceData.data[k]["date"] &&
+    //       parseInt(tmpTimeStamps[i]) <= priceData.data[k + 1]["date"]
+    //     ) {
+    //       tmpEthPrices.push(priceData.data[k]["close"] * buyAmount);
+    //       tmpDethRedemptionPrice.push(
+    //         parseFloat(priceData.data[k]["close"]) *
+    //           parseFloat(tmpEthRate[i] * dethBought)
+    //       );
+    //       startValue = k;
+    //       break;
+    //     }
+    //   }
+    // }
+    let tmpDates = [];
+    for (var i = 0; i < priceData.data.length - 1; i++) {
+      tmpDethRedemptionPrice.push(NaN);
+      tmpEthPrices.push(priceData.data[i]["close"] * buyAmount);
+      tmpDates.push(timeConverter(parseInt(priceData.data[i]["date"])));
+
+      // for (var k = startValue; k < tmpTimeStamps.length - 1; k++) {
+      //   if (
+      //     parseInt(tmpTimeStamps[k]) >= priceData.data[i]["date"] &&
+      //     parseInt(tmpTimeStamps[k]) <= priceData.data[i + 1]["date"]
+      //   ) {
+      //     tmpEthPrices[i] = priceData.data[k]["close"] * buyAmount;
+      //     tmpDethRedemptionPrice[i] =
+      //       parseFloat(priceData.data[k]["close"]) *
+      //       parseFloat(tmpEthRate[i] * dethBought);
+      //     startValue = k;
+      //     break;
+      //   }
+      // }
+    }
+
+    for (var k = 0; k < priceData.data.length - 1; k++) {
+      for (var i = startValue; i < tmpTimeStamps.length - 1; i++) {
+        // console.log("Comparing: ", parseInt(tmpTimeStamps[i]));
+        // console.log("with: ", parseInt(priceData.data[k]["date"]));
+        if (
+          parseInt(tmpTimeStamps[i]) >= parseInt(priceData.data[k]["date"]) &&
+          parseInt(tmpTimeStamps[i]) <= parseInt(priceData.data[k + 1]["date"])
+        ) {
+          tmpDethRedemptionPrice[k] =
+            parseFloat(priceData.data[k]["close"]) *
+            parseFloat(tmpEthRate[i] * dethBought);
+
+          console.log("POOPER DOOPERs");
+          startValue = i;
+          break;
+        }
+      }
+    }
+
+    // Get date strings
+    // let tmpDates = [];
+    // for (let i = 0; i < tmpTimeStamps.length; i++) {
+    //   tmpDates.push(timeConverter(parseInt(tmpTimeStamps[i])));
+    // }
+
+    // // Set graph data
+    setTimestamps(tmpDates);
+    setEthPrice(tmpEthPrices);
+    setDethRedemptionPrice(tmpDethRedemptionPrice);
+
+    // Calculate final postion/growth values
+    // let endEthPrice =
+    //   parseFloat(tmpEthPrices[tmpEthPrices.length - 1]) /
+    //   parseFloat(buyAmount);
+
+    // let startEthPrice = parseFloat(tmpEthPrices[0]) / parseFloat(buyAmount);
+
+    // console.log("Eth end Price: ", endEthPrice);
+
+    // let endEthPosition =
+    //   tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1] / endEthPrice;
+
+    // setFinalEthValue(endEthPosition);
+
+    // setFinalDollarValue(
+    //   tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1]
+    // );
+
+    // setPercentageEthGrowth(
+    //   (tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1] /
+    //     tmpEthPrices[tmpEthPrices.length - 1] -
+    //     1) *
+    //     100.0
+    // );
+
+    // setPercentageDollarGrowth(
+    //   (tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1] /
+    //     tmpEthPrices[0] -
+    //     1) *
+    //     100.0
+    // );
+
+    // setFinalDollarValueNoDeth(tmpEthPrices[tmpEthPrices.length - 1]);
+
+    // setPercentageDollarGrowthNoDeth(
+    //   (tmpEthPrices[tmpEthPrices.length - 1] / tmpEthPrices[0] - 1) * 100.0
+    // );
+
+    setChartLoading(false);
+    // } catch (error) {
+    //   console.error(error);
+    // }
   };
 
   function timeConverter(UNIX_timestamp) {
