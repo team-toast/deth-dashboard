@@ -193,11 +193,12 @@ const LineChart = () => {
     var year = a.getFullYear();
     var month = a.getMonth() + 1;
     var date = a.getDate();
-    var hour = a.getHours();
-    var min = a.getMinutes();
+    var hour = "0" + a.getHours();
+    var min = "0" + a.getMinutes();
     var sec = a.getSeconds();
-    var time = date + "/" + month + "/" + year + " " + hour + ":" + min;
-    return time;
+    var date = date + "/" + month + "/" + year;
+    var time = hour.toString().substr(-2) + ":" + min.toString().substr(-2);
+    return date + " " + time;
   }
 
   return (
