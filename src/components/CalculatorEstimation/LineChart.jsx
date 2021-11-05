@@ -62,7 +62,8 @@ const LineChart = () => {
       let tmpDethRate = [];
       let nextTimestamp = startTimestamp;
       let endFound = false;
-      // Query the graph for deth stats
+
+      // Query the graph api for deth stats
       setChartLoading(true);
       while (!endFound) {
         let graphQuery = makeBatchQuery(nextTimestamp);
@@ -238,7 +239,7 @@ const LineChart = () => {
           />
         </div>
       </div>
-      <label for="ethAmount: ">Pruchase Amount (ETH):</label>{" "}
+      <label htmlfor="ethAmount: ">Pruchase Amount (ETH):</label>{" "}
       <input
         type="number"
         id="ethAmount"
@@ -250,7 +251,7 @@ const LineChart = () => {
         }}
       ></input>
       <br></br>
-      <label for="startDate: ">Start Date:</label>{" "}
+      <label htmlfor="startDate: ">Start Date:</label>{" "}
       <input
         type="date"
         id="startDate"
@@ -262,7 +263,7 @@ const LineChart = () => {
         }}
       ></input>
       <br></br>
-      <label for="endDate: ">End Date:</label>{" "}
+      <label htmlfor="endDate: ">End Date:</label>{" "}
       <input
         type="date"
         id="endDate"
