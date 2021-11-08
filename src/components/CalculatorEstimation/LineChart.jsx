@@ -115,68 +115,48 @@ const LineChart = () => {
     );
 
     // Merge ETH price data from exchange with timestamps from the graph deth query
-    let startValue = 0;
-    // for (var i = 0; i < tmpTimeStamps.length - 1; i++) {
-    //   for (var k = startValue; k < priceData.data.length; k++) {
-    //     if (
-    //       parseInt(tmpTimeStamps[i]) >= priceData.data[k]["date"] &&
-    //       parseInt(tmpTimeStamps[i]) <= priceData.data[k + 1]["date"]
-    //     ) {
-    //       tmpEthPrices.push(priceData.data[k]["close"] * buyAmount);
-    //       tmpDethRedemptionPrice.push(
-    //         parseFloat(priceData.data[k]["close"]) *
-    //           parseFloat(tmpEthRate[i] * dethBought)
-    //       );
-    //       startValue = k;
-    //       break;
-    //     }
-    //   }
-    // }
+    console.log("Starting merge");
+
     let tmpDates = [];
     for (var i = 0; i < priceData.data.length - 1; i++) {
       tmpDethRedemptionPrice.push(NaN);
       tmpEthPrices.push(priceData.data[i]["close"] * buyAmount);
       tmpDates.push(timeConverter(parseInt(priceData.data[i]["date"])));
-
-      // for (var k = startValue; k < tmpTimeStamps.length - 1; k++) {
-      //   if (
-      //     parseInt(tmpTimeStamps[k]) >= priceData.data[i]["date"] &&
-      //     parseInt(tmpTimeStamps[k]) <= priceData.data[i + 1]["date"]
-      //   ) {
-      //     tmpEthPrices[i] = priceData.data[k]["close"] * buyAmount;
-      //     tmpDethRedemptionPrice[i] =
-      //       parseFloat(priceData.data[k]["close"]) *
-      //       parseFloat(tmpEthRate[i] * dethBought);
-      //     startValue = k;
-      //     break;
-      //   }
-      // }
     }
 
+    let finalRedemptionValue = 0;
+    let redemptionValue = 0;
+    let startEthValue = 0;
+    let finalEthValue = 0;
+    let startValue = 0;
     for (var k = 0; k < priceData.data.length - 1; k++) {
       for (var i = startValue; i < tmpTimeStamps.length - 1; i++) {
-        // console.log("Comparing: ", parseInt(tmpTimeStamps[i]));
-        // console.log("with: ", parseInt(priceData.data[k]["date"]));
         if (
           parseInt(tmpTimeStamps[i]) >= parseInt(priceData.data[k]["date"]) &&
           parseInt(tmpTimeStamps[i]) <= parseInt(priceData.data[k + 1]["date"])
         ) {
-          tmpDethRedemptionPrice[k] =
+          redemptionValue =
             parseFloat(priceData.data[k]["close"]) *
             parseFloat(tmpEthRate[i] * dethBought);
+          tmpDethRedemptionPrice[k] = redemptionValue;
+          console.log(i);
 
-          console.log("POOPER DOOPERs");
+          finalRedemptionValue = redemptionValue;
+          finalEthValue = priceData.data[k]["close"];
+
+          if (i === 0) {
+            startEthValue = priceData.data[k]["close"];
+            console.log("Start Eth value found");
+          }
+
           startValue = i;
           break;
         }
       }
     }
+    console.log("End merge");
 
-    // Get date strings
-    // let tmpDates = [];
-    // for (let i = 0; i < tmpTimeStamps.length; i++) {
-    //   tmpDates.push(timeConverter(parseInt(tmpTimeStamps[i])));
-    // }
+    console.log("Number of stamps", tmpTimeStamps.length);
 
     // // Set graph data
     setTimestamps(tmpDates);
@@ -184,42 +164,30 @@ const LineChart = () => {
     setDethRedemptionPrice(tmpDethRedemptionPrice);
 
     // Calculate final postion/growth values
-    // let endEthPrice =
-    //   parseFloat(tmpEthPrices[tmpEthPrices.length - 1]) /
-    //   parseFloat(buyAmount);
+    let endEthPrice =
+      parseFloat(tmpEthPrices[tmpEthPrices.length - 1]) / parseFloat(buyAmount);
 
-    // let startEthPrice = parseFloat(tmpEthPrices[0]) / parseFloat(buyAmount);
+    let startEthPrice = parseFloat(tmpEthPrices[0]) / parseFloat(buyAmount);
 
-    // console.log("Eth end Price: ", endEthPrice);
+    console.log("Eth end Price: ", finalEthValue);
 
-    // let endEthPosition =
-    //   tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1] / endEthPrice;
+    let endEthPosition = finalRedemptionValue / finalEthValue;
 
-    // setFinalEthValue(endEthPosition);
+    setFinalEthValue(endEthPosition);
 
-    // setFinalDollarValue(
-    //   tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1]
-    // );
+    setFinalDollarValue(finalRedemptionValue);
 
-    // setPercentageEthGrowth(
-    //   (tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1] /
-    //     tmpEthPrices[tmpEthPrices.length - 1] -
-    //     1) *
-    //     100.0
-    // );
+    setPercentageEthGrowth((finalRedemptionValue / finalEthValue - 1) * 100.0);
 
-    // setPercentageDollarGrowth(
-    //   (tmpDethRedemptionPrice[tmpDethRedemptionPrice.length - 1] /
-    //     tmpEthPrices[0] -
-    //     1) *
-    //     100.0
-    // );
+    setPercentageDollarGrowth(
+      (finalRedemptionValue / startEthValue - 1) * 100.0
+    );
 
-    // setFinalDollarValueNoDeth(tmpEthPrices[tmpEthPrices.length - 1]);
+    setFinalDollarValueNoDeth(finalEthValue);
 
-    // setPercentageDollarGrowthNoDeth(
-    //   (tmpEthPrices[tmpEthPrices.length - 1] / tmpEthPrices[0] - 1) * 100.0
-    // );
+    setPercentageDollarGrowthNoDeth(
+      (finalEthValue / startEthValue - 1) * 100.0
+    );
 
     setChartLoading(false);
     // } catch (error) {
