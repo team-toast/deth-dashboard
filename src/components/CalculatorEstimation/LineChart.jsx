@@ -1,13 +1,15 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
+import LoadingOverlay from "react-loading-overlay";
 
 import { Line } from "react-chartjs-2";
 
 const LineChart = () => {
   const [timestamps, setTimestamps] = useState([]);
+  const [exchangeEthData, setExchangeEthData] = useState();
   const [ethPrice, setEthPrice] = useState([]);
   const [dethRedemptionPrice, setDethRedemptionPrice] = useState([]);
-  const [startDate, setStartDate] = useState("2021-09-25");
+  const [startDate, setStartDate] = useState("2021-09-29");
   const [endDate, setEndDate] = useState("2021-10-17");
   const [finalEthValue, setFinalEthValue] = useState(0);
   const [finalDollarValue, setFinalDollarValue] = useState(0);
@@ -17,7 +19,8 @@ const LineChart = () => {
   const [percentageDollarGrowthNoDeth, setPercentageDollarGrowthNoDeth] =
     useState(0);
   const [buyAmount, setBuyAmount] = useState(1.0);
-  const [chartLoading, setChartLoading] = useState(true);
+  const [chartLoading, setChartLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   const axios = require("axios");
 
@@ -104,13 +107,22 @@ const LineChart = () => {
       let endTime = "9999999999";
 
       // query eth price data from exchange
-      const priceData = await axios.get(
-        "https://poloniex.com/public?command=returnChartData&currencyPair=USDT_ETH&start=" +
-          startTime +
-          "&end=" +
-          endTime +
-          "&period=14400"
-      );
+      let priceData = null;
+      if (!exchangeEthData) {
+        console.log("Getting exchange data");
+        priceData = await axios.get(
+          "https://poloniex.com/public?command=returnChartData&currencyPair=USDT_ETH&start=" +
+            startTime +
+            "&end=" +
+            endTime +
+            "&period=14400"
+        );
+
+        setExchangeEthData(priceData);
+      } else {
+        console.log("Already got exchange data");
+        priceData = exchangeEthData;
+      }
 
       // Merge ETH price data from exchange with timestamps from the graph deth query
       console.log("Starting merge");
@@ -202,97 +214,119 @@ const LineChart = () => {
     var sec = a.getSeconds();
     var date = date + "/" + month + "/" + year;
     var time = hour.toString().substr(-2) + ":" + min.toString().substr(-2);
+
     return date + " " + time;
   }
 
   return (
     <div>
       <div>
-        <div>{chartLoading && <h3>Loading...</h3>}</div>
-        <div>
-          <Line
-            data={{
-              labels: timestamps,
-              datasets: [
-                {
-                  label: "dETH Valuation",
-                  data: dethRedemptionPrice,
-                  borderColor: "rgb(75, 0, 0)",
-                  borderWidth: 2,
-                  fill: false,
-                  pointRadius: 0,
-                  pointHitRadius: 20,
-                },
-                {
-                  label: "ETH Valuation",
-                  data: ethPrice,
-                  borderColor: "rgb(0, 192, 0)",
-                  borderWidth: 2,
-                  fill: false,
-                  pointRadius: 0,
-                  pointHitRadius: 20,
-                },
-              ],
-            }}
-            options={{
-              maintainAspectRatio: false,
-              spanGaps: true,
-            }}
-            height={350}
-            width={450}
-          />
-        </div>
-      </div>
-      <label htmlFor="ethAmount: ">Pruchase Amount (ETH):</label>{" "}
-      <input
-        type="number"
-        id="ethAmount"
-        name="ethAmount"
-        defaultValue={1.0}
-        onChange={(e) => {
-          setBuyAmount(e.target.value);
-          console.log(e.target.value);
-        }}
-      ></input>
-      <br></br>
-      <label htmlFor="startDate: ">Entry Date:</label>{" "}
-      <input
-        type="date"
-        id="startDate"
-        name="startDate"
-        max={endDate}
-        min={"2021-07-27"}
-        onChange={(e) => {
-          setStartDate(e.target.value);
-          console.log(e.target.value);
-        }}
-      ></input>
-      {"    "}
-      <label htmlFor="endDate: ">Exit Date:</label>{" "}
-      <input
-        type="date"
-        id="endDate"
-        name="endDate"
-        min={startDate}
-        onChange={(e) => {
-          setEndDate(e.target.value);
-          console.log(e.target.value);
-        }}
-      ></input>
-      <br></br>
-      <button onClick={viewRange}>Calculate</button>
-      <div>
-        <h3>Performace Summary</h3>
-        <p>
-          Final ETH Value: {finalEthValue.toFixed(2)} ({" "}
-          {percentageEthGrowth.toFixed(2)}% Growth)
-          <br></br>
-          Final Dollar Value {finalDollarValue.toFixed(2)} (
-          {percentageDollarGrowth.toFixed(2)}% Growth)
-          <br></br>
-          Final Dollar Value without dEth {finalDollarValueNoDeth.toFixed(2)} (
-          {percentageDollarGrowthNoDeth.toFixed(2)}% Growth)
-        </p>
+        {"Depositing "}
+        <input
+          type="number"
+          id="ethAmount"
+          name="ethAmount"
+          defaultValue={1.0}
+          onChange={(e) => {
+            setBuyAmount(e.target.value);
+            console.log(e.target.value);
+          }}
+        ></input>
+        {" (ETH) on "}
+
+        <input
+          type="date"
+          id="startDate"
+          name="startDate"
+          max={endDate}
+          min={"2021-07-27"}
+          defaultValue={startDate}
+          onChange={(e) => {
+            setStartDate(e.target.value);
+            console.log(e.target.value);
+          }}
+        ></input>
+        {" and withdrawing on "}
+
+        <input
+          type="date"
+          id="endDate"
+          name="endDate"
+          min={startDate}
+          defaultValue={endDate}
+          onChange={(e) => {
+            setEndDate(e.target.value);
+            console.log(e.target.value);
+          }}
+        ></input>
+        {" would give me: "}
+        <br></br>
+        <br></br>
+        <button onClick={viewRange}>Calculate</button>
+
+        <br></br>
+        <br></br>
+        <LoadingOverlay
+          active={chartLoading}
+          spinner
+          text="Calculating..."
+          fadeSpeed="1000"
+          styles={{
+            overlay: (base) => ({
+              ...base,
+              background: "rgba(150, 150, 150, 0.5)",
+              zIndex: 0,
+            }),
+          }}
+        >
+          <div>
+            <h3>Performace Summary</h3>
+            <p>
+              Final ETH amount: {finalEthValue.toFixed(2)} ({" "}
+              {percentageEthGrowth.toFixed(2)}% Growth)
+              <br></br>
+              Final Dollar amount: ${finalDollarValue.toFixed(2)} (
+              {percentageDollarGrowth.toFixed(2)}% Growth)
+              <br></br>
+              If you only held ETH: ${finalDollarValueNoDeth.toFixed(2)} (
+              {percentageDollarGrowthNoDeth.toFixed(2)}% Growth)
+            </p>
+          </div>
+          <div>
+            <div>
+              <Line
+                data={{
+                  labels: timestamps,
+                  datasets: [
+                    {
+                      label: "dETH Valuation",
+                      data: dethRedemptionPrice,
+                      borderColor: "rgb(0, 0, 0)",
+                      borderWidth: 4,
+                      fill: false,
+                      pointRadius: 0,
+                      pointHitRadius: 20,
+                    },
+                    {
+                      label: "ETH Valuation",
+                      data: ethPrice,
+                      borderColor: "rgb(0, 192, 0)",
+                      borderWidth: 2,
+                      fill: false,
+                      pointRadius: 0,
+                      pointHitRadius: 20,
+                    },
+                  ],
+                }}
+                options={{
+                  maintainAspectRatio: false,
+                  spanGaps: true,
+                }}
+                height={350}
+              />
+            </div>
+          </div>
+        </LoadingOverlay>
       </div>
     </div>
   );
