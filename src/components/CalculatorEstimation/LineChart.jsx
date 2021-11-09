@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 import LoadingOverlay from "react-loading-overlay";
+import styled from "styled-components";
 
 import { Line } from "react-chartjs-2";
 
@@ -21,13 +22,17 @@ const LineChart = () => {
     useState(0);
   const [buyAmount, setBuyAmount] = useState(1.0);
   const [chartLoading, setChartLoading] = useState("");
-  const [error, setError] = useState(false);
 
   const axios = require("axios");
 
   useEffect(() => {
-    queryAndProcessData();
-  }, []);
+    clearTimeout(timeout);
+    const timeout = setTimeout(() => {
+      queryAndProcessData();
+    }, 3000);
+
+    return () => clearTimeout(timeout);
+  }, [startDate, endDate, buyAmount]);
 
   const toTimestamp = (strDate) => {
     var datum = Date.parse(strDate);
@@ -218,7 +223,6 @@ const LineChart = () => {
     var date = a.getDate();
     var hour = "0" + a.getHours();
     var min = "0" + a.getMinutes();
-    var sec = a.getSeconds();
     var date = date + "/" + month + "/" + year;
     var time = hour.toString().substr(-2) + ":" + min.toString().substr(-2);
 
@@ -237,7 +241,7 @@ const LineChart = () => {
 
   return (
     <div>
-      <div>
+      <BodyDiv>
         {"If I deposited "}
         <input
           type="number"
@@ -263,7 +267,7 @@ const LineChart = () => {
             console.log(e.target.value);
           }}
         ></input>
-        {" and withdrawn on "}
+        {" and withdrew on "}
 
         <input
           type="date"
@@ -278,9 +282,9 @@ const LineChart = () => {
           }}
         ></input>
         {" my position value would be: "}
+        {/* <br></br>
         <br></br>
-        <br></br>
-        <button onClick={viewRange}>Calculate</button>
+        <button onClick={viewRange}>Calculate</button> */}
 
         <br></br>
         <br></br>
@@ -339,15 +343,29 @@ const LineChart = () => {
                 options={{
                   maintainAspectRatio: false,
                   spanGaps: true,
+                  scales: {
+                    y: {
+                      ticks: {
+                        callback: function (value, index, values) {
+                          return "$" + value;
+                        },
+                      },
+                    },
+                  },
                 }}
                 height={350}
               />
             </div>
           </div>
         </LoadingOverlay>
-      </div>
+      </BodyDiv>
     </div>
   );
 };
 
 export default LineChart;
+
+const BodyDiv = styled.div`
+  align-items: center;
+  text-align: center;
+`;
