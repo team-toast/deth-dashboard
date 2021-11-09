@@ -11,8 +11,8 @@ const LineChart = () => {
   const [exchangeEthData, setExchangeEthData] = useState();
   const [ethPrice, setEthPrice] = useState([]);
   const [dethRedemptionPrice, setDethRedemptionPrice] = useState([]);
-  const [startDate, setStartDate] = useState("2021-09-29");
-  const [endDate, setEndDate] = useState("2021-10-17");
+  const [startDate, setStartDate] = useState("2021-07-27");
+  const [endDate, setEndDate] = useState("2021-11-09");
   const [finalEthValue, setFinalEthValue] = useState(0);
   const [finalDollarValue, setFinalDollarValue] = useState(0);
   const [percentageDollarGrowth, setPercentageDollarGrowth] = useState(0);
@@ -22,6 +22,7 @@ const LineChart = () => {
     useState(0);
   const [buyAmount, setBuyAmount] = useState(1.0);
   const [chartLoading, setChartLoading] = useState("");
+  const [firstEndDateSet, setFirstEndDateSet] = useState(false);
 
   const axios = require("axios");
 
@@ -60,6 +61,11 @@ const LineChart = () => {
       //tmpCurrentDate = tmpCurrentDate.substr(0, tmpCurrentDate.indexOf(" "));
       setCurrentDate(tmpCurrentDate);
       console.log("Current Date: ", tmpCurrentDate);
+
+      if (!firstEndDateSet) {
+        setEndDate(tmpCurrentDate);
+        setFirstEndDateSet(true);
+      }
 
       let url = "https://api.studio.thegraph.com/query/5655/deth-stats/1";
       let startTimestamp = toTimestamp(startDate);
