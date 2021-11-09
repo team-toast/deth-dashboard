@@ -6,6 +6,7 @@ import { Line } from "react-chartjs-2";
 
 const LineChart = () => {
   const [timestamps, setTimestamps] = useState([]);
+  const [currentDate, setCurrentDate] = useState("2021-11-08");
   const [exchangeEthData, setExchangeEthData] = useState();
   const [ethPrice, setEthPrice] = useState([]);
   const [dethRedemptionPrice, setDethRedemptionPrice] = useState([]);
@@ -19,7 +20,7 @@ const LineChart = () => {
   const [percentageDollarGrowthNoDeth, setPercentageDollarGrowthNoDeth] =
     useState(0);
   const [buyAmount, setBuyAmount] = useState(1.0);
-  const [chartLoading, setChartLoading] = useState(false);
+  const [chartLoading, setChartLoading] = useState("");
   const [error, setError] = useState(false);
 
   const axios = require("axios");
@@ -50,6 +51,11 @@ const LineChart = () => {
 
   const queryAndProcessData = async () => {
     try {
+      let tmpCurrentDate = timeConverter2(Date.now() / 1000);
+      //tmpCurrentDate = tmpCurrentDate.substr(0, tmpCurrentDate.indexOf(" "));
+      setCurrentDate(tmpCurrentDate);
+      console.log("Current Date: ", tmpCurrentDate);
+
       let url = "https://api.studio.thegraph.com/query/5655/deth-stats/9";
       let startTimestamp = toTimestamp(startDate);
       let endTimestamp = toTimestamp(endDate);
@@ -65,7 +71,7 @@ const LineChart = () => {
       let endFound = false;
 
       // Query the graph api for deth stats
-      setChartLoading(true);
+      setChartLoading("Calculating...");
       while (!endFound) {
         let graphQuery = makeBatchQuery(nextTimestamp);
         const result = await axios.post(url, { query: graphQuery });
@@ -198,9 +204,10 @@ const LineChart = () => {
         (finalEthValue / startEthValue - 1) * 100.0
       );
 
-      setChartLoading(false);
+      setChartLoading("");
     } catch (error) {
       console.error(error);
+      setChartLoading("An Error Occurred.");
     }
   };
 
@@ -218,10 +225,20 @@ const LineChart = () => {
     return date + " " + time;
   }
 
+  function timeConverter2(UNIX_timestamp) {
+    var a = new Date(UNIX_timestamp * 1000);
+    var year = a.getFullYear();
+    var month = a.getMonth() + 1;
+    var date = "0" + a.getDate();
+    var date = year + "-" + month + "-" + date.toString().substr(-2);
+
+    return date;
+  }
+
   return (
     <div>
       <div>
-        {"Depositing "}
+        {"If I deposited "}
         <input
           type="number"
           id="ethAmount"
@@ -232,7 +249,7 @@ const LineChart = () => {
             console.log(e.target.value);
           }}
         ></input>
-        {" (ETH) on "}
+        {" ETH into dETH on "}
 
         <input
           type="date"
@@ -246,20 +263,21 @@ const LineChart = () => {
             console.log(e.target.value);
           }}
         ></input>
-        {" and withdrawing on "}
+        {" and withdrawn on "}
 
         <input
           type="date"
           id="endDate"
           name="endDate"
           min={startDate}
+          max={currentDate}
           defaultValue={endDate}
           onChange={(e) => {
             setEndDate(e.target.value);
             console.log(e.target.value);
           }}
         ></input>
-        {" would give me: "}
+        {" my position value would be: "}
         <br></br>
         <br></br>
         <button onClick={viewRange}>Calculate</button>
@@ -268,8 +286,8 @@ const LineChart = () => {
         <br></br>
         <LoadingOverlay
           active={chartLoading}
-          spinner
-          text="Calculating..."
+          spinner={chartLoading !== "An Error Occurred."}
+          text={chartLoading}
           fadeSpeed="1000"
           styles={{
             overlay: (base) => ({
@@ -280,7 +298,7 @@ const LineChart = () => {
           }}
         >
           <div>
-            <h3>Performace Summary</h3>
+            <h3>Performance Summary</h3>
             <p>
               Final ETH amount: {finalEthValue.toFixed(2)} ({" "}
               {percentageEthGrowth.toFixed(2)}% Growth)
@@ -299,16 +317,16 @@ const LineChart = () => {
                   labels: timestamps,
                   datasets: [
                     {
-                      label: "dETH Valuation",
+                      label: "dETH Position",
                       data: dethRedemptionPrice,
                       borderColor: "rgb(0, 0, 0)",
-                      borderWidth: 4,
+                      borderWidth: 3,
                       fill: false,
                       pointRadius: 0,
                       pointHitRadius: 20,
                     },
                     {
-                      label: "ETH Valuation",
+                      label: "ETH Position",
                       data: ethPrice,
                       borderColor: "rgb(0, 192, 0)",
                       borderWidth: 2,
