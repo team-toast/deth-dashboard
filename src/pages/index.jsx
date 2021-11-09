@@ -254,9 +254,7 @@ export default function Home({ ethPrice }) {
             </div>
           </Col>
           <Col hidesm hidexs size={1}>
-            <StyledSpan>
-              Welcome to dETH, where ETH gains are squared.
-            </StyledSpan>
+            <StyledSpan></StyledSpan>
           </Col>
           <StyledConnectCol size={1}>
             {walletAddress ? (
@@ -696,8 +694,8 @@ const StyledHeader = styled.header`
 
 export async function getServerSideProps({ req, res }) {
   res.setHeader(
-    'Cache-Control',
-    'public, s-maxage=20, stale-while-revalidate=59'
+    "Cache-Control",
+    "public, s-maxage=20, stale-while-revalidate=59"
   );
   const ethPrice = await axios(
     `https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=ETH,USD`

@@ -47,8 +47,8 @@ const LineChart = () => {
     return `{
         dataPoints(first: 1000, orderBy: timestamp, orderDirection: asc, where: { timestamp_gt: "${fromTimeStamp}" }) {
             id
-            ethRate
-            dethRate
+            ethRedeemablePerDeth
+            dethRedeemablePerEth
             timestamp
         }
     }`;
@@ -61,7 +61,7 @@ const LineChart = () => {
       setCurrentDate(tmpCurrentDate);
       console.log("Current Date: ", tmpCurrentDate);
 
-      let url = "https://api.studio.thegraph.com/query/5655/deth-stats/9";
+      let url = "https://api.studio.thegraph.com/query/5655/deth-stats/1";
       let startTimestamp = toTimestamp(startDate);
       let endTimestamp = toTimestamp(endDate);
 
@@ -83,8 +83,8 @@ const LineChart = () => {
 
         let dataPoints = result.data.data.dataPoints;
         for (let i = 0; i < dataPoints.length - 1; i++) {
-          tmpEthRate.push(dataPoints[i].ethRate / 10 ** 18);
-          tmpDethRate.push(dataPoints[i].dethRate / 10 ** 18);
+          tmpEthRate.push(dataPoints[i].ethRedeemablePerDeth / 10 ** 18);
+          tmpDethRate.push(dataPoints[i].dethRedeemablePerEth / 10 ** 18);
           tmpTimeStamps.push(dataPoints[i].timestamp);
           if (dataPoints[i].timestamp >= toTimestamp(endDate)) {
             break;
