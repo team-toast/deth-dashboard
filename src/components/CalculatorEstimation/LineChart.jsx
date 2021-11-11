@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import LoadingOverlay from "react-loading-overlay";
 import styled from "styled-components";
+import "chartjs-adapter-moment";
 
 import { Line } from "react-chartjs-2";
 
@@ -121,8 +122,8 @@ const LineChart = () => {
 
       let tmpEthPrices = [];
       let tmpDethRedemptionPrice = [];
-      let startTime = "1627344000";
-      let endTime = "9999999999";
+      let startTimeStamp = "1627344000";
+      let endTimeStamp = "9999999999";
 
       // query eth price data from exchange
       let priceData = null;
@@ -130,9 +131,9 @@ const LineChart = () => {
         console.log("Getting exchange data");
         priceData = await axios.get(
           "https://poloniex.com/public?command=returnChartData&currencyPair=USDT_ETH&start=" +
-            startTime +
+            startTimeStamp +
             "&end=" +
-            endTime +
+            endTimeStamp +
             "&period=14400"
         );
 
@@ -149,8 +150,10 @@ const LineChart = () => {
       for (var i = 0; i < priceData.data.length - 1; i++) {
         tmpDethRedemptionPrice.push(NaN);
         tmpEthPrices.push(priceData.data[i]["close"] * buyAmount);
-        tmpDates.push(timeConverter(parseInt(priceData.data[i]["date"])));
+        tmpDates.push(parseInt(priceData.data[i]["date"]));
       }
+
+      console.log("First number of stamps: ", priceData.data.length);
 
       let finalRedemptionValue = 0;
       let redemptionValue = 0;
@@ -187,11 +190,22 @@ const LineChart = () => {
 
       console.log("Number of stamps", tmpTimeStamps.length);
 
-      // // Set graph data
-      setTimestamps(tmpDates);
-      setEthPrice(tmpEthPrices);
-      setDethRedemptionPrice(tmpDethRedemptionPrice);
+      // Set graph data
 
+      let tmpEthObjects = [];
+      let tmpDethRedemptionObjects = [];
+      for (let i = 0; i < tmpDates.length; i++) {
+        tmpEthObjects.push({
+          x: parseInt(tmpDates[i] * 1000),
+          y: tmpEthPrices[i],
+        });
+        tmpDethRedemptionObjects.push({
+          x: parseInt(tmpDates[i] * 1000),
+          y: tmpDethRedemptionPrice[i],
+        });
+      }
+      setEthPrice(tmpEthObjects);
+      setDethRedemptionPrice(tmpDethRedemptionObjects);
       // Calculate final postion/growth values
 
       console.log("Eth end Price: ", finalEthValue);
@@ -325,17 +339,8 @@ const LineChart = () => {
             <div>
               <Line
                 data={{
-                  labels: timestamps,
+                  //labels: timestamps,
                   datasets: [
-                    {
-                      label: "dETH Position",
-                      data: dethRedemptionPrice,
-                      borderColor: "rgb(0, 0, 0)",
-                      borderWidth: 3,
-                      fill: false,
-                      pointRadius: 0,
-                      pointHitRadius: 20,
-                    },
                     {
                       label: "ETH Position",
                       data: ethPrice,
@@ -345,12 +350,27 @@ const LineChart = () => {
                       pointRadius: 0,
                       pointHitRadius: 20,
                     },
+                    {
+                      label: "dETH Position",
+                      data: dethRedemptionPrice,
+                      borderColor: "rgb(0, 0, 0)",
+                      borderWidth: 3,
+                      fill: false,
+                      pointRadius: 0,
+                      pointHitRadius: 20,
+                    },
                   ],
                 }}
                 options={{
                   maintainAspectRatio: false,
-                  spanGaps: true,
+
                   scales: {
+                    xAxis: {
+                      type: "time",
+                      time: {
+                        unit: "month",
+                      },
+                    },
                     y: {
                       ticks: {
                         callback: function (value, index, values) {
