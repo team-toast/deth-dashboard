@@ -67,7 +67,8 @@ const LineChart = () => {
         setFirstEndDateSet(true);
       }
 
-      let url = "https://api.studio.thegraph.com/query/5655/deth-stats/1";
+      let url =
+        "https://api.thegraph.com/subgraphs/name/coinop-logan/deth-stats";
       let startTimestamp = toTimestamp(startDate);
       let endTimestamp = toTimestamp(endDate);
 
