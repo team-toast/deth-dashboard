@@ -189,14 +189,10 @@ const LineChart = () => {
 
       console.log("Number of stamps", tmpTimeStamps.length);
 
-      // // Set graph data
-      //setTimestamps(tmpDates);
-      //setEthPrice(tmpEthPrices);
-      //setDethRedemptionPrice(tmpDethRedemptionPrice);
+      // Set graph data
 
       let tmpEthObjects = [];
       let tmpDethRedemptionObjects = [];
-      let tmp;
       for (let i = 0; i < tmpDates.length; i++) {
         tmpEthObjects.push({
           x: parseInt(tmpDates[i] * 1000),
@@ -371,7 +367,7 @@ const LineChart = () => {
                     xAxis: {
                       type: "time",
                       time: {
-                        unit: "day",
+                        unit: "month",
                       },
                     },
                     y: {
