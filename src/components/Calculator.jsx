@@ -4,15 +4,18 @@ import { Row, Col } from "./../styles/flex-grid";
 import { sizes, colors } from "./../styles/styleguide";
 import Deposit from "./calculator/Deposit";
 import DethCalculation from "./calculator/DethCalculation";
+import WalletState from "./WalletState";
 
 export default function Calculator({
   eTHbalance,
   dETHbalance,
   walletAddress,
   web3,
+  web3Detect,
   dETHtoETHvalue,
   getDETHbalanceFunc,
   getETHbalanceFunc,
+  setWallet,
 }) {
   const [deposit, setDeposit] = useState(true);
   return (
@@ -41,6 +44,19 @@ export default function Calculator({
           />
         </StyledReverseRow>
       </GridContainer>
+      {!walletAddress && (
+        <WalletState
+          eTHbalance={eTHbalance}
+          dETHbalance={dETHbalance}
+          walletAddress={walletAddress}
+          web3={web3}
+          web3Detect={web3Detect}
+          dETHtoETHvalue={dETHtoETHvalue}
+          getDETHbalanceFunc={getDETHbalanceFunc}
+          getETHbalanceFunc={getETHbalanceFunc}
+          setWallet={setWallet}
+        />
+      )}
     </StyledSection>
   );
 }
@@ -54,6 +70,7 @@ const StyledSection = styled.div`
   padding: 4em 1em;
   width: 100%;
   display: block;
+  position: relative;
 `;
 
 const GridContainer = styled.div`
