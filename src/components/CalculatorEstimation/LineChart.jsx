@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
-// import LoadingOverlay from "react-loading-overlay";
+import LoadingOverlay from "react-loading-overlay";
 import styled from "styled-components";
 
 import { Line } from "react-chartjs-2";
@@ -294,7 +294,7 @@ const LineChart = () => {
 
         <br></br>
         <br></br>
-        {/* <LoadingOverlay
+        <LoadingOverlay
           active={chartLoading}
           spinner={chartLoading !== "An Error Occurred."}
           text={chartLoading}
@@ -306,64 +306,64 @@ const LineChart = () => {
               zIndex: 0,
             }),
           }}
-        > */}
-        <div>
-          <h3>Performance Summary</h3>
-          <p>
-            Final ETH amount: {finalEthValue.toFixed(2)} ({" "}
-            {percentageEthGrowth.toFixed(2)}% Growth)
-            <br></br>
-            Final Dollar amount: ${finalDollarValue.toFixed(2)} (
-            {percentageDollarGrowth.toFixed(2)}% Growth)
-            <br></br>
-            If you only held ETH: ${finalDollarValueNoDeth.toFixed(2)} (
-            {percentageDollarGrowthNoDeth.toFixed(2)}% Growth)
-          </p>
-        </div>
-        <div>
+        >
           <div>
-            <Line
-              data={{
-                labels: timestamps,
-                datasets: [
-                  {
-                    label: "dETH Position",
-                    data: dethRedemptionPrice,
-                    borderColor: "rgb(0, 0, 0)",
-                    borderWidth: 3,
-                    fill: false,
-                    pointRadius: 0,
-                    pointHitRadius: 20,
-                  },
-                  {
-                    label: "ETH Position",
-                    data: ethPrice,
-                    borderColor: "rgb(0, 192, 0)",
-                    borderWidth: 2,
-                    fill: false,
-                    pointRadius: 0,
-                    pointHitRadius: 20,
-                  },
-                ],
-              }}
-              options={{
-                maintainAspectRatio: false,
-                spanGaps: true,
-                scales: {
-                  y: {
-                    ticks: {
-                      callback: function (value, index, values) {
-                        return "$" + value;
+            <h3>Performance Summary</h3>
+            <p>
+              Final ETH amount: {finalEthValue.toFixed(2)} ({" "}
+              {percentageEthGrowth.toFixed(2)}% Growth)
+              <br></br>
+              Final Dollar amount: ${finalDollarValue.toFixed(2)} (
+              {percentageDollarGrowth.toFixed(2)}% Growth)
+              <br></br>
+              If you only held ETH: ${finalDollarValueNoDeth.toFixed(2)} (
+              {percentageDollarGrowthNoDeth.toFixed(2)}% Growth)
+            </p>
+          </div>
+          <div>
+            <div>
+              <Line
+                data={{
+                  labels: timestamps,
+                  datasets: [
+                    {
+                      label: "dETH Position",
+                      data: dethRedemptionPrice,
+                      borderColor: "rgb(0, 0, 0)",
+                      borderWidth: 3,
+                      fill: false,
+                      pointRadius: 0,
+                      pointHitRadius: 20,
+                    },
+                    {
+                      label: "ETH Position",
+                      data: ethPrice,
+                      borderColor: "rgb(0, 192, 0)",
+                      borderWidth: 2,
+                      fill: false,
+                      pointRadius: 0,
+                      pointHitRadius: 20,
+                    },
+                  ],
+                }}
+                options={{
+                  maintainAspectRatio: false,
+                  spanGaps: true,
+                  scales: {
+                    y: {
+                      ticks: {
+                        callback: function (value, index, values) {
+                          return "$" + value;
+                        },
                       },
                     },
                   },
-                },
-              }}
-              height={350}
-            />
+                }}
+                height={350}
+              />
+            </div>
           </div>
-        </div>
-        {/* </LoadingOverlay> */}
+        </LoadingOverlay>
       </BodyDiv>
     </div>
   );
