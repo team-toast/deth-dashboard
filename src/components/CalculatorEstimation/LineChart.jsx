@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import LoadingOverlay from "react-loading-overlay";
 import styled from "styled-components";
+import MultiRangeSlider from "./MultiRangeSlider";
 
 import { Line } from "react-chartjs-2";
 
@@ -21,8 +22,11 @@ const LineChart = () => {
   const [percentageDollarGrowthNoDeth, setPercentageDollarGrowthNoDeth] =
     useState(0);
   const [buyAmount, setBuyAmount] = useState(1.0);
-  const [chartLoading, setChartLoading] = useState("");
+  const [chartLoading, setChartLoading] = useState(true);
+  const [chartLoadingText, setChartLoadingText] = useState("");
   const [firstEndDateSet, setFirstEndDateSet] = useState(false);
+  const [minSlider, setMinSlider] = useState("");
+  const [maxSlider, setMaxSlider] = useState("");
 
   const axios = require("axios");
 
@@ -30,18 +34,57 @@ const LineChart = () => {
     clearTimeout(timeout);
     const timeout = setTimeout(() => {
       queryAndProcessData();
-    }, 3000);
+    }, 2500);
 
     return () => clearTimeout(timeout);
   }, [startDate, endDate, buyAmount]);
 
+  useEffect(() => {
+    let minRatio = minSlider / 1000;
+    let maxRatio = maxSlider / 1000;
+
+    let minDateIndex = Math.round(minRatio * timestamps.length);
+    let minDate = timestamps[minDateIndex];
+    let maxDateIndex = Math.round(maxRatio * timestamps.length);
+    let maxDate = timestamps[maxDateIndex];
+
+    // Change date format
+    if (minDate && maxDate) {
+      let tmpMinDate = minDate.substr(0, minDate.indexOf(" "));
+      let tmpMinDateArr = tmpMinDate.split("/");
+
+      let tmpMaxDate = maxDate.substr(0, maxDate.indexOf(" "));
+      let tmpMaxDateArr = tmpMaxDate.split("/");
+
+      for (let i = 0; i < tmpMaxDateArr.length; i++) {
+        if (tmpMaxDateArr[0].length === 1) {
+          tmpMaxDateArr[0] = "0" + tmpMaxDateArr[0];
+        }
+        if (tmpMaxDateArr[1].length === 1) {
+          tmpMaxDateArr[1] = "0" + tmpMaxDateArr[1];
+        }
+        if (tmpMinDateArr[0].length === 1) {
+          tmpMinDateArr[0] = "0" + tmpMinDateArr[0];
+        }
+        if (tmpMinDateArr[1].length === 1) {
+          tmpMinDateArr[1] = "0" + tmpMinDateArr[1];
+        }
+      }
+
+      let minChangedFormat =
+        tmpMinDateArr[2] + "-" + tmpMinDateArr[1] + "-" + tmpMinDateArr[0];
+
+      let maxChangedFormat =
+        tmpMaxDateArr[2] + "-" + tmpMaxDateArr[1] + "-" + tmpMaxDateArr[0];
+
+      setStartDate(minChangedFormat);
+      setEndDate(maxChangedFormat);
+    }
+  }, [minSlider, maxSlider]);
+
   const toTimestamp = (strDate) => {
     var datum = Date.parse(strDate);
     return datum / 1000;
-  };
-
-  const viewRange = () => {
-    queryAndProcessData();
   };
 
   const makeBatchQuery = (fromTimeStamp) => {
@@ -83,7 +126,8 @@ const LineChart = () => {
       let endFound = false;
 
       // Query the graph api for deth stats
-      setChartLoading("Calculating...");
+      setChartLoading(true);
+      setChartLoadingText("Calculating...");
       while (!endFound) {
         let graphQuery = makeBatchQuery(nextTimestamp);
         const result = await axios.post(url, { query: graphQuery });
@@ -216,10 +260,12 @@ const LineChart = () => {
         (finalEthValue / startEthValue - 1) * 100.0
       );
 
-      setChartLoading("");
+      setChartLoading(false);
+      setChartLoadingText("");
     } catch (error) {
       console.error(error);
-      setChartLoading("An Error Occurred.");
+      setChartLoading(false);
+      setChartLoadingText("An error has occurred.");
     }
   };
 
@@ -271,7 +317,7 @@ const LineChart = () => {
           defaultValue={startDate}
           onChange={(e) => {
             setStartDate(e.target.value);
-            console.log(e.target.value);
+            console.log("Start Date: ", e.target.value);
           }}
         ></input>
         {" and withdrew on "}
@@ -297,9 +343,9 @@ const LineChart = () => {
         <br></br>
         <LoadingOverlay
           active={chartLoading}
-          spinner={chartLoading !== "An Error Occurred."}
-          text={chartLoading}
-          fadeSpeed="1000"
+          spinner={chartLoadingText !== "An Error Occurred."}
+          text={chartLoadingText}
+          fadeSpeed={1000}
           styles={{
             overlay: (base) => ({
               ...base,
@@ -366,6 +412,17 @@ const LineChart = () => {
           </div>
         </LoadingOverlay>
       </BodyDiv>
+      <SliderDiv>
+        <br></br>
+        <MultiRangeSlider
+          min={0}
+          max={999}
+          onChange={({ min, max }) => {
+            setMaxSlider(max);
+            setMinSlider(min);
+          }}
+        />
+      </SliderDiv>
     </div>
   );
 };
@@ -375,4 +432,12 @@ export default LineChart;
 const BodyDiv = styled.div`
   align-items: center;
   text-align: center;
+`;
+
+const SliderDiv = styled.div`
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-left: 50px;
+  position: relative;
 `;
