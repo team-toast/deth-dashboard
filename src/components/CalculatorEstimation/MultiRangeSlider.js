@@ -3,7 +3,7 @@ import classnames from "classnames";
 import PropTypes from "prop-types";
 //import "./multiRangeSlider.css";
 
-const MultiRangeSlider = ({ min, max, onChange }) => {
+const MultiRangeSlider = ({ min, max, onChange, minSet, maxSet }) => {
   const [minVal, setMinVal] = useState(min);
   const [maxVal, setMaxVal] = useState(max);
   const minValRef = useRef(null);
@@ -45,6 +45,11 @@ const MultiRangeSlider = ({ min, max, onChange }) => {
   useEffect(() => {
     onChange({ min: minVal, max: maxVal });
   }, [minVal, maxVal, onChange]);
+
+  useEffect(() => {
+    setMinVal(minVal);
+    setMaxVal(maxVal);
+  }, [minSet, maxSet]);
 
   return (
     <div className="container">

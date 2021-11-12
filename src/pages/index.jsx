@@ -336,10 +336,12 @@ export default function Home({ ethPrice }) {
         dETHbalance={dETHbalance}
         walletAddress={walletAddress}
         web3={web3Obj}
+        web3Detect={web3Detect}
         dETHtoETHvalue={dETHtoETHvalue}
         getDETHbalanceFunc={() => getDETHbalance(walletAddress)}
         getETHbalanceFunc={() => getETHbalance(walletAddress)}
         wrongChain={wrongChain}
+        setWallet={setWallet}
       />
       <Media></Media>
     </Layout>
@@ -459,6 +461,7 @@ const DisconnectWallet = styled.div`
   min-width: 14.625em;
   text-align: center;
   box-shadow: 0 0 10px rgb(0 0 0 / 30%);
+  z-index: 1;
   button {
     margin-bottom: 0.5rem;
     text-align: center;
