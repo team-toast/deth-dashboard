@@ -47,8 +47,9 @@ const MultiRangeSlider = ({ min, max, onChange, minSet, maxSet }) => {
   }, [minVal, maxVal, onChange]);
 
   useEffect(() => {
-    setMinVal(minVal);
-    setMaxVal(maxVal);
+    console.log("WHOOOPS");
+    setMinVal(minSet);
+    setMaxVal(maxSet);
   }, [minSet, maxSet]);
 
   return (

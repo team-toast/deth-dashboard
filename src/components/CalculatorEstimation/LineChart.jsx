@@ -29,6 +29,9 @@ const LineChart = () => {
   const [minSlider, setMinSlider] = useState("");
   const [maxSlider, setMaxSlider] = useState("");
   const [sliderMinAdjust, setSliderMinAdjust] = useState(200);
+  const [sliderMaxAdjust, setSliderMaxAdjust] = useState(400);
+  const [startDateIndex, setStartDateIndex] = useState(0);
+  const [endDateIndex, setEndDateIndex] = useState(1000);
 
   const axios = require("axios");
 
@@ -207,6 +210,8 @@ const LineChart = () => {
       let startEthValue = 0;
       let finalEthValue = 0;
       let startValue = 0;
+      let tmpStartIndex = 0;
+      let tmpEndIndex = priceData.data.length - 1;
       for (var k = 0; k < priceData.data.length - 1; k++) {
         for (var i = startValue; i < tmpTimeStamps.length - 1; i++) {
           if (
@@ -222,10 +227,12 @@ const LineChart = () => {
 
             finalRedemptionValue = redemptionValue;
             finalEthValue = tmpEthPrices[k];
+            tmpEndIndex = k;
 
             if (i === 0) {
               startEthValue = tmpEthPrices[k];
               console.log("Start Eth value found");
+              tmpStartIndex = k;
             }
 
             startValue = i;
@@ -233,7 +240,21 @@ const LineChart = () => {
           }
         }
       }
+
+      setStartDateIndex(tmpStartIndex);
+      setEndDateIndex(tmpEndIndex);
       console.log("End merge");
+
+      // Set Slider values
+      let startValueSlider = Math.round(
+        (tmpStartIndex / (priceData.data.length - 1)) * 1000
+      );
+      let endValueSlider = Math.round(
+        (tmpEndIndex / (priceData.data.length - 1)) * 1000
+      );
+
+      // setSliderMinAdjust(startValueSlider);
+      // setSliderMaxAdjust(endValueSlider);
 
       console.log("Number of stamps", tmpTimeStamps.length);
 
@@ -277,8 +298,6 @@ const LineChart = () => {
       setPercentageDollarGrowthNoDeth(
         (finalEthValue / startEthValue - 1) * 100.0
       );
-
-      setSliderMinAdjust(500);
 
       setChartLoading(false);
       setChartLoadingText("");
@@ -326,9 +345,10 @@ const LineChart = () => {
             console.log(e.target.value);
           }}
         ></input>
+
         {" ETH into dETH on "}
 
-        <input
+        {/* <input
           type="date"
           id="startDate"
           name="startDate"
@@ -337,12 +357,14 @@ const LineChart = () => {
           value={startDate}
           onChange={(e) => {
             setStartDate(e.target.value);
+
             console.log("Start Date: ", e.target.value);
           }}
-        ></input>
+        ></input> */}
+        {startDate}
         {" and withdrew on "}
 
-        <input
+        {/* <input
           type="date"
           id="endDate"
           name="endDate"
@@ -351,9 +373,11 @@ const LineChart = () => {
           value={endDate}
           onChange={(e) => {
             setEndDate(e.target.value);
+            setSliderMinAdjust(100);
             console.log(e.target.value);
           }}
-        ></input>
+        ></input> */}
+        {endDate}
         {" my position value would be: "}
         {/* <br></br>
         <br></br>
@@ -444,7 +468,7 @@ const LineChart = () => {
           min={0}
           max={999}
           minSet={sliderMinAdjust}
-          maxSet={500}
+          maxSet={sliderMaxAdjust}
           onChange={({ min, max }) => {
             setMaxSlider(max);
             setMinSlider(min);
