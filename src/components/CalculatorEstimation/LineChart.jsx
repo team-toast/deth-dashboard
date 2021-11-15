@@ -14,7 +14,7 @@ const LineChart = () => {
   const [ethPrice, setEthPrice] = useState([]);
   const [dethRedemptionPrice, setDethRedemptionPrice] = useState([]);
   const [startDate, setStartDate] = useState("2021-07-27");
-  const [endDate, setEndDate] = useState("2021-11-09");
+  const [endDate, setEndDate] = useState(timeConverter2(Date.now() / 1000));
   const [finalEthValue, setFinalEthValue] = useState(0);
   const [finalDollarValue, setFinalDollarValue] = useState(0);
   const [percentageDollarGrowth, setPercentageDollarGrowth] = useState(0);
@@ -28,21 +28,33 @@ const LineChart = () => {
   const [firstEndDateSet, setFirstEndDateSet] = useState(false);
   const [minSlider, setMinSlider] = useState("");
   const [maxSlider, setMaxSlider] = useState("");
-  const [sliderMinAdjust, setSliderMinAdjust] = useState(200);
-  const [sliderMaxAdjust, setSliderMaxAdjust] = useState(400);
+  const [sliderMinAdjust, setSliderMinAdjust] = useState(0);
+  const [sliderMaxAdjust, setSliderMaxAdjust] = useState(1000);
   const [startDateIndex, setStartDateIndex] = useState(0);
   const [endDateIndex, setEndDateIndex] = useState(1000);
+  const [dontTakeInput, setDontTakeInput] = useState(false);
 
   const axios = require("axios");
 
   useEffect(() => {
     clearTimeout(timeout);
     const timeout = setTimeout(() => {
+      //if (!dontTakeInput) {
       queryAndProcessData();
+      //}
     }, 500);
 
     return () => clearTimeout(timeout);
   }, [startDate, endDate, buyAmount]);
+
+  useEffect(() => {
+    clearTimeout(timeout);
+    const timeout = setTimeout(() => {
+      setDontTakeInput(false);
+    }, 1500);
+
+    return () => clearTimeout(timeout);
+  }, [dontTakeInput]);
 
   useEffect(() => {
     let minRatio = minSlider / 1000;
@@ -105,15 +117,7 @@ const LineChart = () => {
 
   const queryAndProcessData = async () => {
     try {
-      let tmpCurrentDate = timeConverter2(Date.now() / 1000);
-      //tmpCurrentDate = tmpCurrentDate.substr(0, tmpCurrentDate.indexOf(" "));
-      setCurrentDate(tmpCurrentDate);
-      console.log("Current Date: ", tmpCurrentDate);
-
-      if (!firstEndDateSet) {
-        setEndDate(tmpCurrentDate);
-        setFirstEndDateSet(true);
-      }
+      setDontTakeInput(true);
 
       let url =
         "https://api.thegraph.com/subgraphs/name/coinop-logan/deth-stats";
@@ -253,8 +257,8 @@ const LineChart = () => {
         (tmpEndIndex / (priceData.data.length - 1)) * 1000
       );
 
-      // setSliderMinAdjust(startValueSlider);
-      // setSliderMaxAdjust(endValueSlider);
+      setSliderMinAdjust(startValueSlider);
+      setSliderMaxAdjust(endValueSlider + 5);
 
       console.log("Number of stamps", tmpTimeStamps.length);
 
@@ -345,10 +349,9 @@ const LineChart = () => {
             console.log(e.target.value);
           }}
         ></input>
-
         {" ETH into dETH on "}
 
-        {/* <input
+        <input
           type="date"
           id="startDate"
           name="startDate"
@@ -360,24 +363,22 @@ const LineChart = () => {
 
             console.log("Start Date: ", e.target.value);
           }}
-        ></input> */}
-        {startDate}
+        ></input>
         {" and withdrew on "}
 
-        {/* <input
+        <input
           type="date"
           id="endDate"
           name="endDate"
           min={startDate}
-          max={currentDate}
+          max={timeConverter2(Date.now() / 1000)}
           value={endDate}
           onChange={(e) => {
             setEndDate(e.target.value);
-            setSliderMinAdjust(100);
+            //setSliderMinAdjust(100);
             console.log(e.target.value);
           }}
-        ></input> */}
-        {endDate}
+        ></input>
         {" my position value would be: "}
         {/* <br></br>
         <br></br>
