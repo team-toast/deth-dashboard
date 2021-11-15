@@ -9,7 +9,6 @@ import { Line } from "react-chartjs-2";
 
 const LineChart = () => {
   const [timestamps, setTimestamps] = useState([]);
-  const [currentDate, setCurrentDate] = useState("2021-11-08");
   const [exchangeEthData, setExchangeEthData] = useState();
   const [ethPrice, setEthPrice] = useState([]);
   const [dethRedemptionPrice, setDethRedemptionPrice] = useState([]);
@@ -25,13 +24,10 @@ const LineChart = () => {
   const [buyAmount, setBuyAmount] = useState(1.0);
   const [chartLoading, setChartLoading] = useState(true);
   const [chartLoadingText, setChartLoadingText] = useState("");
-  const [firstEndDateSet, setFirstEndDateSet] = useState(false);
-  const [minSlider, setMinSlider] = useState("");
-  const [maxSlider, setMaxSlider] = useState("");
-  const [sliderMinAdjust, setSliderMinAdjust] = useState(0);
-  const [sliderMaxAdjust, setSliderMaxAdjust] = useState(1000);
-  const [startDateIndex, setStartDateIndex] = useState(0);
-  const [endDateIndex, setEndDateIndex] = useState(1000);
+  const [minSlider, setMinSlider] = useState(1);
+  const [maxSlider, setMaxSlider] = useState(999);
+  const [sliderMinAdjust, setSliderMinAdjust] = useState(1);
+  const [sliderMaxAdjust, setSliderMaxAdjust] = useState(999);
   const [dontTakeInput, setDontTakeInput] = useState(false);
 
   const axios = require("axios");
@@ -42,19 +38,19 @@ const LineChart = () => {
       //if (!dontTakeInput) {
       queryAndProcessData();
       //}
-    }, 500);
+    }, 1000);
 
     return () => clearTimeout(timeout);
   }, [startDate, endDate, buyAmount]);
 
-  useEffect(() => {
-    clearTimeout(timeout);
-    const timeout = setTimeout(() => {
-      setDontTakeInput(false);
-    }, 1500);
+  // useEffect(() => {
+  //   clearTimeout(timeout);
+  //   const timeout = setTimeout(() => {
+  //     setDontTakeInput(false);
+  //   }, 1000);
 
-    return () => clearTimeout(timeout);
-  }, [dontTakeInput]);
+  //   return () => clearTimeout(timeout);
+  // }, [dontTakeInput]);
 
   useEffect(() => {
     let minRatio = minSlider / 1000;
@@ -244,9 +240,6 @@ const LineChart = () => {
           }
         }
       }
-
-      setStartDateIndex(tmpStartIndex);
-      setEndDateIndex(tmpEndIndex);
       console.log("End merge");
 
       // Set Slider values
@@ -254,11 +247,14 @@ const LineChart = () => {
         (tmpStartIndex / (priceData.data.length - 1)) * 1000
       );
       let endValueSlider = Math.round(
-        (tmpEndIndex / (priceData.data.length - 1)) * 1000
+        (tmpEndIndex / (priceData.data.length - 1)) * 1000 + 5
       );
+      if (endValueSlider > 999) {
+        endValueSlider = 999;
+      }
 
       setSliderMinAdjust(startValueSlider);
-      setSliderMaxAdjust(endValueSlider + 5);
+      setSliderMaxAdjust(endValueSlider);
 
       console.log("Number of stamps", tmpTimeStamps.length);
 
@@ -363,6 +359,7 @@ const LineChart = () => {
 
             console.log("Start Date: ", e.target.value);
           }}
+          disabled={chartLoading}
         ></input>
         {" and withdrew on "}
 
@@ -378,6 +375,7 @@ const LineChart = () => {
             //setSliderMinAdjust(100);
             console.log(e.target.value);
           }}
+          disabled={chartLoading}
         ></input>
         {" my position value would be: "}
         {/* <br></br>
@@ -474,6 +472,7 @@ const LineChart = () => {
             setMaxSlider(max);
             setMinSlider(min);
           }}
+          disable={chartLoading}
         />
       </SliderDiv>
     </div>
