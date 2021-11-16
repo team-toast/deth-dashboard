@@ -4,6 +4,8 @@ import LoadingOverlay from "react-loading-overlay";
 import styled from "styled-components";
 import "chartjs-adapter-moment";
 
+import { Row, Col } from "./../../styles/flex-grid";
+
 import { Line } from "react-chartjs-2";
 
 const LineChart = () => {
@@ -326,17 +328,32 @@ const LineChart = () => {
           }}
         >
           <div>
-            <h3>Performance Summary</h3>
-            <p>
-              Final ETH amount: {finalEthValue.toFixed(2)} ({" "}
-              {percentageEthGrowth.toFixed(2)}% Growth)
-              <br></br>
-              Final Dollar amount: ${finalDollarValue.toFixed(2)} (
-              {percentageDollarGrowth.toFixed(2)}% Growth)
-              <br></br>
-              If you only held ETH: ${finalDollarValueNoDeth.toFixed(2)} (
-              {percentageDollarGrowthNoDeth.toFixed(2)}% Growth)
-            </p>
+            <Row className="text-left" xsNoflex>
+              <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
+                <strong>
+                  {finalEthValue.toFixed(2)} ({percentageEthGrowth.toFixed(2)}%
+                  Growth)
+                </strong>
+                <br />
+                Final ETH amount
+              </Col>
+              <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
+                <strong>
+                  ${finalDollarValue.toFixed(2)} (
+                  {percentageDollarGrowth.toFixed(2)}% Growth)
+                </strong>
+                <br />
+                Final Dollar amount
+              </Col>
+              <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
+                <strong>
+                  ${finalDollarValueNoDeth.toFixed(2)} (
+                  {percentageDollarGrowthNoDeth.toFixed(2)}% Growth)
+                </strong>
+                <br />
+                If you only held ETH
+              </Col>
+            </Row>
           </div>
           <div>
             <div>

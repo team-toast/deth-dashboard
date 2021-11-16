@@ -125,8 +125,14 @@ button, .button {
     &-top-2 {
         margin-top: 2em;
     }
+    &-bottom-1 {
+        margin-bottom: 1em;
+    }
     &-bottom-2 {
         margin-bottom: 2em;
+    }
+    &-right-2 {
+        margin-right: 2em;
     }
 }
 .text-transform {
