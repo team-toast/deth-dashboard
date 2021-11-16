@@ -131,6 +131,9 @@ button, .button {
     &-bottom-2 {
         margin-bottom: 2em;
     }
+    &-bottom-3 {
+        margin-bottom: 3em;
+    }
     &-right-2 {
         margin-right: 2em;
     }

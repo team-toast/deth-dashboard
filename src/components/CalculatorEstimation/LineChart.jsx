@@ -328,7 +328,13 @@ const LineChart = () => {
           }}
         >
           <div>
-            <Row className="text-left" xsNoflex>
+            <EarningsRow className="text-left margin-bottom-2" xsNoflex>
+              <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
+                <StyledEthImg></StyledEthImg>
+                <strong>Ethereum</strong>
+                <br />
+                <span>from dETH</span>
+              </Col>
               <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
                 <strong>
                   {finalEthValue.toFixed(2)} ({percentageEthGrowth.toFixed(2)}%
@@ -353,7 +359,7 @@ const LineChart = () => {
                 <br />
                 If you only held ETH
               </Col>
-            </Row>
+            </EarningsRow>
           </div>
           <div>
             <div>
@@ -373,7 +379,7 @@ const LineChart = () => {
                     {
                       label: "dETH Position",
                       data: dethRedemptionPrice,
-                      borderColor: "rgb(0, 0, 0)",
+                      borderColor: "#2E2942",
                       borderWidth: 3,
                       fill: false,
                       pointRadius: 0,
@@ -411,6 +417,23 @@ const LineChart = () => {
 };
 
 export default LineChart;
+
+const StyledEthImg = styled.div`
+  background: #2e2942 url(/ethereum-brands.svg) no-repeat center;
+  height: 35px;
+  width: 35px;
+  float: left;
+  margin-right: 1rem;
+  background-size: 16px;
+  border-radius: 100%;
+`;
+
+const EarningsRow = styled(Row)`
+  justify-content: center;
+  strong {
+    font-size: 18px;
+  }
+`;
 
 const StyledInput = styled.input`
   margin-top: 1rem;
