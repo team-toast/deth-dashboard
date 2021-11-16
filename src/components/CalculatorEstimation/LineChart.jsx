@@ -372,15 +372,11 @@ const LineChart = () => {
           value={endDate}
           onChange={(e) => {
             setEndDate(e.target.value);
-            //setSliderMinAdjust(100);
             console.log(e.target.value);
           }}
           disabled={chartLoading}
         ></input>
         {" my position value would be: "}
-        {/* <br></br>
-        <br></br>
-        <button onClick={viewRange}>Calculate</button> */}
 
         <br></br>
         <br></br>
@@ -462,7 +458,6 @@ const LineChart = () => {
         </LoadingOverlay>
       </BodyDiv>
       <SliderDiv>
-        <br></br>
         <MultiRangeSlider
           min={0}
           max={999}

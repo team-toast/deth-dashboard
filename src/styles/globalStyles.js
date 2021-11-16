@@ -183,6 +183,7 @@ input {
 
 .container {
     position: relative;
+    margin-top: 15px;
 }
 
 .slider {
