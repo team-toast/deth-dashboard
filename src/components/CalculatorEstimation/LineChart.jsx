@@ -264,19 +264,21 @@ const LineChart = () => {
     <div>
       <BodyDiv>
         {"If I deposited "}
-        <input
+        <StyledInput
           type="number"
           id="ethAmount"
           name="ethAmount"
+          className="input"
           defaultValue={1.0}
           onChange={(e) => {
             setBuyAmount(e.target.value);
             console.log(e.target.value);
           }}
-        ></input>
+        ></StyledInput>
         {" ETH into dETH on "}
 
-        <input
+        <StyledInput
+          className="input"
           type="date"
           id="startDate"
           name="startDate"
@@ -287,10 +289,11 @@ const LineChart = () => {
             setStartDate(e.target.value);
             console.log(e.target.value);
           }}
-        ></input>
+        ></StyledInput>
         {" and withdrew on "}
 
-        <input
+        <StyledInput
+          className="input"
           type="date"
           id="endDate"
           name="endDate"
@@ -301,7 +304,7 @@ const LineChart = () => {
             setEndDate(e.target.value);
             console.log(e.target.value);
           }}
-        ></input>
+        ></StyledInput>
         {" my position value would be: "}
         {/* <br></br>
         <br></br>
@@ -391,6 +394,69 @@ const LineChart = () => {
 };
 
 export default LineChart;
+
+const StyledInput = styled.input`
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  &:disabled {
+    cursor: not-allowed;
+    background: #f3f3f3;
+  }
+  &.slider {
+    -webkit-appearance: none;
+    background: #dddddd;
+    height: 0.32rem;
+    margin-top: 0rem;
+    margin-bottom: 0.8rem;
+    position: relative;
+    &:after {
+      content: " ";
+      width: 6px;
+      height: 30px;
+      border-radius: 3px;
+      background: #dddddd;
+      position: absolute;
+      left: 50%;
+      z-index: 0;
+      margin-left: -2px;
+      margin-top: -10px;
+    }
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #5987db;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      z-index: 1;
+      position: relative;
+      &:active {
+        cursor: grabbing;
+        transition: all 0.25s ease;
+        box-shadow: 0 0 40px 10px #5987db;
+        @media screen and (max-width: 40rem) {
+          box-shadow: none;
+        }
+      }
+    }
+    &::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #5987db;
+      cursor: pointer;
+      border-radius: 0;
+    }
+  }
+  &.input {
+    line-height: 48px;
+    padding: 0 1rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: solid 1px #dddddd;
+    color: #2e2942;
+  }
+`;
 
 const BodyDiv = styled.div`
   align-items: center;
