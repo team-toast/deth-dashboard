@@ -333,7 +333,7 @@ const LineChart = () => {
                 <StyledEthImg></StyledEthImg>
                 <strong>Ethereum</strong>
                 <br />
-                <span>from dETH</span>
+                <span>Gains</span>
               </Col>
               <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
                 <strong>
