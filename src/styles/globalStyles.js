@@ -191,6 +191,10 @@ input {
 .visible-xs {
     display: none;
 }
+._loading_overlay_content {
+    font-weight: bold;
+    font-size: 20px;
+}
 @media screen and (max-width: 48em) {
     .visible-xs {
         display: inline;
