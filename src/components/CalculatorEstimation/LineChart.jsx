@@ -405,28 +405,46 @@ const LineChart = () => {
                 <span>Gains</span>
               </Col>
               <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
-                <strong>
+                <strong>Final ETH amount</strong>
+                <br />
+                <span
+                  className={
+                    percentageEthGrowth.toFixed(2) >= 0
+                      ? "positive"
+                      : "negative"
+                  }
+                >
                   {finalEthValue.toFixed(2)} ({percentageEthGrowth.toFixed(2)}%
                   Growth)
-                </strong>
-                <br />
-                Final ETH amount
+                </span>
               </Col>
               <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
-                <strong>
+                <strong>Final Dollar amount</strong>
+                <br />
+                <span
+                  className={
+                    percentageDollarGrowth.toFixed(2) >= 0
+                      ? "positive"
+                      : "negative"
+                  }
+                >
                   ${finalDollarValue.toFixed(2)} (
                   {percentageDollarGrowth.toFixed(2)}% Growth)
-                </strong>
-                <br />
-                Final Dollar amount
+                </span>
               </Col>
               <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
-                <strong>
+                <strong>If you only held ETH</strong>
+                <br />
+                <span
+                  className={
+                    percentageDollarGrowthNoDeth.toFixed(2) >= 0
+                      ? "positive"
+                      : "negative"
+                  }
+                >
                   ${finalDollarValueNoDeth.toFixed(2)} (
                   {percentageDollarGrowthNoDeth.toFixed(2)}% Growth)
-                </strong>
-                <br />
-                If you only held ETH
+                </span>
               </Col>
             </EarningsRow>
           </div>
@@ -515,6 +533,12 @@ const EarningsRow = styled(Row)`
   justify-content: center;
   strong {
     font-size: 18px;
+  }
+  .positive {
+    color: #49b560;
+  }
+  .negative {
+    color: #db596d;
   }
 `;
 
