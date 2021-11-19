@@ -125,8 +125,17 @@ button, .button {
     &-top-2 {
         margin-top: 2em;
     }
+    &-bottom-1 {
+        margin-bottom: 1em;
+    }
     &-bottom-2 {
         margin-bottom: 2em;
+    }
+    &-bottom-3 {
+        margin-bottom: 3em;
+    }
+    &-right-2 {
+        margin-right: 2em;
     }
 }
 .text-transform {
@@ -146,6 +155,10 @@ button, .button {
 }
 .hidden {
     display: none;
+}
+._loading_overlay_wrapper {
+    padding-bottom: 6rem;
+    padding-top: 1rem;
 }
 input {
     outline: none;
@@ -175,7 +188,17 @@ input {
     font-size: 0.9rem;
     color: #888;
 }
+.visible-xs {
+    display: none;
+}
+._loading_overlay_content {
+    font-weight: bold;
+    font-size: 20px;
+}
 @media screen and (max-width: 48em) {
+    .visible-xs {
+        display: inline;
+    }
     .hide-xs {
         display: none;
     }

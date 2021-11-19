@@ -5,6 +5,8 @@ import styled from "styled-components";
 import MultiRangeSlider from "./MultiRangeSlider";
 import "chartjs-adapter-moment";
 
+import { Row, Col } from "./../../styles/flex-grid";
+
 import { Line } from "react-chartjs-2";
 
 const LineChart = () => {
@@ -334,20 +336,22 @@ const LineChart = () => {
   return (
     <div>
       <BodyDiv>
-        {"If I deposited "}
-        <input
+        If I <strong>deposited</strong>
+        <StyledInput
           type="number"
           id="ethAmount"
           name="ethAmount"
+          className="input icon eth-icon"
           defaultValue={1.0}
           onChange={(e) => {
             setBuyAmount(e.target.value);
             console.log(e.target.value);
           }}
-        ></input>
-        {" ETH into dETH on "}
-
-        <input
+        ></StyledInput>
+        <strong>ETH</strong> <br className="visible-xs" />
+        into <strong>dETH</strong> on
+        <StyledInput
+          className="input"
           type="date"
           id="startDate"
           name="startDate"
@@ -360,10 +364,10 @@ const LineChart = () => {
             console.log("Start Date: ", e.target.value);
           }}
           disabled={chartLoading}
-        ></input>
-        {" and withdrew on "}
-
-        <input
+        ></StyledInput>
+        <span className="hide-xs">and</span> <strong>withdrew</strong> on
+        <StyledInput
+          className="input"
           type="date"
           id="endDate"
           name="endDate"
@@ -375,9 +379,7 @@ const LineChart = () => {
             console.log(e.target.value);
           }}
           disabled={chartLoading}
-        ></input>
-        {" my position value would be: "}
-
+        ></StyledInput>
         <br></br>
         <br></br>
         <LoadingOverlay
@@ -388,23 +390,63 @@ const LineChart = () => {
           styles={{
             overlay: (base) => ({
               ...base,
-              background: "rgba(150, 150, 150, 0.5)",
-              zIndex: 0,
+              background: "rgba(255,255,255,0.9)",
+              zIndex: 5,
+              color: "#2E2942",
             }),
           }}
         >
           <div>
-            <h3>Performance Summary</h3>
-            <p>
-              Final ETH amount: {finalEthValue.toFixed(2)} ({" "}
-              {percentageEthGrowth.toFixed(2)}% Growth)
-              <br></br>
-              Final Dollar amount: ${finalDollarValue.toFixed(2)} (
-              {percentageDollarGrowth.toFixed(2)}% Growth)
-              <br></br>
-              If you only held ETH: ${finalDollarValueNoDeth.toFixed(2)} (
-              {percentageDollarGrowthNoDeth.toFixed(2)}% Growth)
-            </p>
+            <EarningsRow className="text-left margin-bottom-2" xsNoflex>
+              <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
+                <StyledEthImg></StyledEthImg>
+                <strong>Ethereum</strong>
+                <br />
+                <span>Gains</span>
+              </Col>
+              <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
+                <strong>Final ETH amount</strong>
+                <br />
+                <span
+                  className={
+                    percentageEthGrowth.toFixed(2) >= 0
+                      ? "positive"
+                      : "negative"
+                  }
+                >
+                  {finalEthValue.toFixed(2)} ({percentageEthGrowth.toFixed(2)}%
+                  Growth)
+                </span>
+              </Col>
+              <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
+                <strong>Final Dollar amount</strong>
+                <br />
+                <span
+                  className={
+                    percentageDollarGrowth.toFixed(2) >= 0
+                      ? "positive"
+                      : "negative"
+                  }
+                >
+                  ${finalDollarValue.toFixed(2)} (
+                  {percentageDollarGrowth.toFixed(2)}% Growth)
+                </span>
+              </Col>
+              <Col size={"0 0 auto"} className="margin-bottom-1 margin-right-2">
+                <strong>If you only held ETH</strong>
+                <br />
+                <span
+                  className={
+                    percentageDollarGrowthNoDeth.toFixed(2) >= 0
+                      ? "positive"
+                      : "negative"
+                  }
+                >
+                  ${finalDollarValueNoDeth.toFixed(2)} (
+                  {percentageDollarGrowthNoDeth.toFixed(2)}% Growth)
+                </span>
+              </Col>
+            </EarningsRow>
           </div>
           <div>
             <div>
@@ -424,7 +466,7 @@ const LineChart = () => {
                     {
                       label: "dETH Position",
                       data: dethRedemptionPrice,
-                      borderColor: "rgb(0, 0, 0)",
+                      borderColor: "#2E2942",
                       borderWidth: 3,
                       fill: false,
                       pointRadius: 0,
@@ -476,6 +518,111 @@ const LineChart = () => {
 
 export default LineChart;
 
+const StyledEthImg = styled.div`
+  background: #2e2942 url(/ethereum-brands.svg) no-repeat center;
+  height: 35px;
+  width: 35px;
+  float: left;
+  margin-right: 1rem;
+  background-size: 16px;
+  border-radius: 100%;
+  margin-top: 7px;
+`;
+
+const EarningsRow = styled(Row)`
+  justify-content: center;
+  strong {
+    font-size: 18px;
+  }
+  .positive {
+    color: #49b560;
+  }
+  .negative {
+    color: #db596d;
+  }
+`;
+
+const StyledInput = styled.input`
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  &:disabled {
+    cursor: not-allowed;
+    background: #f3f3f3;
+  }
+  &.slider {
+    -webkit-appearance: none;
+    background: #dddddd;
+    height: 0.32rem;
+    margin-top: 0rem;
+    margin-bottom: 0.8rem;
+    position: relative;
+    &:after {
+      content: " ";
+      width: 6px;
+      height: 30px;
+      border-radius: 3px;
+      background: #dddddd;
+      position: absolute;
+      left: 50%;
+      z-index: 0;
+      margin-left: -2px;
+      margin-top: -10px;
+    }
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #5987db;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      z-index: 1;
+      position: relative;
+      &:active {
+        cursor: grabbing;
+        transition: all 0.25s ease;
+        box-shadow: 0 0 40px 10px #5987db;
+        @media screen and (max-width: 40rem) {
+          box-shadow: none;
+        }
+      }
+    }
+    &::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #5987db;
+      cursor: pointer;
+      border-radius: 0;
+    }
+  }
+  &.input {
+    line-height: 48px;
+    padding: 0 1rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: solid 1px #dddddd;
+    color: #2e2942;
+    margin: 0 1rem 1rem;
+    &.icon {
+      padding-left: 3rem;
+      &.eth-icon {
+        background-image: url(/ethereum-brands-black.svg);
+        background-repeat: no-repeat;
+        background-size: 16px;
+        background-position: 16px center;
+
+        padding-left: 3rem;
+        width: 116px;
+        text-align: right;
+        padding-right: 0;
+        @media screen and (max-width: 48em) {
+          padding-right: 1rem;
+        }
+      }
+    }
+  }
+`;
+
 const BodyDiv = styled.div`
   align-items: center;
   text-align: center;
@@ -487,4 +634,5 @@ const SliderDiv = styled.div`
   width: 100%;
   padding-left: 50px;
   position: relative;
+  margin-top: -5rem;
 `;
